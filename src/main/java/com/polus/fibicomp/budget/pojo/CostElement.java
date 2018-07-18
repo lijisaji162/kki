@@ -1,8 +1,7 @@
-package com.polus.fibicomp.budget.common.pojo;
+package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Timestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,14 +11,12 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
-@Table(name = "COST_ELEMENT")
+@Table(name = "FIBI_COST_ELEMENT")
 public class CostElement implements Serializable, Comparable<CostElement> {
 
 	private static final long serialVersionUID = 1L;
@@ -30,6 +27,10 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 
 	@Column(name = "BUDGET_CATEGORY_CODE")
 	private String budgetCategoryCode;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@JoinColumn(name = "BUDGET_CATEGORY_CODE", referencedColumnName = "BUDGET_CATEGORY_CODE", insertable = false, updatable = false)
+	private BudgetCategory budgetCategory;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
@@ -45,19 +46,15 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 	@Column(name = "FIN_OBJECT_CODE")
 	private String financialObjectCode;
 
-	@OneToMany(mappedBy = "costElementBo", fetch = FetchType.EAGER)
-	// @FilterGenerator(attributeName = "active", attributeValue = "true")
-	private List<ValidCeRateType> validCeRateTypes;
+	@Column(name = "UPDATE_TIMESTAMP")
+	private Timestamp updateTimeStamp;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-	@JoinColumn(name = "BUDGET_CATEGORY_CODE", referencedColumnName = "BUDGET_CATEGORY_CODE", insertable = false, updatable = false)
-	private BudgetCategory budgetCategory;
+	@Column(name = "UPDATE_USER")
+	private String updateUser;
 
-	@Transient
-	private String budgetCategoryTypeCode;
-
-	public CostElement() {
-		validCeRateTypes = new ArrayList<ValidCeRateType>();
+	@Override
+	public int compareTo(CostElement costElement) {
+		return this.costElement.compareTo(costElement.costElement);
 	}
 
 	public String getCostElement() {
@@ -74,6 +71,14 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 
 	public void setBudgetCategoryCode(String budgetCategoryCode) {
 		this.budgetCategoryCode = budgetCategoryCode;
+	}
+
+	public BudgetCategory getBudgetCategory() {
+		return budgetCategory;
+	}
+
+	public void setBudgetCategory(BudgetCategory budgetCategory) {
+		this.budgetCategory = budgetCategory;
 	}
 
 	public String getDescription() {
@@ -108,36 +113,23 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 		this.financialObjectCode = financialObjectCode;
 	}
 
-	public List<ValidCeRateType> getValidCeRateTypes() {
-		return validCeRateTypes;
+	public Timestamp getUpdateTimeStamp() {
+		return updateTimeStamp;
 	}
 
-	public void setValidCeRateTypes(List<ValidCeRateType> validCeRateTypes) {
-		this.validCeRateTypes = validCeRateTypes;
+	public void setUpdateTimeStamp(Timestamp updateTimeStamp) {
+		this.updateTimeStamp = updateTimeStamp;
 	}
 
-	public BudgetCategory getBudgetCategory() {
-		return budgetCategory;
+	public String getUpdateUser() {
+		return updateUser;
 	}
 
-	public void setBudgetCategory(BudgetCategory budgetCategory) {
-		this.budgetCategory = budgetCategory;
-	}
-
-	public String getBudgetCategoryTypeCode() {
-		return budgetCategoryTypeCode;
-	}
-
-	public void setBudgetCategoryTypeCode(String budgetCategoryTypeCode) {
-		this.budgetCategoryTypeCode = budgetCategoryTypeCode;
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-
-	@Override
-	public int compareTo(CostElement costElement) {
-		return this.costElement.compareTo(costElement.costElement);
 	}
 }
