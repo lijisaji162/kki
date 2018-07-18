@@ -1,6 +1,7 @@
-package com.polus.fibicomp.budget.common.pojo;
+package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +11,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
 @Entity
-@Table(name = "BUDGET_CATEGORY_TYPE")
+@Table(name = "FIBI_BUDGET_CATEGORY_TYPE")
 public class BudgetCategoryType implements Serializable, Comparable<BudgetCategoryType> {
 
 	private static final long serialVersionUID = 1L;
@@ -24,6 +25,12 @@ public class BudgetCategoryType implements Serializable, Comparable<BudgetCatego
 
 	@Column(name = "SORT_ID")
 	private Integer sortId;
+
+	@Column(name = "UPDATE_TIMESTAMP")
+	private Timestamp updateTimeStamp;
+
+	@Column(name = "UPDATE_USER")
+	private String updateUser;
 
 	public String getCode() {
 		return code;
@@ -60,5 +67,21 @@ public class BudgetCategoryType implements Serializable, Comparable<BudgetCatego
 
 	public boolean isCategoryParticipantSupport() {
 		return getCode().equalsIgnoreCase("S");
+	}
+
+	public Timestamp getUpdateTimeStamp() {
+		return updateTimeStamp;
+	}
+
+	public void setUpdateTimeStamp(Timestamp updateTimeStamp) {
+		this.updateTimeStamp = updateTimeStamp;
+	}
+
+	public String getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
 	}
 }

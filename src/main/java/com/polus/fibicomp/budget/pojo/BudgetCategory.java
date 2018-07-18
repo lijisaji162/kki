@@ -1,6 +1,7 @@
-package com.polus.fibicomp.budget.common.pojo;
+package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,27 +12,30 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "BUDGET_CATEGORY")
+@Table(name = "FIBI_BUDGET_CATEGORY")
 public class BudgetCategory implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name = "BUDGET_CATEGORY_CODE")
 	private String code;
 
-	@Column(name = "CATEGORY_TYPE")
+	@Column(name = "BUDGET_CATEGORY_TYPE_CODE")
 	private String budgetCategoryTypeCode;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(name = "CATEGORY_TYPE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(name = "BUDGET_CATEGORY_TYPE_CODE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
 	private BudgetCategoryType budgetCategoryType;
+
+	@Column(name = "UPDATE_TIMESTAMP")
+	private Timestamp updateTimeStamp;
+
+	@Column(name = "UPDATE_USER")
+	private String updateUser;
 
 	public String getCode() {
 		return code;
@@ -67,5 +71,21 @@ public class BudgetCategory implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public Timestamp getUpdateTimeStamp() {
+		return updateTimeStamp;
+	}
+
+	public void setUpdateTimeStamp(Timestamp updateTimeStamp) {
+		this.updateTimeStamp = updateTimeStamp;
+	}
+
+	public String getUpdateUser() {
+		return updateUser;
+	}
+
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
 	}
 }
