@@ -4,21 +4,28 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -85,9 +92,6 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "TOTAL_INDIRECT_COST", precision = 2)
 	private BigDecimal totalIndirectCost;
 
-	@Column(name = "OH_RATE_CLASS_CODE")
-	private String ohRateClassCode;
-
 	@Column(name = "COMMENTS")
 	private String comments;
 
@@ -113,11 +117,33 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "UPDATE_USER_NAME")
 	private String updateUserName;
 
-	@Column(name = "OH_RATE_TYPE_CODE")
-	private String ohRateClassTypeCode;
+	@Column(name = "RATE_CLASS_CODE")
+	private String rateClassCode;
+
+	@Column(name = "RATE_TYPE_CODE")
+	private String rateTypeCode;
 
 	@Column(name = "ANTICIPATED_TOTAL", precision = 2)
 	private BigDecimal anticipatedTotal;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@JoinColumns({
+			@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_BUDGET_HEADER"), name = "RATE_CLASS_CODE", referencedColumnName = "RATE_CLASS_CODE", insertable = false, updatable = false),
+			@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_BUDGET_HEADER"), name = "RATE_TYPE_CODE", referencedColumnName = "RATE_TYPE_CODE", insertable = false, updatable = false) })
+	private RateType rateType;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "budget", orphanRemoval = true, cascade = { CascadeType.ALL })
+	private List<BudgetPeriod> budgetPeriods;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "budgetHeader", orphanRemoval = true, cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+	private List<FibiProposalRate> proposalRates;
+
+	public BudgetHeader() {
+		budgetPeriods = new ArrayList<>();
+		proposalRates = new ArrayList<>();
+	}
 
 	public Long getBudgetId() {
 		return budgetId;
@@ -255,14 +281,6 @@ public class BudgetHeader implements Serializable {
 		this.totalIndirectCost = totalIndirectCost;
 	}
 
-	public String getOhRateClassCode() {
-		return ohRateClassCode;
-	}
-
-	public void setOhRateClassCode(String ohRateClassCode) {
-		this.ohRateClassCode = ohRateClassCode;
-	}
-
 	public String getComments() {
 		return comments;
 	}
@@ -327,14 +345,6 @@ public class BudgetHeader implements Serializable {
 		this.updateUserName = updateUserName;
 	}
 
-	public String getOhRateClassTypeCode() {
-		return ohRateClassTypeCode;
-	}
-
-	public void setOhRateClassTypeCode(String ohRateClassTypeCode) {
-		this.ohRateClassTypeCode = ohRateClassTypeCode;
-	}
-
 	public BigDecimal getAnticipatedTotal() {
 		return anticipatedTotal;
 	}
@@ -345,5 +355,45 @@ public class BudgetHeader implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getRateClassCode() {
+		return rateClassCode;
+	}
+
+	public void setRateClassCode(String rateClassCode) {
+		this.rateClassCode = rateClassCode;
+	}
+
+	public String getRateTypeCode() {
+		return rateTypeCode;
+	}
+
+	public void setRateTypeCode(String rateTypeCode) {
+		this.rateTypeCode = rateTypeCode;
+	}
+
+	public RateType getRateType() {
+		return rateType;
+	}
+
+	public void setRateType(RateType rateType) {
+		this.rateType = rateType;
+	}
+
+	public List<BudgetPeriod> getBudgetPeriods() {
+		return budgetPeriods;
+	}
+
+	public void setBudgetPeriods(List<BudgetPeriod> budgetPeriods) {
+		this.budgetPeriods = budgetPeriods;
+	}
+
+	public List<FibiProposalRate> getProposalRates() {
+		return proposalRates;
+	}
+
+	public void setProposalRates(List<FibiProposalRate> proposalRates) {
+		this.proposalRates = proposalRates;
 	}
 }

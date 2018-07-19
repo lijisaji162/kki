@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
+import com.polus.fibicomp.budget.pojo.CostElement;
 
 @Transactional
 @Service(value = "budgetDao")
@@ -34,6 +35,11 @@ public class BudgetDaoImpl implements BudgetDao {
 		criteria.addOrder(Order.asc("startDate"));
 		List<InstituteRate> instituteRates = criteria.list();
 		return instituteRates;
+	}
+
+	@Override
+	public List<CostElement> getAllCostElements() {
+		return hibernateTemplate.loadAll(CostElement.class);
 	}
 
 }

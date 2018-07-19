@@ -23,6 +23,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
@@ -123,10 +124,13 @@ public class Proposal implements Serializable {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "proposal", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<ProposalAttachment> proposalAttachments;
+	
+	@Column(name = "BUDGET_HEADER_ID")
+	private Long budgetId;
 
-	@JsonManagedReference
-	@OneToMany(mappedBy = "proposal", orphanRemoval = true, cascade = { CascadeType.ALL })
-	private List<ProposalBudget> proposalBudgets;
+	@ManyToOne(optional = true)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID", insertable = false, updatable = false)
+	private BudgetHeader budgetHeader;
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "proposal", orphanRemoval = true, cascade = { CascadeType.ALL })
@@ -166,7 +170,6 @@ public class Proposal implements Serializable {
 
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
-		proposalBudgets = new ArrayList<ProposalBudget>();
 		proposalKeywords = new ArrayList<ProposalKeyword>();
 		proposalPersons = new ArrayList<ProposalPerson>();
 		proposalIrbProtocols = new ArrayList<ProposalIrbProtocol>();
@@ -386,14 +389,6 @@ public class Proposal implements Serializable {
 		this.proposalAttachments = proposalAttachments;
 	}
 
-	public List<ProposalBudget> getProposalBudgets() {
-		return proposalBudgets;
-	}
-
-	public void setProposalBudgets(List<ProposalBudget> proposalBudgets) {
-		this.proposalBudgets = proposalBudgets;
-	}
-
 	public List<ProposalKeyword> getProposalKeywords() {
 		return proposalKeywords;
 	}
@@ -484,6 +479,26 @@ public class Proposal implements Serializable {
 		}
 		principalInvestigator = pi != null ? pi.getFullName() : null;
 		return principalInvestigator;
+	}
+
+	public Long getBudgetId() {
+		return budgetId;
+	}
+
+	public void setBudgetId(Long budgetId) {
+		this.budgetId = budgetId;
+	}
+
+	public BudgetHeader getBudgetHeader() {
+		return budgetHeader;
+	}
+
+	public void setBudgetHeader(BudgetHeader budgetHeader) {
+		this.budgetHeader = budgetHeader;
+	}
+
+	public void setPrincipalInvestigator(String principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
 	}
 
 }

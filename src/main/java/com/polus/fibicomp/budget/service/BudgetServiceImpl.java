@@ -37,7 +37,7 @@ public class BudgetServiceImpl implements BudgetService {
 				proposalRate.setFiscalYear(instituteRate.getFiscalYear());
 				proposalRate.setInstituteRate(instituteRate.getInstituteRate());
 				proposalRate.setOnOffCampusFlag(instituteRate.getOnOffCampusFlag());
-				proposalRate.setProposalBudget(null);
+				//proposalRate.setProposalBudget(null);
 				proposalRate.setRateClassCode(instituteRate.getRateClassCode());
 				proposalRate.setRateTypeCode(instituteRate.getRateTypeCode());
 				proposalRate.setStartDate(instituteRate.getStartDate());

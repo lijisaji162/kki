@@ -33,7 +33,6 @@ import com.polus.fibicomp.ip.service.InstitutionalProposalService;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
-import com.polus.fibicomp.proposal.pojo.ProposalBudget;
 import com.polus.fibicomp.proposal.pojo.ProposalIrbProtocol;
 import com.polus.fibicomp.proposal.pojo.ProposalKeyword;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
@@ -328,7 +327,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public String deleteProposalBudget(ProposalVO vo) {
-		try {
+		/*try {
 			Proposal proposal = proposalDao.fetchProposalById(vo.getProposalId());
 			List<ProposalBudget> list = proposal.getProposalBudgets();
 			List<ProposalBudget> updatedlist = new ArrayList<ProposalBudget>(list);
@@ -348,7 +347,7 @@ public class ProposalServiceImpl implements ProposalService {
 			vo.setStatus(true);
 			vo.setMessage("Problem occurred in deleting proposal budget");
 			e.printStackTrace();
-		}
+		}*/
 		return committeeDao.convertObjectToJSON(vo);
 	}
 
