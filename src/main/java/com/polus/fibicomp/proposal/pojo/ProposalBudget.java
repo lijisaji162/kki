@@ -2,26 +2,20 @@ package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 
 @Entity
 @Table(name = "FIBI_SMU_PROPOSAL_BUDGET")
@@ -66,10 +60,6 @@ public class ProposalBudget implements Serializable {
 
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
-
-	@JsonManagedReference
-	@OneToMany(mappedBy = "proposalBudget", orphanRemoval = true, cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
-	private List<FibiProposalRate> proposalRates;
 
 	public Integer getBudgetId() {
 		return budgetId;
@@ -155,11 +145,4 @@ public class ProposalBudget implements Serializable {
 		this.proposalCostElement = proposalCostElement;
 	}
 
-	public List<FibiProposalRate> getProposalRates() {
-		return proposalRates;
-	}
-
-	public void setProposalRates(List<FibiProposalRate> proposalRates) {
-		this.proposalRates = proposalRates;
-	}
 }

@@ -19,7 +19,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.polus.fibicomp.proposal.pojo.ProposalBudget;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -37,8 +36,8 @@ public class FibiProposalRate implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL_RATE"), name = "BUDGET_ID", referencedColumnName = "BUDGET_ID")
-	private ProposalBudget proposalBudget;
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL_RATE"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID")
+	private BudgetHeader budgetHeader;
 
 	@Column(name = "RATE_CLASS_CODE")
 	private String rateClassCode;
@@ -74,14 +73,6 @@ public class FibiProposalRate implements Serializable {
 
 	public void setProposalRateId(Integer proposalRateId) {
 		this.proposalRateId = proposalRateId;
-	}
-
-	public ProposalBudget getProposalBudget() {
-		return proposalBudget;
-	}
-
-	public void setProposalBudget(ProposalBudget proposalBudget) {
-		this.proposalBudget = proposalBudget;
 	}
 
 	public String getRateClassCode() {
@@ -158,5 +149,13 @@ public class FibiProposalRate implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public BudgetHeader getBudgetHeader() {
+		return budgetHeader;
+	}
+
+	public void setBudgetHeader(BudgetHeader budgetHeader) {
+		this.budgetHeader = budgetHeader;
 	}
 }

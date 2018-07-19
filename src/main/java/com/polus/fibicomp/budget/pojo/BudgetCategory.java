@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -28,7 +29,7 @@ public class BudgetCategory implements Serializable {
 	private String description;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(name = "BUDGET_CATEGORY_TYPE_CODE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_CATEGORY"), name = "BUDGET_CATEGORY_TYPE_CODE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
 	private BudgetCategoryType budgetCategoryType;
 
 	@Column(name = "UPDATE_TIMESTAMP")
