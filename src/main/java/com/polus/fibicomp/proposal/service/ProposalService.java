@@ -7,6 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 
+/**
+ * @author Shaji P
+ *
+ */
 @Transactional
 @Service(value = "proposalService")
 public interface ProposalService {

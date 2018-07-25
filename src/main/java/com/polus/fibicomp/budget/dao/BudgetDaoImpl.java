@@ -1,6 +1,7 @@
 package com.polus.fibicomp.budget.dao;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
+import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.budget.pojo.CostElement;
+import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 
 @Transactional
 @Service(value = "budgetDao")
@@ -40,6 +43,31 @@ public class BudgetDaoImpl implements BudgetDao {
 	@Override
 	public List<CostElement> getAllCostElements() {
 		return hibernateTemplate.loadAll(CostElement.class);
+	}
+
+	@Override
+	public RateType getOHRateTypeByParams(String rateClassCode, String rateTypeCode) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(RateType.class);
+		criteria.add(Restrictions.eq("rateClassCode", rateClassCode));
+		criteria.add(Restrictions.eq("rateTypeCode", rateTypeCode));
+		RateType rateType = (RateType) criteria.uniqueResult();
+		return rateType;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public BigDecimal fetchApplicableRateByStartDate(Date budgetStartDate) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		BigDecimal applicableRate = BigDecimal.ZERO;
+		Criteria criteria = session.createCriteria(FibiProposalRate.class);
+		criteria.add(Restrictions.le("startDate", budgetStartDate));
+		criteria.addOrder(Order.desc("startDate"));
+		List<FibiProposalRate> proposalrate = criteria.list();
+		if(proposalrate != null && !proposalrate.isEmpty()) {
+			applicableRate = proposalrate.get(0).getApplicableRate();
+		}
+		return applicableRate;
 	}
 
 }

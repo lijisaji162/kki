@@ -3,6 +3,7 @@ package com.polus.fibicomp.proposal.vo;
 import java.util.List;
 import java.util.Map;
 
+import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
@@ -100,6 +101,8 @@ public class ProposalVO {
 
 	private String userName;
 
+	private String userFullName;
+
 	private String personId;
 
 	private String approveComment;
@@ -131,6 +134,8 @@ public class ProposalVO {
 	private String reviewerId;
 
 	private List<Unit> homeUnits;
+
+	private List<CostElement> costElements;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -542,6 +547,22 @@ public class ProposalVO {
 
 	public void setHomeUnits(List<Unit> homeUnits) {
 		this.homeUnits = homeUnits;
+	}
+
+	public List<CostElement> getCostElements() {
+		return costElements;
+	}
+
+	public void setCostElements(List<CostElement> costElements) {
+		this.costElements = costElements;
+	}
+
+	public String getUserFullName() {
+		return userFullName;
+	}
+
+	public void setUserFullName(String userFullName) {
+		this.userFullName = userFullName;
 	}
 
 }

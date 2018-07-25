@@ -3,10 +3,11 @@ package com.polus.fibicomp.pojo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.persistence.*;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
@@ -16,11 +17,7 @@ public class ProposalPersonRole implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@GenericGenerator(name = "SEQ_EPS_PROP_PERSON", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
-			@Parameter(name = "sequence_name", value = "SEQ_EPS_PROP_PERSON_ROLE"),
-			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
 	@Id
-	@GeneratedValue(generator = "SEQ_EPS_PROP_PERSON")
 	@Column(name = "PROP_PERSON_ROLE_ID")
 	private BigDecimal id;
 
