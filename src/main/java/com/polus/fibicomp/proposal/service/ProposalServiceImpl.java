@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.email.service.FibiEmailService;
@@ -77,6 +78,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Autowired
 	private FibiEmailService fibiEmailService;
+
+	@Autowired
+	private BudgetService budgetService;
 
 	@Value("${application.context.name}")
 	private String context;
@@ -136,6 +140,9 @@ public class ProposalServiceImpl implements ProposalService {
 	@Override
 	public String saveOrUpdateProposal(ProposalVO vo) {
 		Proposal proposal = vo.getProposal();
+		if (proposal.getBudgetHeader() != null) {
+			proposal = budgetService.saveOrUpdateProposalBudget(vo);
+		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		vo.setStatus(true);
 		String updateType = vo.getUpdateType();

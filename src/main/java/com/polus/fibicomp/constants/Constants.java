@@ -98,4 +98,8 @@ public interface Constants {
 	Integer ACTION_SUBMIT = 15;
 	Integer OST_PRIORITY_NORMAL = 2;
 
+	// Budget Constants
+	String DEFAULT_RATE_CLASS_CODE = "13";
+	String DEFAULT_RATE_TYPE_CODE = "1";
+
 }

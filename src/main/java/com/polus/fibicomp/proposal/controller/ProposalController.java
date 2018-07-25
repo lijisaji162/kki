@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 
@@ -27,6 +28,10 @@ public class ProposalController {
 	@Autowired
 	@Qualifier(value = "proposalService")
 	private ProposalService proposalService;
+
+	@Autowired
+	@Qualifier(value = "budgetService")
+	private BudgetService budgetService;
 
 	@RequestMapping(value = "/createProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String createProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
@@ -183,4 +188,9 @@ public class ProposalController {
 		return proposalService.approveProvost(vo);
 	}
 
+	@RequestMapping(value = "/createProposalBudget", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String createProposalBudget(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for createProposalBudget");
+		return budgetService.createProposalBudget(vo);
+	}
 }
