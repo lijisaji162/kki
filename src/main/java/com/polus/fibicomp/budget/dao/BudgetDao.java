@@ -1,6 +1,5 @@
 package com.polus.fibicomp.budget.dao;
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
@@ -8,8 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
+import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.CostElement;
+import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 
 @Service
 public interface BudgetDao {
@@ -20,10 +21,12 @@ public interface BudgetDao {
 
 	public RateType getOHRateTypeByParams(String rateClassCode, String rateTypeCode);
 
-	public BigDecimal fetchApplicableRateByStartDate(Date budgetStartDate);
+	public FibiProposalRate fetchApplicableProposalRate(Long budgetId, Date budgetStartDate, String rateClassCode, String rateTypeCode);
 
 	public BudgetHeader fetchBudgetByBudgetId(Long budgetId);
 
 	public BudgetHeader saveOrUpdateBudget(BudgetHeader budgetHeader);
+
+	public List<ValidCeRateType> fetchCostElementRateTypes(String costElement);
 
 }

@@ -1,6 +1,5 @@
 package com.polus.fibicomp.budget.dao;
 
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
+import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
@@ -37,6 +37,7 @@ public class BudgetDaoImpl implements BudgetDao {
 		criteria.add(Restrictions.ge("startDate", startDate));
 		criteria.add(Restrictions.lt("startDate", endDate));
 		criteria.addOrder(Order.asc("startDate"));
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<InstituteRate> instituteRates = criteria.list();
 		return instituteRates;
 	}
@@ -58,15 +59,18 @@ public class BudgetDaoImpl implements BudgetDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public BigDecimal fetchApplicableRateByStartDate(Date budgetStartDate) {
+	public FibiProposalRate fetchApplicableProposalRate(Long budgetId, Date budgetStartDate, String rateClassCode, String rateTypeCode) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		BigDecimal applicableRate = BigDecimal.ZERO;
+		FibiProposalRate applicableRate = null;
 		Criteria criteria = session.createCriteria(FibiProposalRate.class);
+		criteria.add(Restrictions.eq("budgetHeader.budgetId", budgetId));
 		criteria.add(Restrictions.le("startDate", budgetStartDate));
+		criteria.add(Restrictions.eq("rateClassCode", rateClassCode));
+		criteria.add(Restrictions.eq("rateTypeCode", rateTypeCode));
 		criteria.addOrder(Order.desc("startDate"));
 		List<FibiProposalRate> proposalrate = criteria.list();
 		if(proposalrate != null && !proposalrate.isEmpty()) {
-			applicableRate = proposalrate.get(0).getApplicableRate();
+			applicableRate = proposalrate.get(0);
 		}
 		return applicableRate;
 	}
@@ -80,6 +84,16 @@ public class BudgetDaoImpl implements BudgetDao {
 	public BudgetHeader saveOrUpdateBudget(BudgetHeader budgetHeader) {
 		hibernateTemplate.saveOrUpdate(budgetHeader);
 		return budgetHeader;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ValidCeRateType> fetchCostElementRateTypes(String costElement) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(ValidCeRateType.class);
+		criteria.add(Restrictions.eq("costElement", costElement));
+		List<ValidCeRateType> ceRateTypes = criteria.list();
+		return ceRateTypes;
 	}
 
 }
