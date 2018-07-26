@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
+import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.dao.BudgetDao;
 import com.polus.fibicomp.budget.pojo.BudgetDetail;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
@@ -86,8 +87,9 @@ public class BudgetServiceImpl implements BudgetService {
 					BigDecimal fandACostForCE = BigDecimal.ZERO;
 					BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
 					totalLineItemCost = totalLineItemCost.add(lineItemCost);
-					fringeCostForCE = calculateFringCostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
-					fandACostForCE = calculateFandACostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
+					String costElement = budgetItemDetail.getCostElementCode();
+					fringeCostForCE = calculateFringCostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, costElement, lineItemCost);
+					fandACostForCE = calculateFandACostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, costElement, lineItemCost);
 					totalFringeCost = totalFringeCost.add(fringeCostForCE);
 					totalFandACost = totalFandACost.add(fandACostForCE);
 				}
@@ -120,28 +122,45 @@ public class BudgetServiceImpl implements BudgetService {
 		return budget;
 	}
 
-	private BigDecimal calculateFandACostForCE(BudgetPeriod budgetPeriod, BudgetDetail budgetItemDetail,
-			BigDecimal lineItemCost) {
+	private BigDecimal calculateFandACostForCE(Long budgetId, BudgetPeriod budgetPeriod, String costElement, BigDecimal lineItemCost) {
 		BigDecimal fandACost = BigDecimal.ZERO;
 		Date budgetStartDate = budgetPeriod.getStartDate();
 		Date budgetEndDate = budgetPeriod.getEndDate();
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision);
 		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
-		BigDecimal applicableRate = budgetDao.fetchApplicableRateByStartDate(budgetStartDate);
+		BigDecimal validRate = BigDecimal.ZERO;
+		List<ValidCeRateType> ceRateTypes = budgetDao.fetchCostElementRateTypes(costElement);
+		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+			for (ValidCeRateType ceRateType : ceRateTypes) {
+				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetStartDate, ceRateType.getRateClassCode(), ceRateType.getRateTypeCode());
+				if (applicableRate != null) {
+					validRate = validRate.add(validRate);
+				}
+			}
+		}
 		int numberOfDays = (int) ((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000);
-		fandACost = fandACost.add((perDayCost.multiply(applicableRate)).multiply(new BigDecimal(numberOfDays)));
+		fandACost = fandACost.add((perDayCost.multiply(validRate)).multiply(new BigDecimal(numberOfDays)));
 		return fandACost;
 	}
 
-	private BigDecimal calculateFringCostForCE(BudgetPeriod budgetPeriod, BudgetDetail budgetItemDetail, BigDecimal lineItemCost) {
+	private BigDecimal calculateFringCostForCE(Long budgetId, BudgetPeriod budgetPeriod, String costElement, BigDecimal lineItemCost) {
 		BigDecimal fringeCost = BigDecimal.ZERO;
 		Date budgetStartDate = budgetPeriod.getStartDate();
 		Date budgetEndDate = budgetPeriod.getEndDate();
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision
 		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
-		BigDecimal applicableRate = budgetDao.fetchApplicableRateByStartDate(budgetStartDate);
+		BigDecimal validRate = BigDecimal.ZERO;
+		List<ValidCeRateType> ceRateTypes = budgetDao.fetchCostElementRateTypes(costElement);
+		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+			for (ValidCeRateType ceRateType : ceRateTypes) {
+				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetStartDate, ceRateType.getRateClassCode(), ceRateType.getRateTypeCode());
+				if (applicableRate != null) {
+					validRate = validRate.add(validRate);
+				}
+			}
+		}
 		int numberOfDays = (int) ((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000);
-		fringeCost = fringeCost.add((perDayCost.multiply(applicableRate)).multiply(new BigDecimal(numberOfDays)));
+		fringeCost = fringeCost.add((perDayCost.multiply(validRate)).multiply(new BigDecimal(numberOfDays)));
 		return fringeCost;
 	}
 
@@ -176,10 +195,12 @@ public class BudgetServiceImpl implements BudgetService {
 	public Proposal saveOrUpdateProposalBudget(ProposalVO vo) {
 		Proposal proposal = vo.getProposal();
 		BudgetHeader proposalBudget = vo.getProposal().getBudgetHeader();
-		List<FibiProposalRate> fibiProposalRates = fetchFilteredProposalRates(proposalBudget);
-		if (fibiProposalRates != null && !fibiProposalRates.isEmpty()) {
+		List<FibiProposalRate> fibiProposalRates = proposalBudget.getProposalRates();
+		if (fibiProposalRates == null || fibiProposalRates.isEmpty()) {
+			fibiProposalRates = fetchFilteredProposalRates(proposalBudget);
 			proposalBudget.setProposalRates(fibiProposalRates);
 			proposal.setBudgetHeader(proposalBudget);
+			proposal = proposalDao.saveOrUpdateProposal(proposal);
 		}
 		if (proposalBudget != null && proposalBudget.getIsAutoCalc()) {
 			proposal = calculateBudget(proposal);
