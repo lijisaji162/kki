@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
+import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 
@@ -68,6 +69,17 @@ public class BudgetDaoImpl implements BudgetDao {
 			applicableRate = proposalrate.get(0).getApplicableRate();
 		}
 		return applicableRate;
+	}
+
+	@Override
+	public BudgetHeader fetchBudgetByBudgetId(Long budgetId) {
+		return hibernateTemplate.get(BudgetHeader.class, budgetId);
+	}
+
+	@Override
+	public BudgetHeader saveOrUpdateBudget(BudgetHeader budgetHeader) {
+		hibernateTemplate.saveOrUpdate(budgetHeader);
+		return budgetHeader;
 	}
 
 }

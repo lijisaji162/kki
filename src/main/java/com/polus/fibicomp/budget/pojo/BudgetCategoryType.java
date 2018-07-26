@@ -65,9 +65,9 @@ public class BudgetCategoryType implements Serializable, Comparable<BudgetCatego
 		return new CompareToBuilder().append(this.sortId, o.sortId).toComparison();
 	}
 
-	public boolean isCategoryParticipantSupport() {
+	/*public boolean isCategoryParticipantSupport() {
 		return getCode().equalsIgnoreCase("S");
-	}
+	}*/
 
 	public Timestamp getUpdateTimeStamp() {
 		return updateTimeStamp;
