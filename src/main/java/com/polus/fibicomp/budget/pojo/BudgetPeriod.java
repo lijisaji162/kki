@@ -40,8 +40,8 @@ public class BudgetPeriod implements Serializable {
 	private Integer budgetPeriodId;
 
 	@JsonBackReference
-	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_PERIOD"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID", insertable = false, updatable = false)
+	@ManyToOne(optional = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_PERIOD"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID")
 	private BudgetHeader budget;
 
 	@Column(name = "MODULE_ITEM_CODE")
@@ -68,7 +68,7 @@ public class BudgetPeriod implements Serializable {
 	@Column(name = "TOTAL_DIRECT_COST", precision = 2)
 	private BigDecimal totalDirectCost;
 
-	@Column(name = "TOTAL_INDIRECT_COST", precision = 2)
+	@Column(name = "TOTAL_INDIRECT_COST", precision = 1)
 	private BigDecimal totalIndirectCost;
 
 	@Column(name = "UPDATE_TIMESTAMP")
