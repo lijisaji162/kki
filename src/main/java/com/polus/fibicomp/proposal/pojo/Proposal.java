@@ -124,12 +124,9 @@ public class Proposal implements Serializable {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "proposal", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<ProposalAttachment> proposalAttachments;
-	
-	@Column(name = "BUDGET_HEADER_ID")
-	private Long budgetId;
 
-	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID", insertable = false, updatable = false)
+	@ManyToOne(optional = true, cascade = { CascadeType.ALL })
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID", insertable = true, updatable = true)
 	private BudgetHeader budgetHeader;
 
 	@JsonManagedReference
@@ -479,14 +476,6 @@ public class Proposal implements Serializable {
 		}
 		principalInvestigator = pi != null ? pi.getFullName() : null;
 		return principalInvestigator;
-	}
-
-	public Long getBudgetId() {
-		return budgetId;
-	}
-
-	public void setBudgetId(Long budgetId) {
-		this.budgetId = budgetId;
 	}
 
 	public BudgetHeader getBudgetHeader() {

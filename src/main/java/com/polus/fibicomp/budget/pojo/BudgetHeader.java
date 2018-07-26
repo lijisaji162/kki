@@ -11,7 +11,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -89,7 +88,7 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "TOTAL_DIRECT_COST", precision = 2)
 	private BigDecimal totalDirectCost;
 
-	@Column(name = "TOTAL_INDIRECT_COST", precision = 2)
+	@Column(name = "TOTAL_INDIRECT_COST", precision = 1)
 	private BigDecimal totalIndirectCost;
 
 	@Column(name = "COMMENTS")
@@ -126,7 +125,7 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "ANTICIPATED_TOTAL", precision = 2)
 	private BigDecimal anticipatedTotal;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@ManyToOne(cascade = { CascadeType.REFRESH })
 	@JoinColumns({
 			@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_BUDGET_HEADER"), name = "RATE_CLASS_CODE", referencedColumnName = "RATE_CLASS_CODE", insertable = false, updatable = false),
 			@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_BUDGET_HEADER"), name = "RATE_TYPE_CODE", referencedColumnName = "RATE_TYPE_CODE", insertable = false, updatable = false) })
@@ -137,7 +136,7 @@ public class BudgetHeader implements Serializable {
 	private List<BudgetPeriod> budgetPeriods;
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "budgetHeader", orphanRemoval = true, cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "budgetHeader", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<FibiProposalRate> proposalRates;
 
 	public BudgetHeader() {

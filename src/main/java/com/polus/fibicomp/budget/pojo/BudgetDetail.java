@@ -36,8 +36,8 @@ public class BudgetDetail implements Serializable {
 	private Integer budgetDetailId;
 
 	@JsonBackReference
-	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_DETAIL"), name = "BUDGET_PERIOD_ID", referencedColumnName = "BUDGET_PERIOD_ID", insertable = false, updatable = false)
+	@ManyToOne(optional = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_DETAIL"), name = "BUDGET_PERIOD_ID", referencedColumnName = "BUDGET_PERIOD_ID")
 	private BudgetPeriod period;
 
 	@Column(name = "VERSION_NUMBER")
