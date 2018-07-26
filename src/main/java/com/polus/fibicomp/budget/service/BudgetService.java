@@ -28,4 +28,10 @@ public interface BudgetService {
 	 */
 	public Proposal saveOrUpdateProposalBudget(ProposalVO vo);
 
+	public String fetchProposalRates(ProposalVO proposalVO);
+
+	public String getSyncBudgetRates(ProposalVO proposalVO);
+
+	public String autoCalculate(ProposalVO proposalVO);
+
 }

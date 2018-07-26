@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.polus.fibicomp.budget.pojo.CostElement;
+import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
@@ -73,7 +74,7 @@ public class ProposalVO {
 
 	private Integer attachmentId;
 
-	private Integer budgetId;
+	private Long budgetId;
 
 	private Integer proposalPersonId;
 
@@ -136,6 +137,10 @@ public class ProposalVO {
 	private List<Unit> homeUnits;
 
 	private List<CostElement> costElements;
+
+	private List<FibiProposalRate> proposalRates;
+
+	private Integer budgetPeriod;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -307,14 +312,6 @@ public class ProposalVO {
 
 	public void setAttachmentId(Integer attachmentId) {
 		this.attachmentId = attachmentId;
-	}
-
-	public Integer getBudgetId() {
-		return budgetId;
-	}
-
-	public void setBudgetId(Integer budgetId) {
-		this.budgetId = budgetId;
 	}
 
 	public Integer getProposalPersonId() {
@@ -563,6 +560,30 @@ public class ProposalVO {
 
 	public void setUserFullName(String userFullName) {
 		this.userFullName = userFullName;
+	}
+
+	public Long getBudgetId() {
+		return budgetId;
+	}
+
+	public void setBudgetId(Long budgetId) {
+		this.budgetId = budgetId;
+	}
+
+	public List<FibiProposalRate> getProposalRates() {
+		return proposalRates;
+	}
+
+	public void setProposalRates(List<FibiProposalRate> proposalRates) {
+		this.proposalRates = proposalRates;
+	}
+
+	public Integer getBudgetPeriod() {
+		return budgetPeriod;
+	}
+
+	public void setBudgetPeriod(Integer budgetPeriod) {
+		this.budgetPeriod = budgetPeriod;
 	}
 
 }

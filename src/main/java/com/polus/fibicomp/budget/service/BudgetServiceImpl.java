@@ -1,6 +1,7 @@
 package com.polus.fibicomp.budget.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +44,10 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public List<FibiProposalRate> fetchFilteredProposalRates(BudgetHeader budget) {
+		List<FibiProposalRate> proposalRates = null;
 		List<InstituteRate> instituteRates = budgetDao.filterInstituteRateByDateRange(budget.getStartDate(), budget.getEndDate());
 		if (instituteRates != null && !instituteRates.isEmpty()) {
-			List<FibiProposalRate> proposalRates = new ArrayList<FibiProposalRate>();
+			proposalRates = new ArrayList<FibiProposalRate>();
 			for (InstituteRate instituteRate : instituteRates) {
 				FibiProposalRate proposalRate = new FibiProposalRate();
 				proposalRate.setApplicableRate(instituteRate.getInstituteRate());
@@ -62,7 +64,7 @@ public class BudgetServiceImpl implements BudgetService {
 			}
 			return proposalRates;
 		}
-		return null;
+		return proposalRates;
 	}
 
 	public Proposal calculateBudget(Proposal proposal) {
@@ -73,29 +75,22 @@ public class BudgetServiceImpl implements BudgetService {
 
 	private BudgetHeader calculate(Proposal proposal, Integer period) {
 		List<BudgetPeriod> budgetPeriodsList = proposal.getBudgetHeader().getBudgetPeriods();
-		for(BudgetPeriod budgetPeriod: budgetPeriodsList) {
+		for (BudgetPeriod budgetPeriod : budgetPeriodsList) {
 			BigDecimal totalFringeCost = BigDecimal.ZERO;
 			BigDecimal totalFandACost = BigDecimal.ZERO;
 			BigDecimal totalLineItemCost = BigDecimal.ZERO;
-			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails(); //BudgetDetail refers to LineItems
+			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails(); // BudgetDetail refers to LineItems
 			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
-				for(BudgetDetail budgetItemDetail: budgetDetailsList) {
-					//if(budgetItemDetail.getIsSystemGeneratedCostElement() == false) {
-						BigDecimal fringeCostForCE = BigDecimal.ZERO;
-						BigDecimal fandACostForCE = BigDecimal.ZERO;
-						BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
-						totalLineItemCost = totalLineItemCost.add(lineItemCost);
-						fringeCostForCE = calculateFringCostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
-						fandACostForCE = calculateFandACostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
-						totalFringeCost = totalFringeCost.add(fringeCostForCE);
-						totalFandACost = totalFandACost.add(fandACostForCE);
-					//}
+				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
+					BigDecimal fringeCostForCE = BigDecimal.ZERO;
+					BigDecimal fandACostForCE = BigDecimal.ZERO;
+					BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
+					totalLineItemCost = totalLineItemCost.add(lineItemCost);
+					fringeCostForCE = calculateFringCostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
+					fandACostForCE = calculateFandACostForCE(budgetPeriod, budgetItemDetail, lineItemCost);
+					totalFringeCost = totalFringeCost.add(fringeCostForCE);
+					totalFandACost = totalFandACost.add(fandACostForCE);
 				}
-				/*for(BudgetDetail budgetItemDetail: budgetDetailsList) {
-					if(budgetItemDetail.getIsSystemGeneratedCostElement() == true) {
-						
-					}
-				}*/
 				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
 				budgetPeriod.setTotalIndirectCost(totalFandACost);
 				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
@@ -113,7 +108,7 @@ public class BudgetServiceImpl implements BudgetService {
 		BigDecimal totalIndirectCost = BigDecimal.ZERO;
 		BigDecimal totalCost = BigDecimal.ZERO;
 		if (budgetPeriodList != null && !budgetPeriodList.isEmpty()) {
-			for(BudgetPeriod period: budgetPeriodList) {
+			for (BudgetPeriod period : budgetPeriodList) {
 				totalDirectCost = totalDirectCost.add(period.getTotalDirectCost());
 				totalIndirectCost = totalIndirectCost.add(period.getTotalIndirectCost());
 				totalCost = totalCost.add(period.getTotalCost());
@@ -130,21 +125,22 @@ public class BudgetServiceImpl implements BudgetService {
 		BigDecimal fandACost = BigDecimal.ZERO;
 		Date budgetStartDate = budgetPeriod.getStartDate();
 		Date budgetEndDate = budgetPeriod.getEndDate();
-		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime())/86400000 + 1)));
+		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision);
+		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
 		BigDecimal applicableRate = budgetDao.fetchApplicableRateByStartDate(budgetStartDate);
-		int numberOfDays = (int) (budgetEndDate.getTime() - budgetStartDate.getTime())/86400000;
+		int numberOfDays = (int) ((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000);
 		fandACost = fandACost.add((perDayCost.multiply(applicableRate)).multiply(new BigDecimal(numberOfDays)));
 		return fandACost;
 	}
 
-	private BigDecimal calculateFringCostForCE(BudgetPeriod budgetPeriod, BudgetDetail budgetItemDetail,
-			BigDecimal lineItemCost) {
+	private BigDecimal calculateFringCostForCE(BudgetPeriod budgetPeriod, BudgetDetail budgetItemDetail, BigDecimal lineItemCost) {
 		BigDecimal fringeCost = BigDecimal.ZERO;
 		Date budgetStartDate = budgetPeriod.getStartDate();
 		Date budgetEndDate = budgetPeriod.getEndDate();
-		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime())/86400000 + 1)));
+		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision
+		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
 		BigDecimal applicableRate = budgetDao.fetchApplicableRateByStartDate(budgetStartDate);
-		int numberOfDays = (int) (budgetEndDate.getTime() - budgetStartDate.getTime())/86400000;
+		int numberOfDays = (int) ((budgetEndDate.getTime() - budgetStartDate.getTime()) / 86400000);
 		fringeCost = fringeCost.add((perDayCost.multiply(applicableRate)).multiply(new BigDecimal(numberOfDays)));
 		return fringeCost;
 	}
@@ -178,23 +174,52 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public Proposal saveOrUpdateProposalBudget(ProposalVO vo) {
-		//String actionType = vo.getActionType();
 		Proposal proposal = vo.getProposal();
 		BudgetHeader proposalBudget = vo.getProposal().getBudgetHeader();
 		List<FibiProposalRate> fibiProposalRates = fetchFilteredProposalRates(proposalBudget);
-		if(fibiProposalRates != null && !fibiProposalRates.isEmpty()) {
+		if (fibiProposalRates != null && !fibiProposalRates.isEmpty()) {
 			proposalBudget.setProposalRates(fibiProposalRates);
 			proposal.setBudgetHeader(proposalBudget);
 		}
-		if(proposal.getProposalId() == null) {
-			//saveProposal
-			proposal = proposalDao.saveOrUpdateProposal(proposal);
-		} else {
-			if(proposalBudget != null && proposalBudget.getIsAutoCalc()) {
-				proposal = calculateBudget(proposal);
-			}
+		if (proposalBudget != null && proposalBudget.getIsAutoCalc()) {
+			proposal = calculateBudget(proposal);
 		}
 		return proposal;
+	}
+
+	@Override
+	public String fetchProposalRates(ProposalVO proposalVO) {
+		Long budgetId = proposalVO.getBudgetId();
+		BudgetHeader budgetHeader = budgetDao.fetchBudgetByBudgetId(budgetId);
+		if (budgetHeader != null) {
+			List<FibiProposalRate> proposalRates = budgetHeader.getProposalRates();
+			proposalVO.setProposalRates(proposalRates);
+		}
+		return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	@Override
+	public String getSyncBudgetRates(ProposalVO proposalVO) {
+		Long budgetId = proposalVO.getBudgetId();
+		BudgetHeader budgetHeader = budgetDao.fetchBudgetByBudgetId(budgetId);
+		if (budgetHeader != null) {
+			budgetHeader.getProposalRates().clear();
+			List<FibiProposalRate> proposalRates = fetchFilteredProposalRates(budgetHeader);
+			budgetHeader.getProposalRates().addAll(proposalRates);
+			budgetHeader = budgetDao.saveOrUpdateBudget(budgetHeader);
+			proposalVO.setProposalRates(budgetHeader.getProposalRates());
+		}
+		return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	@Override
+	public String autoCalculate(ProposalVO proposalVO) {
+		Proposal proposal = proposalVO.getProposal();
+		Integer budgetPeriod = proposalVO.getBudgetPeriod();
+		BudgetHeader budgetHeader = calculate(proposal, budgetPeriod);
+		proposal.setBudgetHeader(budgetHeader);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+		return committeeDao.convertObjectToJSON(proposalVO);
 	}
 
 }
