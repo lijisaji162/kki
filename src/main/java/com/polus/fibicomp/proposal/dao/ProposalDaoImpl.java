@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
+import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.proposal.pojo.Proposal;
@@ -216,4 +217,10 @@ public class ProposalDaoImpl implements ProposalDao {
 		List<ProposalType> proposalTypes = criteria.list();
 		return proposalTypes;
 	}
+
+	@Override
+	public List<ActivityType> fetchAllActivityTypes() {
+		return hibernateTemplate.loadAll(ActivityType.class);
+	}
+
 }

@@ -2,6 +2,7 @@ package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,8 +12,12 @@ import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -31,6 +36,10 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 	@ManyToOne(cascade = { CascadeType.REFRESH })
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_COST_ELEMENT"), name = "BUDGET_CATEGORY_CODE", referencedColumnName = "BUDGET_CATEGORY_CODE", insertable = false, updatable = false)
 	private BudgetCategory budgetCategory;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "costElementBo")
+    private List<ValidCeRateType> validCeRateTypes;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
@@ -51,6 +60,12 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
+
+	@Transient
+	private String costElementDetail;
+
+	@Transient
+	private String systemGeneratedCEType;
 
 	@Override
 	public int compareTo(CostElement costElement) {
@@ -131,5 +146,32 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public List<ValidCeRateType> getValidCeRateTypes() {
+		return validCeRateTypes;
+	}
+
+	public void setValidCeRateTypes(List<ValidCeRateType> validCeRateTypes) {
+		this.validCeRateTypes = validCeRateTypes;
+	}
+
+	public String getCostElementDetail() {
+		if (costElement != null && !costElement.isEmpty() && description != null && !description.isEmpty()) {
+			costElementDetail = costElement + " - " + description;
+		}
+		return costElementDetail;
+	}
+
+	public void setCostElementDetail(String costElementDetail) {
+		this.costElementDetail = costElementDetail;
+	}
+
+	public String getSystemGeneratedCEType() {
+		return systemGeneratedCEType;
+	}
+
+	public void setSystemGeneratedCEType(String systemGeneratedCEType) {
+		this.systemGeneratedCEType = systemGeneratedCEType;
 	}
 }

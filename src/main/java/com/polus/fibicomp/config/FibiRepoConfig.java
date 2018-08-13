@@ -7,6 +7,9 @@ import javax.sql.DataSource;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -126,4 +129,17 @@ public class FibiRepoConfig {
 		properties.put("spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults", hibernateSpringJDBCMetadataDefault);
 		return properties;
 	}
+
+	@Bean
+	public EmbeddedServletContainerCustomizer containerCustomizer() throws Exception {
+		return (ConfigurableEmbeddedServletContainer container) -> {
+			if (container instanceof TomcatEmbeddedServletContainerFactory) {
+				TomcatEmbeddedServletContainerFactory tomcat = (TomcatEmbeddedServletContainerFactory) container;
+				tomcat.addConnectorCustomizers((connector) -> {
+					connector.setMaxPostSize(25000000); // 25 MB
+				});
+			}
+		};
+	}
+
 }

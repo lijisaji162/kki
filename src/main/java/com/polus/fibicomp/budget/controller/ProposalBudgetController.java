@@ -24,10 +24,16 @@ public class ProposalBudgetController {
 	@Qualifier(value = "budgetService")
 	private BudgetService budgetService;
 
-	@RequestMapping(value = "/getBudgetRates", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/addBudgetPeriod", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String addBudgetPeriod(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for addBudgetPeriod");
+		return budgetService.addBudgetPeriod(vo);
+	}
+
+	@RequestMapping(value = "/resetBudgetRates", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String getBudgetRates(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for getBudgetRates");
-		return budgetService.fetchProposalRates(vo);
+		logger.info("Requesting for resetBudgetRates");
+		return budgetService.resetProposalRates(vo);
 	}
 
 	@RequestMapping(value = "/getSyncBudgetRates", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -40,6 +46,21 @@ public class ProposalBudgetController {
 	public String autoCalculate(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for autoCalculate");
 		return budgetService.autoCalculate(vo);
+	}
+
+	@RequestMapping(value = "/deleteBudgetPeriod", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String deleteBudgetPeriod(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for deleteBudgetPeriod");
+		logger.info("budgetPeriodId : " + vo.getBudgetPeriodId());
+		return budgetService.deleteBudgetPeriod(vo);
+	}
+
+	@RequestMapping(value = "/deleteBudgetLineItem", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String deleteBudgetLineItem(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for deleteBudgetLineItem");
+		logger.info("budgetPeriodId : " + vo.getBudgetPeriodId());
+		logger.info("budgetDetailId : " + vo.getBudgetDetailId());
+		return budgetService.deleteBudgetLineItem(vo);
 	}
 
 }

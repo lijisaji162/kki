@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,12 +16,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -72,10 +76,10 @@ public class BudgetDetail implements Serializable {
 	@Column(name = "LINE_ITEM_DESCRIPTION")
 	private String lineItemDescription;
 
-	@Column(name = "LINE_ITEM_COST", precision = 2)
+	@Column(name = "LINE_ITEM_COST", precision = 10, scale = 3)
 	private BigDecimal lineItemCost;
 
-	@Column(name = "PREVIOUS_LINE_ITEM_COST", precision = 2)
+	@Column(name = "PREVIOUS_LINE_ITEM_COST", precision = 10, scale = 3)
 	private BigDecimal prevLineItemCost;
 
 	@Column(name = "BUDGET_JUSTIFICATION")
@@ -83,7 +87,7 @@ public class BudgetDetail implements Serializable {
 
 	@Column(name = "IS_SYSTEM_GENRTED_COST_ELEMENT")
 	@Convert(converter = JpaCharBooleanConversion.class)
-	private Boolean isSystemGeneratedCostElement;
+	private Boolean isSystemGeneratedCostElement = false;
 
 	@Column(name = "UPDATE_TIMESTAMP")
 	private Timestamp updateTimeStamp;
@@ -94,6 +98,21 @@ public class BudgetDetail implements Serializable {
 	@Column(name = "ON_OFF_CAMPUS_FLAG")
 	@Convert(converter = JpaCharBooleanConversion.class)
 	private Boolean onOffCampusFlag;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "budgetDetail", orphanRemoval = true, cascade = { CascadeType.ALL })
+	private List<BudgetDetailCalcAmount> budgetDetailCalcAmounts;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "budgetDetail", orphanRemoval = true, cascade = { CascadeType.ALL })
+	private List<BudgetRateAndBase> budgetRateAndBases;
+
+	@Column(name = "SYSTEM_GEN_COST_ELEMENT_TYPE")
+	private String systemGeneratedCEType;
+
+	public BudgetDetail () {
+		budgetDetailCalcAmounts = new ArrayList<>();
+	}
 
 	public Integer getBudgetDetailId() {
 		return budgetDetailId;
@@ -249,5 +268,29 @@ public class BudgetDetail implements Serializable {
 
 	public void setIsSystemGeneratedCostElement(Boolean isSystemGeneratedCostElement) {
 		this.isSystemGeneratedCostElement = isSystemGeneratedCostElement;
+	}
+
+	public List<BudgetDetailCalcAmount> getBudgetDetailCalcAmounts() {
+		return budgetDetailCalcAmounts;
+	}
+
+	public void setBudgetDetailCalcAmounts(List<BudgetDetailCalcAmount> budgetDetailCalcAmounts) {
+		this.budgetDetailCalcAmounts = budgetDetailCalcAmounts;
+	}
+
+	public List<BudgetRateAndBase> getBudgetRateAndBases() {
+		return budgetRateAndBases;
+	}
+
+	public void setBudgetRateAndBases(List<BudgetRateAndBase> budgetRateAndBases) {
+		this.budgetRateAndBases = budgetRateAndBases;
+	}
+
+	public String getSystemGeneratedCEType() {
+		return systemGeneratedCEType;
+	}
+
+	public void setSystemGeneratedCEType(String systemGeneratedCEType) {
+		this.systemGeneratedCEType = systemGeneratedCEType;
 	}
 }

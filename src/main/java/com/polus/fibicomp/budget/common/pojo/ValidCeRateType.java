@@ -6,7 +6,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -19,6 +18,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
@@ -41,17 +41,18 @@ public class ValidCeRateType implements Serializable {
 	@Column(name = "RATE_TYPE_CODE")
 	private String rateTypeCode;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@ManyToOne(cascade = { CascadeType.REFRESH })
 	@JoinColumn(name = "RATE_CLASS_CODE", referencedColumnName = "RATE_CLASS_CODE", insertable = false, updatable = false)
 	private RateClass rateClass;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@ManyToOne(cascade = { CascadeType.REFRESH })
 	@JoinColumns({
 			@JoinColumn(name = "RATE_CLASS_CODE", referencedColumnName = "RATE_CLASS_CODE", insertable = false, updatable = false),
 			@JoinColumn(name = "RATE_TYPE_CODE", referencedColumnName = "RATE_TYPE_CODE", insertable = false, updatable = false) })
 	private RateType rateType;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+	@JsonBackReference
+	@ManyToOne(optional = false, cascade = { CascadeType.REFRESH })
 	@JoinColumn(name = "COST_ELEMENT", referencedColumnName = "COST_ELEMENT", insertable = false, updatable = false)
 	private CostElement costElementBo;
 

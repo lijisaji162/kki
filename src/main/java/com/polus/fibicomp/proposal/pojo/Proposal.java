@@ -27,6 +27,7 @@ import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
+import com.polus.fibicomp.pojo.ActivityType;
 
 @Entity
 @Table(name = "FIBI_SMU_PROPOSAL")
@@ -65,9 +66,9 @@ public class Proposal implements Serializable {
 	@Column(name = "CATEGORY_CODE")
 	private Integer categoryCode;
 
-	@ManyToOne(optional = true)
+	/*@ManyToOne(optional = true)
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_SMU_PROPOSAL"), name = "CATEGORY_CODE", referencedColumnName = "CATEGORY_CODE", insertable = false, updatable = false)
-	private ProposalCategory proposalCategory;
+	private ProposalCategory proposalCategory;*/
 
 	@Column(name = "ICL_CODE")
 	private Integer iclCode;
@@ -126,7 +127,7 @@ public class Proposal implements Serializable {
 	private List<ProposalAttachment> proposalAttachments;
 
 	@ManyToOne(optional = true, cascade = { CascadeType.ALL })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID", insertable = true, updatable = true)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID")
 	private BudgetHeader budgetHeader;
 
 	@JsonManagedReference
@@ -162,8 +163,24 @@ public class Proposal implements Serializable {
 	@Column(name = "HOME_UNIT_NAME")
 	private String homeUnitName;
 
+	@Column(name = "ACTIVITY_TYPE_CODE")
+	private String activityTypeCode;
+
+	@ManyToOne(cascade = { CascadeType.REFRESH })
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK8_FIBI_SMU_PROPOSAL"), name="ACTIVITY_TYPE_CODE", referencedColumnName="ACTIVITY_TYPE_CODE", insertable = false, updatable = false)
+    private ActivityType activityType;
+
 	@Transient
 	private String principalInvestigator;
+
+	@Transient
+	private String applicationActivityType;
+
+	@Transient
+	private String applicationType;
+
+	@Transient
+	private String applicationStatus;
 
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
@@ -238,13 +255,13 @@ public class Proposal implements Serializable {
 		this.categoryCode = categoryCode;
 	}
 
-	public ProposalCategory getProposalCategory() {
+	/*public ProposalCategory getProposalCategory() {
 		return proposalCategory;
 	}
 
 	public void setProposalCategory(ProposalCategory proposalCategory) {
 		this.proposalCategory = proposalCategory;
-	}
+	}*/
 
 	public Integer getIclCode() {
 		return iclCode;
@@ -488,6 +505,46 @@ public class Proposal implements Serializable {
 
 	public void setPrincipalInvestigator(String principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
+	}
+
+	public String getActivityTypeCode() {
+		return activityTypeCode;
+	}
+
+	public void setActivityTypeCode(String activityTypeCode) {
+		this.activityTypeCode = activityTypeCode;
+	}
+
+	public ActivityType getActivityType() {
+		return activityType;
+	}
+
+	public void setActivityType(ActivityType activityType) {
+		this.activityType = activityType;
+	}
+
+	public String getApplicationActivityType() {
+		return applicationActivityType;
+	}
+
+	public void setApplicationActivityType(String applicationActivityType) {
+		this.applicationActivityType = applicationActivityType;
+	}
+
+	public String getApplicationType() {
+		return applicationType;
+	}
+
+	public void setApplicationType(String applicationType) {
+		this.applicationType = applicationType;
+	}
+
+	public String getApplicationStatus() {
+		return applicationStatus;
+	}
+
+	public void setApplicationStatus(String applicationStatus) {
+		this.applicationStatus = applicationStatus;
 	}
 
 }

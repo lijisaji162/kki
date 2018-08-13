@@ -137,10 +137,16 @@
 		    <artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
+		<dependency>
+		    <groupId>com.itextpdf</groupId>
+		    <artifactId>itextpdf</artifactId>
+		    <version>5.0.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
-		<finalName>kki</finalName>
+		<finalName>fibikki</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

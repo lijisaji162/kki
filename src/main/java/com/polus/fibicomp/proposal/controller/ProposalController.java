@@ -1,11 +1,16 @@
 package com.polus.fibicomp.proposal.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
@@ -193,4 +199,18 @@ public class ProposalController {
 		logger.info("Requesting for createProposalBudget");
 		return budgetService.createProposalBudget(vo);
 	}
+
+	@RequestMapping(value = "/printProposalPdfReport", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<InputStreamResource> proposalPdfReport(HttpServletResponse response,
+			@RequestHeader(value = "proposalId", required = true) String proposalIdInput)
+			throws IOException, DocumentException {
+		Integer proposalId = Integer.parseInt(proposalIdInput);
+		logger.info("Requesting for generateProposalPdf");
+		logger.info("proposalId : " + proposalId);
+		ByteArrayInputStream bis = proposalService.generateProposalPdf(proposalId);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "inline; filename=ProposalSummary.pdf");
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
+	}
+
 }
