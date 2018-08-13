@@ -38,7 +38,7 @@ public class BudgetHeader implements Serializable {
 			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
 	@GeneratedValue(generator = "budgetHeaderIdGenerator")
 	@Column(name = "BUDGET_HEADER_ID")
-	private Long budgetId;
+	private Integer budgetId;
 
 	@Column(name = "MODULE_ITEM_CODE")
 	private Integer moduleItemCode;
@@ -67,7 +67,7 @@ public class BudgetHeader implements Serializable {
 
 	@Column(name = "IS_AUTO_CALC")
 	@Convert(converter = JpaCharBooleanConversion.class)
-	private Boolean isAutoCalc;
+	private Boolean isAutoCalc = false;
 
 	@Column(name = "BUDGET_TYPE_CODE")
 	private String budgetTypeCode;
@@ -142,14 +142,6 @@ public class BudgetHeader implements Serializable {
 	public BudgetHeader() {
 		budgetPeriods = new ArrayList<>();
 		proposalRates = new ArrayList<>();
-	}
-
-	public Long getBudgetId() {
-		return budgetId;
-	}
-
-	public void setBudgetId(Long budgetId) {
-		this.budgetId = budgetId;
 	}
 
 	public Integer getModuleItemCode() {
@@ -395,4 +387,26 @@ public class BudgetHeader implements Serializable {
 	public void setProposalRates(List<FibiProposalRate> proposalRates) {
 		this.proposalRates = proposalRates;
 	}
+
+	public Integer getBudgetId() {
+		return budgetId;
+	}
+
+	public void setBudgetId(Integer budgetId) {
+		this.budgetId = budgetId;
+	}
+
+	/*public BudgetPeriod getNewBudgetPeriod() {
+		return new BudgetPeriod();
+	}
+
+	public BudgetPeriod getBudgetPeriod(int index) {
+        while (getBudgetPeriods().size() <= index) {
+            BudgetPeriod budgetPeriod = getNewBudgetPeriod();
+            budgetPeriod.setBudget(this);
+            getBudgetPeriods().add(budgetPeriod);
+        }
+        return getBudgetPeriods().get(index);
+    }*/
+
 }

@@ -1,5 +1,6 @@
 package com.polus.fibicomp.proposal.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.text.DocumentException;
+import com.polus.fibicomp.budget.dao.BudgetDao;
+import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
 import com.polus.fibicomp.constants.Constants;
@@ -40,6 +44,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
+import com.polus.fibicomp.util.GeneratePdfReport;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -82,6 +87,9 @@ public class ProposalServiceImpl implements ProposalService {
 	@Autowired
 	private BudgetService budgetService;
 
+	@Autowired
+	private BudgetDao budgetDao;
+
 	@Value("${application.context.name}")
 	private String context;
 
@@ -91,8 +99,8 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalVO.getProposal();
 		proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 		proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
-		proposal.setHomeUnitNumber(Constants.DEFAULT_HOME_UNIT_NUMBER);
-		proposal.setHomeUnitName(Constants.DEFAULT_HOME_UNIT_NAME);
+		//proposal.setHomeUnitNumber(Constants.DEFAULT_HOME_UNIT_NUMBER);
+		//proposal.setHomeUnitName(Constants.DEFAULT_HOME_UNIT_NAME);
 		if (grantCallId != null) {
 			GrantCall grantCall = grantCallDao.fetchGrantCallById(grantCallId);
 			proposal.setGrantCall(grantCall);
@@ -555,7 +563,8 @@ public class ProposalServiceImpl implements ProposalService {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			proposalVO = mapper.readValue(formDataJSON, ProposalVO.class);
-			Proposal proposal = proposalVO.getProposal();
+			//Proposal proposal = proposalVO.getProposal();
+			Proposal proposal = proposalDao.fetchProposalById(proposalVO.getProposalId());
 			String actionType = proposalVO.getActionType();
 			String approverComment = proposalVO.getApproveComment();
 			Integer approvalStopNumber = proposalVO.getApproverStopNumber();
@@ -744,7 +753,8 @@ public class ProposalServiceImpl implements ProposalService {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			proposalVO = mapper.readValue(formDataJSON, ProposalVO.class);		
-			Proposal proposal = proposalVO.getProposal();
+			//Proposal proposal = proposalVO.getProposal();
+			Proposal proposal = proposalDao.fetchProposalById(proposalVO.getProposalId());
 			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 			String message = "The following application has routed for approval:<br/><br/>Application Title: "+ proposal.getTitle() +"<br/>"
 					+ "Principal Investigator: "+ piName +"<br/>Sponsor Due Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
@@ -838,8 +848,10 @@ public class ProposalServiceImpl implements ProposalService {
 	}
 
 	public void loadInitialData(ProposalVO proposalVO) {
+		Proposal proposal = proposalVO.getProposal();
 		proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
-		proposalVO.setProposalCategories(proposalDao.fetchAllCategories());
+		//proposalVO.setProposalCategories(proposalDao.fetchAllCategories());
+		proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
 		proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
 		proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
 		proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
@@ -854,6 +866,18 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
 		proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 		proposalVO.setHomeUnits(committeeDao.fetchAllHomeUnits());
+		if (proposal.getBudgetHeader() != null) {
+			proposalVO.setCostElements(budgetDao.getAllCostElements());
+			proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
+			Set<String> rateClassTypes = new HashSet<>();
+			List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
+			if (proposalRates != null && !proposalRates.isEmpty()) {
+				for (FibiProposalRate proposalRate : proposalRates) {
+					rateClassTypes.add(proposalRate.getRateClass().getDescription());
+					proposalVO.setRateClassTypes(rateClassTypes);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -978,4 +1002,12 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 		return piName;
 	}
+
+	@Override
+	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException {
+		Proposal proposalData = proposalDao.fetchProposalById(proposalId);
+		ByteArrayInputStream bis = GeneratePdfReport.proposalPdfReport(proposalData);
+		return bis;
+	}
+
 }

@@ -4,8 +4,10 @@ public interface Constants {
 
 	String ALL_SPONSOR_HIERARCHY_NIH_MULTI_PI = "ALL_SPONSOR_HIERARCHY_NIH_MULTI_PI";
 	String KC_GENERIC_PARAMETER_NAMESPACE = "KC-GEN";
+	String KC_B_PARAMETER_NAMESPACE = "KC-B";
 	String KC = "KC";
 	String KC_ALL_PARAMETER_DETAIL_TYPE_CODE = "All";
+	String KC_DOC_PARAMETER_DETAIL_TYPE_CODE = "Document";
 	String SPONSOR_HIERARCHIES_PARM = "PERSON_ROLE_SPONSOR_HIERARCHIES";
 	String NIH_MULTIPLE_PI_HIERARCHY = "NIH Multiple PI";
 	String DEFAULT_SPONSOR_HIERARCHY_NAME = "DEFAULT";
@@ -99,7 +101,25 @@ public interface Constants {
 	Integer OST_PRIORITY_NORMAL = 2;
 
 	// Budget Constants
-	String DEFAULT_RATE_CLASS_CODE = "13";
-	String DEFAULT_RATE_TYPE_CODE = "1";
+	String DEFAULT_RATE_CLASS_CODE = "defaultOverheadRateClassCode";
+	String DEFAULT_RATE_TYPE_CODE = "defaultOverheadRateTypeCode";
+	String DEFAULT_RATE_CLASS_TYPE_CODE = "defaultOverheadRateClassTypeCode";
+
+	public static final String STRING_TO_DATE_FORMATS = "STRING_TO_DATE_FORMATS";
+    public static final String STRING_TO_TIME_FORMATS = "STRING_TO_TIME_FORMATS";
+    public static final String STRING_TO_TIMESTAMP_FORMATS = "STRING_TO_TIMESTAMP_FORMATS";
+    public static final String DATE_TO_STRING_FORMAT_FOR_USER_INTERFACE = "DATE_TO_STRING_FORMAT_FOR_USER_INTERFACE";
+    public static final String TIME_TO_STRING_FORMAT_FOR_USER_INTERFACE = "TIME_TO_STRING_FORMAT_FOR_USER_INTERFACE";
+    public static final String TIMESTAMP_TO_STRING_FORMAT_FOR_USER_INTERFACE = "TIMESTAMP_TO_STRING_FORMAT_FOR_USER_INTERFACE";
+    public static final String DATE_TO_STRING_FORMAT_FOR_FILE_NAME = "DATE_TO_STRING_FORMAT_FOR_FILE_NAME";
+    public static final String TIMESTAMP_TO_STRING_FORMAT_FOR_FILE_NAME = "TIMESTAMP_TO_STRING_FORMAT_FOR_FILE_NAME";
+
+    //System Generated CostElemets Details
+  	public static final String  BUDGET_RESEARCH_OH_ON = "BUDGET_RESEARCH_OH_ON";
+  	public static final String  BUDGET_RESEARCH_OH_OFF = "BUDGET_RESEARCH_OH_OFF";
+  	public static final String  BUDGET_OH_ON = "BUDGET_OH_ON";
+  	public static final String  BUDGET_OH_OFF = "BUDGET_OH_OFF";
+  	public static final String  BUDGET_FRINGE_ON = "BUDGET_FRINGE_ON";
+  	public static final String  BUDGET_FRINGE_OFF = "BUDGET_FRINGE_OFF";
 
 }

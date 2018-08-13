@@ -28,7 +28,8 @@ public class CommonDaoImpl implements CommonDao {
 	@Override
 	public Long getNextSequenceNumber(String sequenceName) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		String seqQuery = "select " + sequenceName + ".nextval as num from dual";
+		//String seqQuery = "select " + sequenceName + ".nextval as num from dual";
+		String seqQuery = "select max(id)+1 as num from " + sequenceName + "";
 		SQLQuery query = session.createSQLQuery(seqQuery).addScalar("num", StandardBasicTypes.BIG_INTEGER);
 		return ((BigInteger) query.uniqueResult()).longValue();
 	}

@@ -132,7 +132,7 @@ public class AwardDaoImpl implements AwardDao {
 				detailsField.put("award_effective_date", rset.getString("award_effective_date"));
 				detailsField.put("obligation_start", rset.getString("obligation_start"));
 				String obligationEnd = rset.getString("obligation_end");
-				SimpleDateFormat sdf = new SimpleDateFormat("mm/dd/yyyy");
+				SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 				java.util.Date date = sdf.parse(obligationEnd);
 				java.sql.Date obligationEndDate = new java.sql.Date(date.getTime());
 				detailsField.put("obligation_end", obligationEndDate);

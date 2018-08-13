@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
+import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.proposal.pojo.Proposal;
@@ -116,5 +117,11 @@ public interface ProposalDao {
 	 * @return A list of proposal types.
 	 */
 	public List<ProposalType> fetchAllProposalTypes();
+
+	/**
+	 * This method is used to fetch all activity types.
+	 * @return A list of activity types.
+	 */
+	public List<ActivityType> fetchAllActivityTypes();
 
 }
