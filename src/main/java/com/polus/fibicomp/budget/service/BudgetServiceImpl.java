@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +61,9 @@ public class BudgetServiceImpl implements BudgetService {
 	@Autowired
     @Qualifier("dateTimeService")
     private DateTimeService dateTimeService;
+	
+	@Autowired
+	private HibernateTemplate hibernateTemplate;
 
 	@Override
 	public String createProposalBudget(ProposalVO vo) {
@@ -356,14 +360,14 @@ public class BudgetServiceImpl implements BudgetService {
 				detail.setLineItemDescription(budgetDetail.getLineItemDescription());
 				detail.setLineItemNumber(budgetDetail.getLineItemNumber());
 				detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
-				detail.setPeriod(lastPeriod);
+				detail.setPeriod(newBudgetPeriod);
 				detail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
 				detail.setStartDate(budgetDetail.getStartDate());
 				detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 				detail.setUpdateUser(newBudgetPeriod.getUpdateUser());
 				newLineItems.add(detail);
 			}
-			newBudgetPeriod.setBudgetDetails(newLineItems);
+			newBudgetPeriod.getBudgetDetails().addAll(newLineItems);
 		}
         budgetPeriods.add(newBudgetPeriod);
         proposal = proposalDao.saveOrUpdateProposal(proposal);
@@ -697,6 +701,7 @@ public class BudgetServiceImpl implements BudgetService {
 		for (BudgetPeriod budgetPeriod : budgetPeriods) {
 			if (budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
 				budgetPeriodNumber = budgetPeriod.getBudgetPeriod();
+				hibernateTemplate.delete(budgetPeriod);
 				updatedlist.remove(budgetPeriod);
 			}
 		}
@@ -723,6 +728,10 @@ public class BudgetServiceImpl implements BudgetService {
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
 					if (budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
+						hibernateTemplate.delete(budgetDetail);
+						updatedlist.remove(budgetDetail);
+					} else if (updatedlist.size() <= 2) {
+						hibernateTemplate.delete(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 				}
