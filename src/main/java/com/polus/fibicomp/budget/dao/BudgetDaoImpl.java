@@ -139,4 +139,10 @@ public class BudgetDaoImpl implements BudgetDao {
 		return hibernateTemplate.get(CostElement.class, costElement);
 	}
 
+	@Override
+	public BudgetPeriod saveBudgetPeriod(BudgetPeriod budgetPeriod) {
+		hibernateTemplate.save(budgetPeriod);
+		return budgetPeriod;
+	}
+
 }

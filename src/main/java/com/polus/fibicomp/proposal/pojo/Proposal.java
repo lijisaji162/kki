@@ -63,20 +63,6 @@ public class Proposal implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROPOSAL"), name = "TYPE_CODE", referencedColumnName = "TYPE_CODE", insertable = false, updatable = false)
 	private ProposalType proposalType;
 
-	@Column(name = "CATEGORY_CODE")
-	private Integer categoryCode;
-
-	/*@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_SMU_PROPOSAL"), name = "CATEGORY_CODE", referencedColumnName = "CATEGORY_CODE", insertable = false, updatable = false)
-	private ProposalCategory proposalCategory;*/
-
-	@Column(name = "ICL_CODE")
-	private Integer iclCode;
-
-	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK5_FIBI_SMU_PROPOSAL"), name = "ICL_CODE", referencedColumnName = "ICL_CODE", insertable = false, updatable = false)
-	private ProposalInstituteCentreLab proposalInstituteCentreLab;
-
 	@Column(name = "TITLE")
 	private String title;
 
@@ -170,6 +156,15 @@ public class Proposal implements Serializable {
     @JoinColumn(foreignKey = @ForeignKey(name = "FK8_FIBI_SMU_PROPOSAL"), name="ACTIVITY_TYPE_CODE", referencedColumnName="ACTIVITY_TYPE_CODE", insertable = false, updatable = false)
     private ActivityType activityType;
 
+	@Column(name = "SPONSOR_CODE")
+	private String sponsorCode;
+
+	@Column(name = "SPONSOR_NAME")
+	private String sponsorName;
+
+	@Column(name = "SUBMIT_USER")
+	private String submitUser;
+
 	@Transient
 	private String principalInvestigator;
 
@@ -245,38 +240,6 @@ public class Proposal implements Serializable {
 
 	public void setProposalType(ProposalType proposalType) {
 		this.proposalType = proposalType;
-	}
-
-	public Integer getCategoryCode() {
-		return categoryCode;
-	}
-
-	public void setCategoryCode(Integer categoryCode) {
-		this.categoryCode = categoryCode;
-	}
-
-	/*public ProposalCategory getProposalCategory() {
-		return proposalCategory;
-	}
-
-	public void setProposalCategory(ProposalCategory proposalCategory) {
-		this.proposalCategory = proposalCategory;
-	}*/
-
-	public Integer getIclCode() {
-		return iclCode;
-	}
-
-	public void setIclCode(Integer iclCode) {
-		this.iclCode = iclCode;
-	}
-
-	public ProposalInstituteCentreLab getProposalInstituteCentreLab() {
-		return proposalInstituteCentreLab;
-	}
-
-	public void setProposalInstituteCentreLab(ProposalInstituteCentreLab proposalInstituteCentreLab) {
-		this.proposalInstituteCentreLab = proposalInstituteCentreLab;
 	}
 
 	public String getTitle() {
@@ -545,6 +508,30 @@ public class Proposal implements Serializable {
 
 	public void setApplicationStatus(String applicationStatus) {
 		this.applicationStatus = applicationStatus;
+	}
+
+	public String getSponsorCode() {
+		return sponsorCode;
+	}
+
+	public void setSponsorCode(String sponsorCode) {
+		this.sponsorCode = sponsorCode;
+	}
+
+	public String getSponsorName() {
+		return sponsorName;
+	}
+
+	public void setSponsorName(String sponsorName) {
+		this.sponsorName = sponsorName;
+	}
+
+	public String getSubmitUser() {
+		return submitUser;
+	}
+
+	public void setSubmitUser(String submitUser) {
+		this.submitUser = submitUser;
 	}
 
 }

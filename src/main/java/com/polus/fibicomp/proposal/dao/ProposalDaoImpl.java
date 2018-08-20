@@ -20,6 +20,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
+import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -221,6 +222,21 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public List<ActivityType> fetchAllActivityTypes() {
 		return hibernateTemplate.loadAll(ActivityType.class);
+	}
+
+	@Override
+	public List<Sponsor> fetchAllSponsors() {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(Sponsor.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.property("sponsorCode"), "sponsorCode");
+		projList.add(Projections.property("sponsorName"), "sponsorName");
+		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Sponsor.class));
+		criteria.add(Restrictions.eq("active", true));
+		criteria.addOrder(Order.asc("sponsorName"));
+		@SuppressWarnings("unchecked")
+		List<Sponsor> sponsors = criteria.list();
+		return sponsors;
 	}
 
 }

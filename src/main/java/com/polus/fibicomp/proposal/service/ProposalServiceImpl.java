@@ -878,6 +878,7 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}
 		}
+		proposalVO.setSponsors(proposalDao.fetchAllSponsors());
 	}
 
 	@Override

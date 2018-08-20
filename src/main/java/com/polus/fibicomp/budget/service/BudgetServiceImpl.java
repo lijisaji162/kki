@@ -326,13 +326,14 @@ public class BudgetServiceImpl implements BudgetService {
 
 	@Override
 	public String addBudgetPeriod(ProposalVO proposalVO) {
-		Proposal proposal = proposalVO.getProposal();
-		BudgetHeader budget = proposal.getBudgetHeader();
-		List<BudgetPeriod> budgetPeriods = budget.getBudgetPeriods();
-		BudgetPeriod lastPeriod = budgetDao.getMaxBudgetPeriodByBudgetId(budget.getBudgetId());
+		Proposal proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
+		List<BudgetPeriod> updateBudgetPeriods = new ArrayList<>(budgetPeriods);
+		BudgetPeriod lastPeriod = budgetDao.getMaxBudgetPeriodByBudgetId(proposal.getBudgetHeader().getBudgetId());
 
 		BudgetPeriod newBudgetPeriod = new BudgetPeriod();
-		newBudgetPeriod.setBudget(budget);
+		newBudgetPeriod.setBudget(proposal.getBudgetHeader());
 		newBudgetPeriod.setBudgetPeriod(lastPeriod.getBudgetPeriod() + 1);
 		newBudgetPeriod.setEndDate(lastPeriod.getEndDate());
 		newBudgetPeriod.setStartDate(lastPeriod.getStartDate());
@@ -344,8 +345,10 @@ public class BudgetServiceImpl implements BudgetService {
 
 		List<BudgetDetail> budgetDetails = lastPeriod.getBudgetDetails();
 		if (budgetDetails != null && !budgetDetails.isEmpty()) {
+			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
+			Collections.copy(copiedBudgetDetails, budgetDetails);
 			List<BudgetDetail> newLineItems = lastPeriod.getBudgetDetails();
-			for (BudgetDetail budgetDetail : budgetDetails) {
+			for (BudgetDetail budgetDetail : copiedBudgetDetails) {
 				BudgetDetail detail = new BudgetDetail();
 				detail.setBudgetCategory(budgetDetail.getBudgetCategory());
 				detail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
@@ -369,8 +372,11 @@ public class BudgetServiceImpl implements BudgetService {
 			}
 			newBudgetPeriod.getBudgetDetails().addAll(newLineItems);
 		}
-        budgetPeriods.add(newBudgetPeriod);
-        proposal = proposalDao.saveOrUpdateProposal(proposal);
+        updateBudgetPeriods.add(newBudgetPeriod);
+        proposal.getBudgetHeader().getBudgetPeriods().clear();
+        proposal.getBudgetHeader().getBudgetPeriods().addAll(updateBudgetPeriods);
+        proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
         proposalVO.setProposal(proposal);
         return committeeDao.convertObjectToJSON(proposalVO);
 	}
@@ -730,7 +736,8 @@ public class BudgetServiceImpl implements BudgetService {
 					if (budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
 						hibernateTemplate.delete(budgetDetail);
 						updatedlist.remove(budgetDetail);
-					} else if (updatedlist.size() <= 2) {
+					}
+					if (updatedlist.size() <= 2) {
 						hibernateTemplate.delete(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}

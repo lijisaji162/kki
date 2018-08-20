@@ -1236,6 +1236,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			projList.add(Projections.property("proposalType.description"), "applicationType");
 			projList.add(Projections.property("proposalStatus.description"), "applicationStatus");
 			projList.add(Projections.property("submissionDate"), "submissionDate");
+			projList.add(Projections.property("sponsorName"), "sponsorName");
 			searchCriteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Proposal.class));
 			countCriteria.add(and);
 

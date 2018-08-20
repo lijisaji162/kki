@@ -38,4 +38,6 @@ public interface BudgetDao {
 
 	public BudgetPeriod getMaxBudgetPeriodByBudgetId(Integer budgetId);
 
+	public BudgetPeriod saveBudgetPeriod(BudgetPeriod budgetPeriod);
+
 }

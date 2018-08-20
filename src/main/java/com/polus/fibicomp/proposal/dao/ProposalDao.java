@@ -8,6 +8,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
+import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -123,5 +124,7 @@ public interface ProposalDao {
 	 * @return A list of activity types.
 	 */
 	public List<ActivityType> fetchAllActivityTypes();
+
+	public List<Sponsor> fetchAllSponsors();
 
 }
