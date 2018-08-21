@@ -213,4 +213,17 @@ public class ProposalController {
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
 	}
 
+	@RequestMapping(value = "/printBudgetPdfReport", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<InputStreamResource> budgetPdfReport(HttpServletResponse response,
+			@RequestHeader(value = "proposalId", required = true) String proposalIdInput)
+			throws IOException, DocumentException {
+		Integer proposalId = Integer.parseInt(proposalIdInput);
+		logger.info("Requesting for generateBudgetPdf");
+		logger.info("proposalId : " + proposalId);
+		ByteArrayInputStream bis = proposalService.generateBudgetPdf(proposalId);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "inline; filename=BudgetSummary.pdf");
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
+	}
+
 }

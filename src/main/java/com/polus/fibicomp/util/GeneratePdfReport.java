@@ -16,6 +16,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
@@ -138,11 +139,10 @@ public class GeneratePdfReport {
 				document.add(sponsorTable);
 			}
 
-            /*if(pdfData.getBudgetHeader() != null) {
+            if(pdfData.getBudgetHeader() != null) {
             document.add(new Chunk(ls));
             document.add(new Paragraph("Budget Summary", subHeadFont));
             document.add(new Chunk(ls));
-            document.add(new Paragraph("Periods And Totals", subHeadFont));
 
         	PdfPTable budgetTable = new PdfPTable(5);
         	budgetTable.setWidthPercentage(100);
@@ -152,19 +152,54 @@ public class GeneratePdfReport {
 
         	budgetTable.addCell(getTableCell("Period Start Date", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
         	budgetTable.addCell(getTableCell("Period End Date", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
-        	budgetTable.addCell(getTableCell("Months", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
         	budgetTable.addCell(getTableCell("Total Cost", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
         	budgetTable.addCell(getTableCell("Direct Cost", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+        	budgetTable.addCell(getTableCell("Indirect Cost", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
 
-            for (ProposalSponsor sponsors : pdfData.getProposalSponsors()) {
-	            	budgetTable.addCell(getTableCell(sponsors.getSponsor().getSponsorName(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
-	            	budgetTable.addCell(getTableCell(sponsors.getStartDate().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
-	            	budgetTable.addCell(getTableCell(sponsors.getEndDate().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
-	            	budgetTable.addCell(getTableCell(sponsors.getAmount().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+            for (BudgetPeriod budgetPeriods : pdfData.getBudgetHeader().getBudgetPeriods()) {
+	            	budgetTable.addCell(getTableCell(budgetPeriods.getStartDate().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	budgetTable.addCell(getTableCell(budgetPeriods.getEndDate().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	if(budgetPeriods.getTotalCost() == null) {
+	            		budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+	            	else {
+	            		budgetTable.addCell(getTableCell(budgetPeriods.getTotalCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+	            	if(budgetPeriods.getTotalDirectCost() == null) {
+	            		budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+	            	else {
+	            		budgetTable.addCell(getTableCell(budgetPeriods.getTotalDirectCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+	            	if(budgetPeriods.getTotalIndirectCost() == null) {
+	            		budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+	            	else {
+	            		budgetTable.addCell(getTableCell(budgetPeriods.getTotalIndirectCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+	            	}
+            	}
+            budgetTable.addCell(getTableCell("", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+            budgetTable.addCell(getTableCell("Total:", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+            if(pdfData.getBudgetHeader().getTotalCost() == null) {
+        		budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+        	}
+            else {
+                budgetTable.addCell(getTableCell(pdfData.getBudgetHeader().getTotalCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+            }
+            if(pdfData.getBudgetHeader().getTotalDirectCost() == null) {
+            	budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+            }
+            else {
+            	budgetTable.addCell(getTableCell(pdfData.getBudgetHeader().getTotalDirectCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+            }
+            if(pdfData.getBudgetHeader().getTotalIndirectCost() == null) {
+            	budgetTable.addCell(getTableCell("$0.00", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+            }
+            else {
+            	budgetTable.addCell(getTableCell(pdfData.getBudgetHeader().getTotalIndirectCost().toString(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
             }
             document.add(budgetTable);
-            }*/
-
+            }
 			document.close();
 		} catch (DocumentException ex) {
 			Logger.getLogger(GeneratePdfReport.class.getName()).log(Level.SEVERE, null, ex);

@@ -96,12 +96,14 @@ public class BudgetServiceImpl implements BudgetService {
 			vo.setRateClassTypes(rateClassTypes);
 		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
-		loadBudgetInitialData(vo);
+		//loadBudgetInitialData(vo);
+		vo.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		vo.setProposal(proposal);
 		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements(proposal.getActivityTypeCode()));
 		return committeeDao.convertObjectToJSON(vo);
 	}
 
+	@SuppressWarnings("unused")
 	private void loadBudgetInitialData(ProposalVO vo) {
 		List<CostElement> costElements = budgetDao.getAllCostElements();
 		vo.setCostElements(costElements);

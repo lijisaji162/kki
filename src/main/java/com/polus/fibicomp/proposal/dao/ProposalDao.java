@@ -1,6 +1,7 @@
 package com.polus.fibicomp.proposal.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.pojo.Sponsor;
+import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -126,5 +128,7 @@ public interface ProposalDao {
 	public List<ActivityType> fetchAllActivityTypes();
 
 	public List<Sponsor> fetchAllSponsors();
+
+	public List<Unit> fetchLeadUnitsByUnitNumbers(Set<String> unitNumbers);
 
 }

@@ -7,7 +7,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
@@ -16,10 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
+import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
+import com.polus.fibicomp.constants.Constants;
 
 @Transactional
 @Service(value = "budgetDao")
@@ -143,6 +148,35 @@ public class BudgetDaoImpl implements BudgetDao {
 	public BudgetPeriod saveBudgetPeriod(BudgetPeriod budgetPeriod) {
 		hibernateTemplate.save(budgetPeriod);
 		return budgetPeriod;
+	}
+
+	@Override
+	public List<BudgetCategory> fetchAllBudgetCategory() {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(BudgetCategory.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.property("code"), "code");
+		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
+		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(BudgetCategory.class));
+		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
+		@SuppressWarnings("unchecked")
+		List<BudgetCategory> budgetCategories = criteria.list();
+		return budgetCategories;
+	}
+
+	@Override
+	public List<CostElement> fetchCostElementByBudgetCategory(String budgetCategoryCode) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(CostElement.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.property("costElement"), "costElement");
+		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
+		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(CostElement.class));
+		criteria.add(Restrictions.eq("budgetCategoryCode", budgetCategoryCode));
+		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
+		@SuppressWarnings("unchecked")
+		List<CostElement> costElements = criteria.list();
+		return costElements;
 	}
 
 }

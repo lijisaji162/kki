@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
@@ -147,6 +148,8 @@ public class ProposalVO {
 	private Integer budgetDetailId;
 
 	private Set<String> rateClassTypes;
+
+	private List<BudgetCategory> budgetCategories;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -614,6 +617,14 @@ public class ProposalVO {
 
 	public void setRateClassTypes(Set<String> rateClassTypes) {
 		this.rateClassTypes = rateClassTypes;
+	}
+
+	public List<BudgetCategory> getBudgetCategories() {
+		return budgetCategories;
+	}
+
+	public void setBudgetCategories(List<BudgetCategory> budgetCategories) {
+		this.budgetCategories = budgetCategories;
 	}
 
 }

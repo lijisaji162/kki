@@ -2,6 +2,7 @@ package com.polus.fibicomp.pojo;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -43,6 +44,10 @@ public class PersonDTO {
 	private boolean isProvost = false;
 
 	private boolean isReviewer = false;
+
+	private List<Unit> leadUnits;
+
+	private boolean isCreateProposal = false;
 
 	public boolean isLogin() {
 		return isLogin;
@@ -178,6 +183,22 @@ public class PersonDTO {
 
 	public void setReviewer(boolean isReviewer) {
 		this.isReviewer = isReviewer;
+	}
+
+	public boolean isCreateProposal() {
+		return isCreateProposal;
+	}
+
+	public void setCreateProposal(boolean isCreateProposal) {
+		this.isCreateProposal = isCreateProposal;
+	}
+
+	public List<Unit> getLeadUnits() {
+		return leadUnits;
+	}
+
+	public void setLeadUnits(List<Unit> leadUnits) {
+		this.leadUnits = leadUnits;
 	}
 
 }

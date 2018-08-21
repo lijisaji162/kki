@@ -44,6 +44,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
+import com.polus.fibicomp.util.GenerateBudgetPdfReport;
 import com.polus.fibicomp.util.GeneratePdfReport;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
@@ -87,11 +88,11 @@ public class ProposalServiceImpl implements ProposalService {
 	@Autowired
 	private BudgetService budgetService;
 
-	@Autowired
-	private BudgetDao budgetDao;
-
 	@Value("${application.context.name}")
 	private String context;
+
+	@Autowired
+	private BudgetDao budgetDao;
 
 	@Override
 	public String createProposal(ProposalVO proposalVO) {
@@ -99,8 +100,6 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalVO.getProposal();
 		proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 		proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
-		//proposal.setHomeUnitNumber(Constants.DEFAULT_HOME_UNIT_NUMBER);
-		//proposal.setHomeUnitName(Constants.DEFAULT_HOME_UNIT_NAME);
 		if (grantCallId != null) {
 			GrantCall grantCall = grantCallDao.fetchGrantCallById(grantCallId);
 			proposal.setGrantCall(grantCall);
@@ -198,7 +197,8 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public String fetchCostElementByBudgetCategory(ProposalVO vo) {
-		vo.setProposalCostElements(proposalDao.fetchCostElementByBudgetCategory(vo.getBudgetCategoryCode()));
+		// vo.setProposalCostElements(proposalDao.fetchCostElementByBudgetCategory(vo.getBudgetCategoryCode()));
+		vo.setCostElements(budgetDao.fetchCostElementByBudgetCategory(vo.getBudgetCategoryCode()));
 		String response = committeeDao.convertObjectToJSON(vo);
 		return response;
 	}
@@ -850,7 +850,6 @@ public class ProposalServiceImpl implements ProposalService {
 	public void loadInitialData(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
 		proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
-		//proposalVO.setProposalCategories(proposalDao.fetchAllCategories());
 		proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
 		proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
 		proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
@@ -859,15 +858,15 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setProtocols(proposalDao.fetchAllProtocols());
 		proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
 		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
-		proposalVO.setProposalBudgetCategories(proposalDao.fetchAllBudgetCategories());
+		//proposalVO.setProposalBudgetCategories(proposalDao.fetchAllBudgetCategories());
 		proposalVO.setProposalInstituteCentreLabs(proposalDao.fetchAllInstituteCentrelabs());
 		proposalVO.setProposalExcellenceAreas(proposalDao.fetchAllAreaOfExcellence());
 		proposalVO.setSponsorTypes(grantCallDao.fetchAllSponsorTypes());
 		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
 		proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
-		proposalVO.setHomeUnits(committeeDao.fetchAllHomeUnits());
+		//proposalVO.setHomeUnits(committeeDao.fetchAllHomeUnits());
 		if (proposal.getBudgetHeader() != null) {
-			proposalVO.setCostElements(budgetDao.getAllCostElements());
+			//proposalVO.setCostElements(budgetDao.getAllCostElements());
 			proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
 			Set<String> rateClassTypes = new HashSet<>();
 			List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
@@ -877,6 +876,7 @@ public class ProposalServiceImpl implements ProposalService {
 					proposalVO.setRateClassTypes(rateClassTypes);
 				}
 			}
+			proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		}
 		proposalVO.setSponsors(proposalDao.fetchAllSponsors());
 	}
@@ -1008,6 +1008,13 @@ public class ProposalServiceImpl implements ProposalService {
 	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException {
 		Proposal proposalData = proposalDao.fetchProposalById(proposalId);
 		ByteArrayInputStream bis = GeneratePdfReport.proposalPdfReport(proposalData);
+		return bis;
+	}
+
+	@Override
+	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException {
+		Proposal budgetData = proposalDao.fetchProposalById(proposalId);
+		ByteArrayInputStream bis = GenerateBudgetPdfReport.proposalPdfReport(budgetData);
 		return bis;
 	}
 

@@ -112,6 +112,7 @@ public class BudgetDetail implements Serializable {
 
 	public BudgetDetail () {
 		budgetDetailCalcAmounts = new ArrayList<>();
+		budgetRateAndBases = new ArrayList<>();
 	}
 
 	public Integer getBudgetDetailId() {
