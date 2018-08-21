@@ -1228,7 +1228,7 @@ public class DashboardDaoImpl implements DashboardDao {
 				}
 			}
 			searchCriteria.add(and);
-			ProjectionList projList = Projections.projectionList();
+			/*ProjectionList projList = Projections.projectionList();
 			projList.add(Projections.property("proposalId"), "proposalId");
 			projList.add(Projections.property("title"), "title");
 			//projList.add(Projections.property("proposalCategory.description"), "applicationCategory");
@@ -1237,7 +1237,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			projList.add(Projections.property("proposalStatus.description"), "applicationStatus");
 			projList.add(Projections.property("submissionDate"), "submissionDate");
 			projList.add(Projections.property("sponsorName"), "sponsorName");
-			searchCriteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Proposal.class));
+			searchCriteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Proposal.class));*/
 			countCriteria.add(and);
 
 			Long dashboardCount = (Long) countCriteria.setProjection(Projections.rowCount()).uniqueResult();
@@ -1247,12 +1247,199 @@ public class DashboardDaoImpl implements DashboardDao {
 			int count = pageNumber * (currentPage - 1);
 			searchCriteria.setFirstResult(count);
 			searchCriteria.setMaxResults(pageNumber);
-			//searchCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+			searchCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 			@SuppressWarnings("unchecked")
 			List<Proposal> proposals = searchCriteria.list();
-			dashBoardProfile.setProposal(proposals);
+			List<Proposal> proposalList = new ArrayList<>();
+			if(proposals!=null && !proposals.isEmpty()) {
+				for(Proposal proposalObject : proposals) {
+					Proposal propObj = new Proposal();
+					propObj.setProposalId(proposalObject.getProposalId());
+					propObj.setTitle(proposalObject.getTitle());
+					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
+					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
+					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
+					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					proposalList.add(propObj);
+				}
+			}
+			dashBoardProfile.setProposal(proposalList);
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardDataForSmuProposal");
+			e.printStackTrace();
+		}
+		return dashBoardProfile;
+	}
+
+	@Override
+	public DashBoardProfile getDashBoardDataForSmuMyProposal(CommonVO vo) {
+		DashBoardProfile dashBoardProfile = new DashBoardProfile();
+		Integer pageNumber = vo.getPageNumber();
+		String sortBy = vo.getSortBy();
+		String reverse = vo.getReverse();
+		String property1 = vo.getProperty1();
+		String property2 = vo.getProperty2();
+		String property3 = vo.getProperty3();
+		String property4 = vo.getProperty4();
+		Integer currentPage = vo.getCurrentPage();
+		String personId = vo.getPersonId();
+
+		Conjunction and = Restrictions.conjunction();
+		try {
+			logger.info("----------- getDashBoardDataForSmuMyProposal ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Criteria searchCriteria = session.createCriteria(Proposal.class);
+			searchCriteria.createAlias("proposalStatus", "proposalStatus");
+			searchCriteria.createAlias("activityType", "activityType");
+			searchCriteria.createAlias("proposalType", "proposalType");
+
+			Criteria countCriteria = session.createCriteria(Proposal.class);
+			countCriteria.createAlias("proposalStatus", "proposalStatus");
+			countCriteria.createAlias("activityType", "activityType");
+			countCriteria.createAlias("proposalType", "proposalType");
+			if (sortBy.isEmpty() || reverse.isEmpty()) {
+				searchCriteria.addOrder(Order.desc("updateTimeStamp"));
+			} else {
+				if (reverse.equals("DESC")) {
+					searchCriteria.addOrder(Order.desc(sortBy));
+				} else {
+					searchCriteria.addOrder(Order.asc(sortBy));
+				}
+			}
+			if (property1 != null && !property1.isEmpty()) {
+				Integer proposalId = Integer.valueOf(property1);
+				and.add(Restrictions.like("proposalId", proposalId));
+			}
+			if (property2 != null && !property2.isEmpty()) {
+				and.add(Restrictions.like("title", "%" + property2 + "%").ignoreCase());
+			}
+			if (property3 != null && !property3.isEmpty()) {
+				and.add(Restrictions.like("proposalStatus.description", "%" + property3 + "%").ignoreCase());
+			}
+			if (property4 != null && !property4.isEmpty()) {
+				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
+			}
+			if (personId != null && !personId.isEmpty()) {
+					searchCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+					searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())).add(Restrictions.eq("homeUnitNumber", vo.getUnitNumber())));
+					countCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+					countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())).add(Restrictions.eq("homeUnitNumber", vo.getUnitNumber())));
+			}
+			searchCriteria.add(and);
+			countCriteria.add(and);
+
+			Long dashboardCount = (Long) countCriteria.setProjection(Projections.rowCount()).uniqueResult();
+			logger.info("dashboardCount : " + dashboardCount);
+			dashBoardProfile.setTotalServiceRequest(dashboardCount.intValue());
+
+			int count = pageNumber * (currentPage - 1);
+			searchCriteria.setFirstResult(count);
+			searchCriteria.setMaxResults(pageNumber);
+			searchCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+			@SuppressWarnings("unchecked")
+			List<Proposal> proposals = searchCriteria.list();
+			List<Proposal> proposalList = new ArrayList<>();
+			if(proposals!=null && !proposals.isEmpty()) {
+				for(Proposal proposalObject : proposals) {
+					Proposal propObj = new Proposal();
+					propObj.setProposalId(proposalObject.getProposalId());
+					propObj.setTitle(proposalObject.getTitle());
+					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
+					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
+					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
+					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					proposalList.add(propObj);
+				}
+			}
+			dashBoardProfile.setProposal(proposalList);
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataForSmuMyProposal");
+			e.printStackTrace();
+		}
+		return dashBoardProfile;
+	}
+
+	@Override
+	public DashBoardProfile getDashBoardDataForSmuReviewPendingProposal(CommonVO vo) {
+		DashBoardProfile dashBoardProfile = new DashBoardProfile();
+		Integer pageNumber = vo.getPageNumber();
+		String sortBy = vo.getSortBy();
+		String reverse = vo.getReverse();
+		String property1 = vo.getProperty1();
+		String property2 = vo.getProperty2();
+		String property3 = vo.getProperty3();
+		String property4 = vo.getProperty4();
+		Integer currentPage = vo.getCurrentPage();
+
+		Conjunction and = Restrictions.conjunction();
+		try {
+			logger.info("----------- getDashBoardDataForSmuReviewPendingProposal ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Criteria searchCriteria = session.createCriteria(Proposal.class);
+			searchCriteria.createAlias("proposalStatus", "proposalStatus");
+			searchCriteria.createAlias("activityType", "activityType");
+			searchCriteria.createAlias("proposalType", "proposalType");
+
+			Criteria countCriteria = session.createCriteria(Proposal.class);
+			countCriteria.createAlias("proposalStatus", "proposalStatus");
+			countCriteria.createAlias("activityType", "activityType");
+			countCriteria.createAlias("proposalType", "proposalType");
+			if (sortBy.isEmpty() || reverse.isEmpty()) {
+				searchCriteria.addOrder(Order.desc("updateTimeStamp"));
+			} else {
+				if (reverse.equals("DESC")) {
+					searchCriteria.addOrder(Order.desc(sortBy));
+				} else {
+					searchCriteria.addOrder(Order.asc(sortBy));
+				}
+			}
+			if (property1 != null && !property1.isEmpty()) {
+				Integer proposalId = Integer.valueOf(property1);
+				and.add(Restrictions.like("proposalId", proposalId));
+			}
+			if (property2 != null && !property2.isEmpty()) {
+				and.add(Restrictions.like("title", "%" + property2 + "%").ignoreCase());
+			}
+			if (property3 != null && !property3.isEmpty()) {
+				and.add(Restrictions.like("proposalStatus.description", "%" + property3 + "%").ignoreCase());
+			}
+			if (property4 != null && !property4.isEmpty()) {
+				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
+			}
+			searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS)));
+			countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS)));
+			searchCriteria.add(and);
+			countCriteria.add(and);
+
+			Long dashboardCount = (Long) countCriteria.setProjection(Projections.rowCount()).uniqueResult();
+			logger.info("dashboardCount : " + dashboardCount);
+			dashBoardProfile.setTotalServiceRequest(dashboardCount.intValue());
+
+			int count = pageNumber * (currentPage - 1);
+			searchCriteria.setFirstResult(count);
+			searchCriteria.setMaxResults(pageNumber);
+			searchCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+			@SuppressWarnings("unchecked")
+			List<Proposal> proposals = searchCriteria.list();
+			List<Proposal> proposalList = new ArrayList<>();
+			if(proposals!=null && !proposals.isEmpty()) {
+				for(Proposal proposalObject : proposals) {
+					Proposal propObj = new Proposal();
+					propObj.setProposalId(proposalObject.getProposalId());
+					propObj.setTitle(proposalObject.getTitle());
+					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
+					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
+					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
+					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					proposalList.add(propObj);
+				}
+			}
+			dashBoardProfile.setProposal(proposalList);
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataForSmuReviewPendingProposal");
 			e.printStackTrace();
 		}
 		return dashBoardProfile;

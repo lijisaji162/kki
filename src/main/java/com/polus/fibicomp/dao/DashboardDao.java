@@ -189,4 +189,8 @@ public interface DashboardDao {
 	 */
 	public DashBoardProfile getDashBoardDataForSmuProposal(CommonVO vo);
 
+	public DashBoardProfile getDashBoardDataForSmuMyProposal(CommonVO vo);
+
+	public DashBoardProfile getDashBoardDataForSmuReviewPendingProposal(CommonVO vo);
+
 }
