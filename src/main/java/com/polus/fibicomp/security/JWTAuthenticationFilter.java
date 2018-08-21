@@ -6,6 +6,9 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -27,6 +30,10 @@ import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.pojo.PersonDTO;
 import com.polus.fibicomp.pojo.PrincipalBo;
+import com.polus.fibicomp.proposal.dao.ProposalDao;
+import com.polus.fibicomp.role.dao.RoleDao;
+import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
+import com.polus.fibicomp.role.pojo.RoleMemberBo;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -38,10 +45,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	private AuthenticationManager authenticationManager;
 	private LoginDao loginDao;
+	private RoleDao roleDao;
+	private ProposalDao proposalDao;
 
-	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao) throws Exception {
+	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao) throws Exception {
 		this.authenticationManager = authenticationManager;
 		this.loginDao = loginDao;
+		this.roleDao = roleDao;
+		this.proposalDao = proposalDao;
 	}
 
 	@Override
@@ -73,6 +84,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		PersonDTO personDTO = new PersonDTO();
 		personDTO = loginDao.readPersonData(((User) auth.getPrincipal()).getUsername());
+		RoleMemberBo memberBo = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), "10013");
+		if (memberBo != null) {
+			Set<String> unitNumbers = new HashSet<>();
+			List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
+			if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+				for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+					unitNumbers.add(bo.getAttributeValue());
+				}
+				logger.info("create proposal unitNumbers : " + unitNumbers);
+				if (!unitNumbers.isEmpty()) {
+					personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
+				}
+				personDTO.setCreateProposal(true);
+			}
+		}
 		personDTO.setJwtRoles(auth.getAuthorities());
 		String response = new ObjectMapper().writeValueAsString(personDTO);
 		res.getWriter().write(response);

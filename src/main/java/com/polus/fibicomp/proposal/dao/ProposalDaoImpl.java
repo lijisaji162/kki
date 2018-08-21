@@ -1,6 +1,7 @@
 package com.polus.fibicomp.proposal.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -21,6 +22,7 @@ import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.pojo.Sponsor;
+import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -237,6 +239,22 @@ public class ProposalDaoImpl implements ProposalDao {
 		@SuppressWarnings("unchecked")
 		List<Sponsor> sponsors = criteria.list();
 		return sponsors;
+	}
+
+	@Override
+	public List<Unit> fetchLeadUnitsByUnitNumbers(Set<String> unitNumbers) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(Unit.class);
+		criteria.add(Restrictions.in("unitNumber", unitNumbers));
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.property("unitNumber"), "unitNumber");
+		projList.add(Projections.property("unitName"), "unitName");
+		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Unit.class));
+		criteria.add(Restrictions.eq("active", true));
+		criteria.addOrder(Order.asc("unitName"));
+		@SuppressWarnings("unchecked")
+		List<Unit> units = criteria.list();
+		return units;
 	}
 
 }

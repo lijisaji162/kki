@@ -1260,7 +1260,8 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
-					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					propObj.setProposalPersons(proposalObject.getProposalPersons());
+					propObj.setSponsorName(proposalObject.getSponsorName());
 					proposalList.add(propObj);
 				}
 			}
@@ -1349,7 +1350,8 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
-					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					propObj.setProposalPersons(proposalObject.getProposalPersons());
+					propObj.setSponsorName(proposalObject.getSponsorName());
 					proposalList.add(propObj);
 				}
 			}
@@ -1433,7 +1435,8 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
-					propObj.setPrincipalInvestigator(proposalObject.getPrincipalInvestigator());
+					propObj.setProposalPersons(proposalObject.getProposalPersons());
+					propObj.setSponsorName(proposalObject.getSponsorName());
 					proposalList.add(propObj);
 				}
 			}

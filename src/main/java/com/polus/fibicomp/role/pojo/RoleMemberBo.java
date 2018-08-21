@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -43,7 +44,7 @@ public class RoleMemberBo implements Serializable {
 	private Timestamp activeToDateValue;
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "roleMemberBo", orphanRemoval = true, cascade = { CascadeType.ALL })
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "roleMemberBo", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<RoleMemberAttributeDataBo> attributeDetails;
 
 	public String getId() {

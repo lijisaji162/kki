@@ -146,4 +146,6 @@ public interface ProposalService {
 
 	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException;
 
+	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException;
+
 }
