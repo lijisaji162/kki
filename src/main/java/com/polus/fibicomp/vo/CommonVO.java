@@ -106,6 +106,8 @@ public class CommonVO {
 
 	private Integer ostprojectId;
 
+	private String proposalTabName;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -480,6 +482,14 @@ public class CommonVO {
 
 	public void setOstprojectId(Integer ostprojectId) {
 		this.ostprojectId = ostprojectId;
+	}
+
+	public String getProposalTabName() {
+		return proposalTabName;
+	}
+
+	public void setProposalTabName(String proposalTabName) {
+		this.proposalTabName = proposalTabName;
 	}
 
 }

@@ -63,7 +63,19 @@ public class DashboardServiceImpl implements DashboardService {
 				dashBoardProfile = dashboardDao.getDashBoardDataForGrantCall(vo);
 			}
 			if (requestType.equals("SMU_PROPOSAL")) {
-				dashBoardProfile = dashboardDao.getDashBoardDataForSmuProposal(vo);
+				if (vo.getIsUnitAdmin()) {
+					String proposalTabName = vo.getProposalTabName();
+					logger.info("proposalTabName : " + proposalTabName);
+					if (proposalTabName.equals("MY_PROPOSAL")) {
+						dashBoardProfile = dashboardDao.getDashBoardDataForSmuMyProposal(vo);
+					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
+						dashBoardProfile = dashboardDao.getDashBoardDataForSmuReviewPendingProposal(vo);
+					} else {
+						dashBoardProfile = dashboardDao.getDashBoardDataForSmuProposal(vo);
+					}
+				} else {
+					dashBoardProfile = dashboardDao.getDashBoardDataForSmuProposal(vo);
+				}
 			}
 			// dashBoardProfile.setPersonDTO(personDTO);
 		} catch (Exception e) {
