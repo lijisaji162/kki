@@ -44,6 +44,9 @@ import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
+import com.polus.fibicomp.role.dao.RoleDao;
+import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
+import com.polus.fibicomp.role.pojo.RoleMemberBo;
 import com.polus.fibicomp.util.GenerateBudgetPdfReport;
 import com.polus.fibicomp.util.GeneratePdfReport;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
@@ -66,6 +69,10 @@ public class ProposalServiceImpl implements ProposalService {
 	@Autowired
 	@Qualifier(value = "proposalDao")
 	private ProposalDao proposalDao;
+
+	@Autowired
+	@Qualifier(value = "roleDao")
+	private RoleDao roleDao;
 
 	@Autowired
 	private CommitteeDao committeeDao;
@@ -110,6 +117,9 @@ public class ProposalServiceImpl implements ProposalService {
 			proposal.setGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 			proposal.setGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS);
 		}
+
+		getHomeUnits(proposalVO);
+
 		loadInitialData(proposalVO);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -190,6 +200,8 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 			proposalVO.setWorkflow(workflow);
 		}
+
+		getHomeUnits(proposalVO);
 
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -1016,6 +1028,23 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal budgetData = proposalDao.fetchProposalById(proposalId);
 		ByteArrayInputStream bis = GenerateBudgetPdfReport.proposalPdfReport(budgetData);
 		return bis;
+	}
+
+	public void getHomeUnits(ProposalVO proposalVO) {
+		RoleMemberBo memberBo = roleDao.fetchCreateProposalPersonRole(proposalVO.getPersonId(), "10013");
+		if (memberBo != null) {
+			Set<String> unitNumbers = new HashSet<>();
+			List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
+			if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+				for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+					unitNumbers.add(bo.getAttributeValue());
+				}
+				logger.info("create proposal unitNumbers : " + unitNumbers);
+				if (!unitNumbers.isEmpty()) {
+					proposalVO.setHomeUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
+				}
+			}
+		}
 	}
 
 }
