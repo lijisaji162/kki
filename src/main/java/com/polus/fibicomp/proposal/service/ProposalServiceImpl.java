@@ -1031,18 +1031,21 @@ public class ProposalServiceImpl implements ProposalService {
 	}
 
 	public void getHomeUnits(ProposalVO proposalVO) {
-		RoleMemberBo memberBo = roleDao.fetchCreateProposalPersonRole(proposalVO.getPersonId(), "10013");
-		if (memberBo != null) {
+		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(proposalVO.getPersonId(), "10013");
+		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();
-			List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
-			if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
-				for (RoleMemberAttributeDataBo bo : attributeDataBos) {
-					unitNumbers.add(bo.getAttributeValue());
+			for (RoleMemberBo memberBo : memberBos) {
+				List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
+				if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+					for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+						unitNumbers.add(bo.getAttributeValue());
+					}
 				}
-				logger.info("create proposal unitNumbers : " + unitNumbers);
-				if (!unitNumbers.isEmpty()) {
-					proposalVO.setHomeUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
-				}
+			}
+
+			logger.info("create proposal unitNumbers : " + unitNumbers);
+			if (!unitNumbers.isEmpty()) {
+				proposalVO.setHomeUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 			}
 		}
 	}

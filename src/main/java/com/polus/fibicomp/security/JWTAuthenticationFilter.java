@@ -84,18 +84,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		PersonDTO personDTO = new PersonDTO();
 		personDTO = loginDao.readPersonData(((User) auth.getPrincipal()).getUsername());
-		RoleMemberBo memberBo = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), "10013");
-		if (memberBo != null) {
+		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), "10013");
+		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();
-			List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
-			if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
-				for (RoleMemberAttributeDataBo bo : attributeDataBos) {
-					unitNumbers.add(bo.getAttributeValue());
+			for (RoleMemberBo memberBo : memberBos) {
+				List<RoleMemberAttributeDataBo> attributeDataBos = memberBo.getAttributeDetails();
+				if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+					for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+						unitNumbers.add(bo.getAttributeValue());
+					}
 				}
-				logger.info("create proposal unitNumbers : " + unitNumbers);
-				if (!unitNumbers.isEmpty()) {
-					personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
-				}
+			}
+
+			logger.info("create proposal unitNumbers : " + unitNumbers);
+			if (!unitNumbers.isEmpty()) {
+				personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 				personDTO.setCreateProposal(true);
 			}
 		}
