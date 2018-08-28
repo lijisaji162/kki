@@ -1,5 +1,6 @@
 package com.polus.fibicomp.role.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -23,8 +24,8 @@ public class RoleDaoImpl implements RoleDao {
 	private HibernateTemplate hibernateTemplate;
 
 	@Override
-	public RoleMemberBo fetchCreateProposalPersonRole(String personId, String roleId) {
-		RoleMemberBo roleMemberBo = null;
+	public List<RoleMemberBo> fetchCreateProposalPersonRole(String personId, String roleId) {
+		List<RoleMemberBo> roleMemberBos = null;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(RoleMemberBo.class);
 		criteria.add(Restrictions.eq("memberId", personId));
@@ -32,14 +33,14 @@ public class RoleDaoImpl implements RoleDao {
 		@SuppressWarnings("unchecked")
 		List<RoleMemberBo> createProposalRoles = criteria.list();
 		if (createProposalRoles != null && !createProposalRoles.isEmpty()) {
+			roleMemberBos = new ArrayList<>();
 			for (RoleMemberBo memberBo : createProposalRoles) {
 				if (memberBo.isActive()) {
-					roleMemberBo = memberBo;
-					break;
+					roleMemberBos.add(memberBo);
 				}
 			}
 		}
-		return roleMemberBo;
+		return roleMemberBos;
 	}
 
 }

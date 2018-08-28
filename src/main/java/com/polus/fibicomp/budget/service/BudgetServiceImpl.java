@@ -199,6 +199,9 @@ public class BudgetServiceImpl implements BudgetService {
 		BudgetDetailCalcAmount budgetCalculatedAmount = null;
 		List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
 		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+			int numberOfDays = (int) ((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000);
+			BigDecimal hundred = new BigDecimal(100);
+			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 			for (ValidCeRateType ceRateType : ceRateTypes) {
 				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetPeriodStartDate,
 						ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);
@@ -208,18 +211,24 @@ public class BudgetServiceImpl implements BudgetService {
 						|| (applicableRate.getRateClass().getRateClassTypeCode().equals("V") && "8".equals(applicableRate.getRateClassCode())
 								&& !"2".equals(applicableRate.getRateTypeCode())))) {
 					validRate = validRate.add(applicableRate.getApplicableRate());
-					budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
+					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+						BigDecimal calculatedCost = ((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
+						fringeCost = fringeCost.add(calculatedCost);
+						budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
+						budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+						budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+					}
 				}
 			}
 		}
-		if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+		/*if (validRate.compareTo(BigDecimal.ZERO) > 0) {
 			int numberOfDays = (int) ((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000);
 			BigDecimal hundred = new BigDecimal(100);
 			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 			fringeCost = fringeCost.add((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
 			budgetCalculatedAmount.setCalculatedCost(fringeCost);
 			//budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
-		}
+		}*/
 		return fringeCost;
 	}
 
@@ -237,6 +246,8 @@ public class BudgetServiceImpl implements BudgetService {
 				Constants.KC_DOC_PARAMETER_DETAIL_TYPE_CODE, Constants.DEFAULT_RATE_TYPE_CODE);
 		List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
 		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+			BigDecimal hundred = new BigDecimal(100);
+			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 			for (ValidCeRateType ceRateType : ceRateTypes) {
 				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetPeriodStartDate,
 						ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);
@@ -244,17 +255,23 @@ public class BudgetServiceImpl implements BudgetService {
 						&& applicableRate.getRateClass().getRateClassTypeCode().equals(ohRateClassTypeCode)
 						&& applicableRate.getRateTypeCode().equals(rateTypeCode)) {
 					validRate = validRate.add(applicableRate.getApplicableRate());
-					budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
+					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+						BigDecimal calculatedCost = (fringeWithLineItemCost.multiply(percentageFactor));
+						fandACost = fandACost.add(calculatedCost);
+						budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
+						budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+						budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+					}
 				}
 			}
 		}
-		if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+		/*if (validRate.compareTo(BigDecimal.ZERO) > 0) {
 			BigDecimal hundred = new BigDecimal(100);
 			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 			fandACost = fandACost.add((fringeWithLineItemCost.multiply(percentageFactor)));
 			budgetCalculatedAmount.setCalculatedCost(fandACost);
 			//budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
-		}
+		}*/
 		return fandACost;
 	}
 
@@ -271,8 +288,6 @@ public class BudgetServiceImpl implements BudgetService {
 		budgetCalculatedAmount.setRateType(proposalRate.getRateType());
 		budgetCalculatedAmount.setApplyRateFlag(true);
 		budgetCalculatedAmount.setRateTypeDescription(proposalRate.getRateClass().getDescription());
-		// budgetCalculatedAmount.setCalculatedCost(calculatedCost);
-		// budgetCalculatedAmount.setCalculatedCostSharing(calculatedCostSharing);
 		return budgetCalculatedAmount;
 	}
 
