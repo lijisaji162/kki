@@ -37,7 +37,7 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 	private BudgetCategory budgetCategory;
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "costElementBo")
+	@OneToMany(mappedBy = "costElementBo", cascade = { CascadeType.ALL })
     private List<ValidCeRateType> validCeRateTypes;
 
 	@Column(name = "DESCRIPTION")
