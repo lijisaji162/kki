@@ -722,7 +722,7 @@ public class BudgetServiceImpl implements BudgetService {
 		Collections.copy(updatedlist, budgetPeriods);
 		int budgetPeriodNumber = 0;
 		for (BudgetPeriod budgetPeriod : budgetPeriods) {
-			if (budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
+			if (budgetPeriod.getBudgetPeriodId() != null && budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
 				budgetPeriodNumber = budgetPeriod.getBudgetPeriod();
 				hibernateTemplate.delete(budgetPeriod);
 				updatedlist.remove(budgetPeriod);
@@ -750,7 +750,7 @@ public class BudgetServiceImpl implements BudgetService {
 				List<BudgetDetail> updatedlist = new ArrayList<BudgetDetail>(budgetDetails);
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
-					if (budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
+					if (budgetDetail.getBudgetDetailId() != null && budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
 						hibernateTemplate.delete(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}

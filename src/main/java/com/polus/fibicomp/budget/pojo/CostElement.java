@@ -8,7 +8,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,7 +20,7 @@ import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
-@Table(name = "FIBI_COST_ELEMENT")
+@Table(name = "COST_ELEMENT")
 public class CostElement implements Serializable, Comparable<CostElement> {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +33,7 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 	private String budgetCategoryCode;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_COST_ELEMENT"), name = "BUDGET_CATEGORY_CODE", referencedColumnName = "BUDGET_CATEGORY_CODE", insertable = false, updatable = false)
+	@JoinColumn(name = "BUDGET_CATEGORY_CODE", referencedColumnName = "BUDGET_CATEGORY_CODE", insertable = false, updatable = false)
 	private BudgetCategory budgetCategory;
 
 	@JsonManagedReference
