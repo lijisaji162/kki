@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "FIBI_BUDGET_CATEGORY")
+@Table(name = "BUDGET_CATEGORY")
 public class BudgetCategory implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
 @Entity
-@Table(name = "FIBI_BUDGET_CATEGORY_TYPE")
+@Table(name = "BUDGET_CATEGORY_TYPE")
 public class BudgetCategoryType implements Serializable, Comparable<BudgetCategoryType> {
 
 	private static final long serialVersionUID = 1L;
