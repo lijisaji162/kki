@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_PERSONS")
+@Table(name = "FIBI_PROPOSAL_PERSONS")
 public class ProposalPerson implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +34,7 @@ public class ProposalPerson implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROPOSAL_PERSONS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL_PERSONS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "PERSON_ID")
@@ -50,7 +50,7 @@ public class ProposalPerson implements Serializable {
 	private BigDecimal personRoleId;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROPOSAL_PERSONS"), name = "PROP_PERSON_ROLE_ID", referencedColumnName = "PROP_PERSON_ROLE_ID", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_PERSONS"), name = "PROP_PERSON_ROLE_ID", referencedColumnName = "PROP_PERSON_ROLE_ID", insertable = false, updatable = false)
 	private ProposalPersonRole proposalPersonRole;
 
 	@Column(name = "UNIT_NUMBER")

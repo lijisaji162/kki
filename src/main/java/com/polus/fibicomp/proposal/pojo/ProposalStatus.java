@@ -12,7 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_STATUS")
+@Table(name = "FIBI_PROPOSAL_STATUS")
 public class ProposalStatus implements Serializable {
 
 	private static final long serialVersionUID = 1L;

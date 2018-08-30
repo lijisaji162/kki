@@ -14,11 +14,7 @@ import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
-import com.polus.fibicomp.proposal.pojo.ProposalBudgetCategory;
-import com.polus.fibicomp.proposal.pojo.ProposalCategory;
-import com.polus.fibicomp.proposal.pojo.ProposalCostElement;
 import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
-import com.polus.fibicomp.proposal.pojo.ProposalInstituteCentreLab;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
@@ -32,12 +28,6 @@ public interface ProposalDao {
 	 * @return An object of proposal status.
 	 */
 	public ProposalStatus fetchStatusByStatusCode(Integer statusCode);
-
-	/**
-	 * This method is used to fetch all proposal categories.
-	 * @return A list of proposal categories.
-	 */
-	public List<ProposalCategory> fetchAllCategories();
 
 	/**
 	 * This method is used to fetch all protocols.
@@ -82,25 +72,6 @@ public interface ProposalDao {
 	 * @return A proposal object.
 	 */
 	public Proposal fetchProposalById(Integer proposalId);
-
-	/**
-	 * This method is used to fetch all budget categories.
-	 * @return A list of proposal buget categories.
-	 */
-	public List<ProposalBudgetCategory> fetchAllBudgetCategories();
-
-	/**
-	 * This method is used fetch cost elements based on budget category.
-	 * @param budgetCategoryCode - category code of a budget.
-	 * @return A list of cost elements.
-	 */
-	public List<ProposalCostElement> fetchCostElementByBudgetCategory(String budgetCategoryCode);
-
-	/**
-	 * This method is used to fetch all institutes, Centres and Labs.
-	 * @return A list of institutes, Centres and Labs.
-	 */
-	public List<ProposalInstituteCentreLab> fetchAllInstituteCentrelabs();
 
 	/**
 	 * This method is used to fetch all area of excellence.

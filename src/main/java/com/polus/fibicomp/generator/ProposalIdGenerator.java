@@ -23,7 +23,7 @@ public class ProposalIdGenerator implements IdentifierGenerator {
 		try {
 			Statement statement = connection.createStatement();
 
-			ResultSet rs = statement.executeQuery("select count(1) from FIBI_SMU_PROPOSAL");
+			ResultSet rs = statement.executeQuery("select count(1) from FIBI_PROPOSAL");
 
 			if (rs.next()) {
 				int id = rs.getInt(1) + 1001;

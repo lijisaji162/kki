@@ -353,32 +353,6 @@ public class ProposalServiceImpl implements ProposalService {
 	}
 
 	@Override
-	public String deleteProposalBudget(ProposalVO vo) {
-		/*try {
-			Proposal proposal = proposalDao.fetchProposalById(vo.getProposalId());
-			List<ProposalBudget> list = proposal.getProposalBudgets();
-			List<ProposalBudget> updatedlist = new ArrayList<ProposalBudget>(list);
-			Collections.copy(updatedlist, list);
-			for (ProposalBudget proposalBudget : list) {
-				if (proposalBudget.getBudgetId().equals(vo.getBudgetId())) {
-					updatedlist.remove(proposalBudget);
-				}
-			}
-			proposal.getProposalBudgets().clear();
-			proposal.getProposalBudgets().addAll(updatedlist);
-			proposalDao.saveOrUpdateProposal(proposal);
-			vo.setProposal(proposal);
-			vo.setStatus(true);
-			vo.setMessage("Proposal budget deleted successfully");
-		} catch (Exception e) {
-			vo.setStatus(true);
-			vo.setMessage("Problem occurred in deleting proposal budget");
-			e.printStackTrace();
-		}*/
-		return committeeDao.convertObjectToJSON(vo);
-	}
-
-	@Override
 	public String deleteProposalAttachment(ProposalVO vo) {
 		try {
 			Proposal proposal = proposalDao.fetchProposalById(vo.getProposalId());
@@ -870,13 +844,10 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setProtocols(proposalDao.fetchAllProtocols());
 		proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
 		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
-		//proposalVO.setProposalBudgetCategories(proposalDao.fetchAllBudgetCategories());
-		proposalVO.setProposalInstituteCentreLabs(proposalDao.fetchAllInstituteCentrelabs());
 		proposalVO.setProposalExcellenceAreas(proposalDao.fetchAllAreaOfExcellence());
 		proposalVO.setSponsorTypes(grantCallDao.fetchAllSponsorTypes());
 		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
 		proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
-		//proposalVO.setHomeUnits(committeeDao.fetchAllHomeUnits());
 		if (proposal.getBudgetHeader() != null) {
 			//proposalVO.setCostElements(budgetDao.getAllCostElements());
 			proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));

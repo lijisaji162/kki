@@ -19,7 +19,7 @@ import org.hibernate.annotations.Parameter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_ATTACHMENTS")
+@Table(name = "FIBI_PROPOSAL_ATTACHMENTS")
 public class ProposalAttachment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -33,14 +33,14 @@ public class ProposalAttachment implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROP_ATTACHMENTS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROP_ATTACHMENTS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "ATTACHMNT_TYPE_CODE")
 	private Integer attachmentTypeCode;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROP_ATTACHMENTS"), name = "ATTACHMNT_TYPE_CODE", referencedColumnName = "ATTACHMNT_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROP_ATTACHMENTS"), name = "ATTACHMNT_TYPE_CODE", referencedColumnName = "ATTACHMNT_TYPE_CODE", insertable = false, updatable = false)
 	private ProposalAttachmentType attachmentType;
 
 	@Column(name = "DESCRIPTION")

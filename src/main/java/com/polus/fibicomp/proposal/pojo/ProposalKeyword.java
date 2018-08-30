@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.pojo.ScienceKeyword;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_KEYWORDS")
+@Table(name = "FIBI_PROPOSAL_KEYWORDS")
 public class ProposalKeyword implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,14 +32,14 @@ public class ProposalKeyword implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROP_KEYWORDS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROP_KEYWORDS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "SCIENCE_KEYWORD_CODE")
 	private String scienceKeywordCode;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROP_KEYWORDS"), name = "SCIENCE_KEYWORD_CODE", referencedColumnName = "SCIENCE_KEYWORD_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROP_KEYWORDS"), name = "SCIENCE_KEYWORD_CODE", referencedColumnName = "SCIENCE_KEYWORD_CODE", insertable = false, updatable = false)
 	private ScienceKeyword scienceKeyword;
 
 	@Column(name = "UPDATE_TIMESTAMP")

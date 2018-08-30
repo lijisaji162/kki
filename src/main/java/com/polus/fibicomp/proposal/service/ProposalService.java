@@ -98,13 +98,6 @@ public interface ProposalService {
 	public String deleteIrbProtocol(ProposalVO vo);
 
 	/**
-	 * This method is used to delete budgets from proposal.
-	 * @param vo - Object of ProposalVO class. 
-	 * @return a String of details of proposal with updated list of budgets.
-	 */
-	public String deleteProposalBudget(ProposalVO vo);
-
-	/**
 	 * This method is used to delete attachment from proposal.
 	 * @param vo - Object of ProposalVO class. 
 	 * @return a String of details of proposal with updated list of attachments.
