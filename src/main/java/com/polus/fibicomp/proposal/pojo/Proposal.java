@@ -30,7 +30,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL")
+@Table(name = "FIBI_PROPOSAL")
 public class Proposal implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -46,21 +46,21 @@ public class Proposal implements Serializable {
 	private Integer grantCallId;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_SMU_PROPOSAL"), name = "GRANT_HEADER_ID", referencedColumnName = "GRANT_HEADER_ID", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_PROPOSAL"), name = "GRANT_HEADER_ID", referencedColumnName = "GRANT_HEADER_ID", insertable = false, updatable = false)
 	private GrantCall grantCall;
 
 	@Column(name = "STATUS_CODE")
 	private Integer statusCode;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROPOSAL"), name = "STATUS_CODE", referencedColumnName = "STATUS_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL"), name = "STATUS_CODE", referencedColumnName = "STATUS_CODE", insertable = false, updatable = false)
 	private ProposalStatus proposalStatus;
 
 	@Column(name = "TYPE_CODE")
 	private Integer typeCode;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROPOSAL"), name = "TYPE_CODE", referencedColumnName = "TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL"), name = "TYPE_CODE", referencedColumnName = "TYPE_CODE", insertable = false, updatable = false)
 	private ProposalType proposalType;
 
 	@Column(name = "TITLE")
@@ -113,7 +113,7 @@ public class Proposal implements Serializable {
 	private List<ProposalAttachment> proposalAttachments;
 
 	@ManyToOne(optional = true, cascade = { CascadeType.ALL })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_SMU_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK7_FIBI_PROPOSAL"), name = "BUDGET_HEADER_ID", referencedColumnName = "BUDGET_HEADER_ID")
 	private BudgetHeader budgetHeader;
 
 	@JsonManagedReference
@@ -140,7 +140,7 @@ public class Proposal implements Serializable {
 	private Integer grantTypeCode;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK6_FIBI_SMU_PROPOSAL"), name = "GRANT_TYPE_CODE", referencedColumnName = "GRANT_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK6_FIBI_PROPOSAL"), name = "GRANT_TYPE_CODE", referencedColumnName = "GRANT_TYPE_CODE", insertable = false, updatable = false)
 	private GrantCallType grantCallType;
 
 	@Column(name = "HOME_UNIT_NUMBER")
@@ -153,7 +153,7 @@ public class Proposal implements Serializable {
 	private String activityTypeCode;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-    @JoinColumn(foreignKey = @ForeignKey(name = "FK8_FIBI_SMU_PROPOSAL"), name="ACTIVITY_TYPE_CODE", referencedColumnName="ACTIVITY_TYPE_CODE", insertable = false, updatable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK8_FIBI_PROPOSAL"), name="ACTIVITY_TYPE_CODE", referencedColumnName="ACTIVITY_TYPE_CODE", insertable = false, updatable = false)
     private ActivityType activityType;
 
 	@Column(name = "SPONSOR_CODE")

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.pojo.Sponsor;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_SPONSORS")
+@Table(name = "FIBI_PROPOSAL_SPONSORS")
 public class ProposalSponsor implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -33,14 +33,14 @@ public class ProposalSponsor implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROPOSAL_SPONSORS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL_SPONSORS"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "SPONSOR_CODE")
 	private String sponsorCode;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROPOSAL_SPONSORS"), name = "SPONSOR_CODE", referencedColumnName = "SPONSOR_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_SPONSORS"), name = "SPONSOR_CODE", referencedColumnName = "SPONSOR_CODE", insertable = false, updatable = false)
 	private Sponsor sponsor;
 
 	@Column(name = "START_DATE")

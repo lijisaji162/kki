@@ -20,10 +20,7 @@ import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
-import com.polus.fibicomp.proposal.pojo.ProposalBudgetCategory;
-import com.polus.fibicomp.proposal.pojo.ProposalCostElement;
 import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
-import com.polus.fibicomp.proposal.pojo.ProposalInstituteCentreLab;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -36,8 +33,6 @@ public class ProposalVO {
 	private Integer grantCallId;
 
 	private Proposal proposal;
-
-	//private List<ProposalCategory> proposalCategories;
 
 	private List<ActivityType> activityTypes;
 
@@ -58,12 +53,6 @@ public class ProposalVO {
 	private List<ProposalPersonRole> proposalPersonRoles;
 
 	private ProposalAttachment newAttachment;
-
-	private List<ProposalCostElement> proposalCostElements;
-
-	private List<ProposalBudgetCategory> proposalBudgetCategories;
-
-	private List<ProposalInstituteCentreLab> proposalInstituteCentreLabs;
 
 	private List<ProposalExcellenceArea> proposalExcellenceAreas;
 
@@ -171,14 +160,6 @@ public class ProposalVO {
 		this.proposal = proposal;
 	}
 
-	/*public List<ProposalCategory> getProposalCategories() {
-		return proposalCategories;
-	}
-
-	public void setProposalCategories(List<ProposalCategory> proposalCategories) {
-		this.proposalCategories = proposalCategories;
-	}*/
-
 	public List<ScienceKeyword> getScienceKeywords() {
 		return scienceKeywords;
 	}
@@ -249,30 +230,6 @@ public class ProposalVO {
 
 	public void setNewAttachment(ProposalAttachment newAttachment) {
 		this.newAttachment = newAttachment;
-	}
-
-	public List<ProposalCostElement> getProposalCostElements() {
-		return proposalCostElements;
-	}
-
-	public void setProposalCostElements(List<ProposalCostElement> proposalCostElements) {
-		this.proposalCostElements = proposalCostElements;
-	}
-
-	public List<ProposalBudgetCategory> getProposalBudgetCategories() {
-		return proposalBudgetCategories;
-	}
-
-	public void setProposalBudgetCategories(List<ProposalBudgetCategory> proposalBudgetCategories) {
-		this.proposalBudgetCategories = proposalBudgetCategories;
-	}
-
-	public List<ProposalInstituteCentreLab> getProposalInstituteCentreLabs() {
-		return proposalInstituteCentreLabs;
-	}
-
-	public void setProposalInstituteCentreLabs(List<ProposalInstituteCentreLab> proposalInstituteCentreLabs) {
-		this.proposalInstituteCentreLabs = proposalInstituteCentreLabs;
 	}
 
 	public List<ProposalExcellenceArea> getProposalExcellenceAreas() {

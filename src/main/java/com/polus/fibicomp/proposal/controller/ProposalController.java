@@ -118,14 +118,6 @@ public class ProposalController {
 		return proposalService.deleteIrbProtocol(vo);
 	}
 
-	@RequestMapping(value = "/deleteProposalBudget", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String deleteProposalBudget(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for deleteProposalBudget");
-		logger.info("proposalId : " + vo.getProposalId());
-		logger.info("budgetId : " + vo.getBudgetId());
-		return proposalService.deleteProposalBudget(vo);
-	}
-
 	@RequestMapping(value = "/deleteProposalAttachment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String deleteProposalAttachment(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for deleteProposalBudget");

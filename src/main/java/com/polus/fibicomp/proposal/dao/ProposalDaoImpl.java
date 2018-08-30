@@ -26,11 +26,7 @@ import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
-import com.polus.fibicomp.proposal.pojo.ProposalBudgetCategory;
-import com.polus.fibicomp.proposal.pojo.ProposalCategory;
-import com.polus.fibicomp.proposal.pojo.ProposalCostElement;
 import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
-import com.polus.fibicomp.proposal.pojo.ProposalInstituteCentreLab;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
@@ -47,20 +43,6 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public ProposalStatus fetchStatusByStatusCode(Integer statusCode) {
 		return hibernateTemplate.get(ProposalStatus.class, statusCode);
-	}
-
-	@Override
-	public List<ProposalCategory> fetchAllCategories() {
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Criteria criteria = session.createCriteria(ProposalCategory.class);
-		ProjectionList projList = Projections.projectionList();
-		projList.add(Projections.property("categoryCode"), "categoryCode");
-		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
-		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(ProposalCategory.class));
-		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
-		@SuppressWarnings("unchecked")
-		List<ProposalCategory> categories = criteria.list();
-		return categories;
 	}
 
 	@Override
@@ -142,50 +124,6 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public Proposal fetchProposalById(Integer proposalId) {
 		return hibernateTemplate.get(Proposal.class, proposalId);
-	}
-
-	@Override
-	public List<ProposalBudgetCategory> fetchAllBudgetCategories() {
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Criteria criteria = session.createCriteria(ProposalBudgetCategory.class);
-		ProjectionList projList = Projections.projectionList();
-		projList.add(Projections.property("budgetCategoryCode"), "budgetCategoryCode");
-		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
-		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(ProposalBudgetCategory.class));
-		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
-		@SuppressWarnings("unchecked")
-		List<ProposalBudgetCategory> budgetCategories = criteria.list();
-		return budgetCategories;
-	}
-
-	@Override
-	public List<ProposalCostElement> fetchCostElementByBudgetCategory(String budgetCategoryCode) {
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Criteria criteria = session.createCriteria(ProposalCostElement.class);
-		ProjectionList projList = Projections.projectionList();
-		projList.add(Projections.property("costElement"), "costElement");
-		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
-		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(ProposalCostElement.class));
-		criteria.add(Restrictions.eq("budgetCategoryCode", budgetCategoryCode));
-		// criteria.add(Restrictions.eq("active", true));
-		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
-		@SuppressWarnings("unchecked")
-		List<ProposalCostElement> costElements = criteria.list();
-		return costElements;
-	}
-
-	@Override
-	public List<ProposalInstituteCentreLab> fetchAllInstituteCentrelabs() {
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Criteria criteria = session.createCriteria(ProposalInstituteCentreLab.class);
-		ProjectionList projList = Projections.projectionList();
-		projList.add(Projections.property("iclCode"), "iclCode");
-		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
-		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(ProposalInstituteCentreLab.class));
-		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
-		@SuppressWarnings("unchecked")
-		List<ProposalInstituteCentreLab> proposalInstituteCentreLabs = criteria.list();
-		return proposalInstituteCentreLabs;
 	}
 
 	@Override

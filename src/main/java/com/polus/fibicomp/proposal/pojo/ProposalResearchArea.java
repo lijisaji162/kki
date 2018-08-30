@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_RESRCH_AREAS")
+@Table(name = "FIBI_PROPOSAL_RESRCH_AREAS")
 public class ProposalResearchArea implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,28 +32,28 @@ public class ProposalResearchArea implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROP_RESRCH_AREA"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROP_RESRCH_AREA"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "RESEARCH_AREA_CODE")
 	private String researchAreaCode;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROP_RESRCH_AREA"), name = "RESEARCH_AREA_CODE", referencedColumnName = "RESEARCH_AREA_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROP_RESRCH_AREA"), name = "RESEARCH_AREA_CODE", referencedColumnName = "RESEARCH_AREA_CODE", insertable = false, updatable = false)
 	private ResearchArea researchArea;
 
 	@Column(name = "RESRCH_TYPE_CODE")
 	private Integer researchTypeCode;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_SMU_PROP_RESRCH_AREA"), name = "RESRCH_TYPE_CODE", referencedColumnName = "RESRCH_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_PROP_RESRCH_AREA"), name = "RESRCH_TYPE_CODE", referencedColumnName = "RESRCH_TYPE_CODE", insertable = false, updatable = false)
 	private ProposalResearchType proposalResearchType;
 
 	@Column(name = "EXCELLENCE_AREA_CODE")
 	private Integer excellenceAreaCode;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_SMU_PROP_RESRCH_AREA"), name = "EXCELLENCE_AREA_CODE", referencedColumnName = "EXCELLENCE_AREA_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_PROP_RESRCH_AREA"), name = "EXCELLENCE_AREA_CODE", referencedColumnName = "EXCELLENCE_AREA_CODE", insertable = false, updatable = false)
 	private ProposalExcellenceArea proposalExcellenceArea;
 
 	@Column(name = "UPDATE_TIMESTAMP")

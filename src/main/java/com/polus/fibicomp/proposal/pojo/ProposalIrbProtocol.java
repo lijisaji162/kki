@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.pojo.Protocol;
 
 @Entity
-@Table(name = "FIBI_SMU_PROPOSAL_IRB_PROTOCOL")
+@Table(name = "FIBI_PROPOSAL_IRB_PROTOCOL")
 public class ProposalIrbProtocol implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -34,14 +34,14 @@ public class ProposalIrbProtocol implements Serializable {
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_SMU_PROP_PROTOCOL"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROP_PROTOCOL"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
 	@Column(name = "PROTOCOL_ID")
 	private BigDecimal protocolId;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_SMU_PROP_PROTOCOL"), name = "PROTOCOL_ID", referencedColumnName = "PROTOCOL_ID", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROP_PROTOCOL"), name = "PROTOCOL_ID", referencedColumnName = "PROTOCOL_ID", insertable = false, updatable = false)
 	private Protocol protocol;
 
 	@Column(name = "UPDATE_TIMESTAMP")
