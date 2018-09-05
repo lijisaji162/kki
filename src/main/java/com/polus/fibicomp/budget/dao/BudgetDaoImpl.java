@@ -157,6 +157,7 @@ public class BudgetDaoImpl implements BudgetDao {
 		Criteria criteria = session.createCriteria(BudgetCategory.class);
 		ProjectionList projList = Projections.projectionList();
 		projList.add(Projections.property("code"), "code");
+		projList.add(Projections.property("budgetCategoryTypeCode"), "budgetCategoryTypeCode");
 		projList.add(Projections.property(Constants.DESCRIPTION), Constants.DESCRIPTION);
 		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(BudgetCategory.class));
 		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
