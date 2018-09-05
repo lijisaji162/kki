@@ -24,6 +24,7 @@ import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
+import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
@@ -165,6 +166,13 @@ public class Proposal implements Serializable {
 	@Column(name = "SUBMIT_USER")
 	private String submitUser;
 
+	@JsonManagedReference
+	@OneToMany(mappedBy="proposal", orphanRemoval = true, cascade = { CascadeType.ALL })
+    private List<ProposalSpecialReview> propSpecialReviews;
+
+	@Column(name = "SPONSOR_PROPOSAL_NUMBER")
+    private String sponsorProposalNumber;
+
 	@Transient
 	private String principalInvestigator;
 
@@ -184,6 +192,7 @@ public class Proposal implements Serializable {
 		proposalIrbProtocols = new ArrayList<ProposalIrbProtocol>();
 		proposalResearchAreas = new ArrayList<ProposalResearchArea>();
 		proposalSponsors = new ArrayList<ProposalSponsor>();
+		propSpecialReviews = new ArrayList<ProposalSpecialReview>();
 	}
 
 	public Integer getProposalId() {
@@ -532,6 +541,22 @@ public class Proposal implements Serializable {
 
 	public void setSubmitUser(String submitUser) {
 		this.submitUser = submitUser;
+	}
+
+	public List<ProposalSpecialReview> getPropSpecialReviews() {
+		return propSpecialReviews;
+	}
+
+	public void setPropSpecialReviews(List<ProposalSpecialReview> propSpecialReviews) {
+		this.propSpecialReviews = propSpecialReviews;
+	}
+
+	public String getSponsorProposalNumber() {
+		return sponsorProposalNumber;
+	}
+
+	public void setSponsorProposalNumber(String sponsorProposalNumber) {
+		this.sponsorProposalNumber = sponsorProposalNumber;
 	}
 
 }

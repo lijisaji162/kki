@@ -28,7 +28,7 @@ import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
 @Table(name = "FIBI_BUDGET_DETAIL")
-public class BudgetDetail implements Serializable {
+public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -109,6 +109,18 @@ public class BudgetDetail implements Serializable {
 
 	@Column(name = "SYSTEM_GEN_COST_ELEMENT_TYPE")
 	private String systemGeneratedCEType;
+
+	@Column(name = "PERSON_ID")
+	private String personId;
+
+	@Column(name = "ROLODEX_ID")
+	private Integer rolodexId;
+
+	@Column(name = "FULL_NAME")
+	private String fullName;
+
+	@Column(name = "PERSON_TYPE") // E - Employee, N - Non Employee, TBN - To Be Named
+	private String personType;
 
 	public BudgetDetail () {
 		budgetDetailCalcAmounts = new ArrayList<>();
@@ -294,4 +306,45 @@ public class BudgetDetail implements Serializable {
 	public void setSystemGeneratedCEType(String systemGeneratedCEType) {
 		this.systemGeneratedCEType = systemGeneratedCEType;
 	}
+
+	public String getPersonId() {
+		return personId;
+	}
+
+	public void setPersonId(String personId) {
+		this.personId = personId;
+	}
+
+	public Integer getRolodexId() {
+		return rolodexId;
+	}
+
+	public void setRolodexId(Integer rolodexId) {
+		this.rolodexId = rolodexId;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	@Override
+	public int compareTo(BudgetDetail o) {
+		if (getUpdateTimeStamp() == null) {
+			return 0;
+		}
+		return getUpdateTimeStamp().compareTo(o.getUpdateTimeStamp());
+	}
+
+	public String getPersonType() {
+		return personType;
+	}
+
+	public void setPersonType(String personType) {
+		this.personType = personType;
+	}
+
 }

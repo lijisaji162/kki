@@ -96,14 +96,13 @@ public class BudgetServiceImpl implements BudgetService {
 			vo.setRateClassTypes(rateClassTypes);
 		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
-		//loadBudgetInitialData(vo);
+		loadBudgetInitialData(vo);
 		vo.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		vo.setProposal(proposal);
 		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements(proposal.getActivityTypeCode()));
 		return committeeDao.convertObjectToJSON(vo);
 	}
 
-	@SuppressWarnings("unused")
 	private void loadBudgetInitialData(ProposalVO vo) {
 		List<CostElement> costElements = budgetDao.getAllCostElements();
 		vo.setCostElements(costElements);
@@ -149,9 +148,13 @@ public class BudgetServiceImpl implements BudgetService {
 						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
 							budgetItemDetail.setLineItemCost(totalFringeCost);
-
-						} else if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
+						}
+						if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_OH_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							budgetItemDetail.setLineItemCost(totalFandACost);
+						}
+						if (Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
+								|| Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())) {
 							budgetItemDetail.setLineItemCost(totalFandACost);
 						}
 					}
@@ -196,7 +199,7 @@ public class BudgetServiceImpl implements BudgetService {
 		costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision
 		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
-		BigDecimal validRate = BigDecimal.ZERO;
+		// BigDecimal validRate = BigDecimal.ZERO;
 		BudgetDetailCalcAmount budgetCalculatedAmount = null;
 		List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
 		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
@@ -205,10 +208,9 @@ public class BudgetServiceImpl implements BudgetService {
 				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetPeriodStartDate,
 						ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);
 				if (applicableRate != null
-						&& ((applicableRate.getRateClass().getRateClassTypeCode().equals("E") && "5".equals(applicableRate.getRateClassCode())
-								&& !"3".equals(applicableRate.getRateTypeCode()))
-						|| (applicableRate.getRateClass().getRateClassTypeCode().equals("V") && "8".equals(applicableRate.getRateClassCode())
-								&& !"2".equals(applicableRate.getRateTypeCode())))) {
+						&& (applicableRate.getRateClass().getRateClassTypeCode().equals("E") && "5".equals(applicableRate.getRateClassCode())
+								&& !"3".equals(applicableRate.getRateTypeCode()))) {
+					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
 						BigDecimal hundred = new BigDecimal(100);
@@ -240,7 +242,7 @@ public class BudgetServiceImpl implements BudgetService {
 		CostElement costElement = budgetDetail.getCostElement();
 		costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision);
-		BigDecimal validRate = BigDecimal.ZERO;
+		// BigDecimal validRate = BigDecimal.ZERO;
 		BudgetDetailCalcAmount budgetCalculatedAmount = null;
 		String ohRateClassTypeCode = commonDao.getParameterValueAsString(Constants.KC_B_PARAMETER_NAMESPACE,
 				Constants.KC_DOC_PARAMETER_DETAIL_TYPE_CODE, Constants.DEFAULT_RATE_CLASS_TYPE_CODE);
@@ -254,6 +256,7 @@ public class BudgetServiceImpl implements BudgetService {
 				if (applicableRate != null
 						&& applicableRate.getRateClass().getRateClassTypeCode().equals(ohRateClassTypeCode)
 						&& applicableRate.getRateTypeCode().equals(rateTypeCode)) {
+					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
 						BigDecimal hundred = new BigDecimal(100);
@@ -289,8 +292,9 @@ public class BudgetServiceImpl implements BudgetService {
 		budgetCalculatedAmount.setRateTypeCode(proposalRate.getRateTypeCode());
 		budgetCalculatedAmount.setRateType(proposalRate.getRateType());
 		budgetCalculatedAmount.setApplyRateFlag(true);
-		budgetCalculatedAmount.setRateTypeDescription(proposalRate.getRateClass().getDescription());
+		budgetCalculatedAmount.setRateTypeDescription(proposalRate.getRateType().getDescription());
 		budgetCalculatedAmount.setBudgetDetail(budgetDetail);
+		budgetCalculatedAmount.setApplicableRate(proposalRate.getApplicableRate());
 		return budgetCalculatedAmount;
 	}
 
@@ -350,6 +354,7 @@ public class BudgetServiceImpl implements BudgetService {
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
 		List<BudgetPeriod> updateBudgetPeriods = new ArrayList<>(budgetPeriods);
+		Collections.copy(updateBudgetPeriods, budgetPeriods);
 		BudgetPeriod lastPeriod = budgetDao.getMaxBudgetPeriodByBudgetId(proposal.getBudgetHeader().getBudgetId());
 
 		BudgetPeriod newBudgetPeriod = new BudgetPeriod();
@@ -367,13 +372,14 @@ public class BudgetServiceImpl implements BudgetService {
 		if (budgetDetails != null && !budgetDetails.isEmpty()) {
 			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
 			Collections.copy(copiedBudgetDetails, budgetDetails);
-			List<BudgetDetail> newLineItems = lastPeriod.getBudgetDetails();
+			// List<BudgetDetail> newLineItems = lastPeriod.getBudgetDetails();
+			List<BudgetDetail> newLineItems = new ArrayList<>();
 			for (BudgetDetail budgetDetail : copiedBudgetDetails) {
 				BudgetDetail detail = new BudgetDetail();
 				detail.setBudgetCategory(budgetDetail.getBudgetCategory());
 				detail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
 				detail.setBudgetJustification(budgetDetail.getBudgetJustification());
-				detail.setBudgetPeriod(budgetDetail.getBudgetPeriod());
+				detail.setBudgetPeriod(budgetDetail.getBudgetPeriod() + 1);
 				detail.setCostElement(budgetDetail.getCostElement());
 				detail.setCostElementCode(budgetDetail.getCostElementCode());
 				detail.setEndDate(budgetDetail.getEndDate());
@@ -388,10 +394,14 @@ public class BudgetServiceImpl implements BudgetService {
 				detail.setStartDate(budgetDetail.getStartDate());
 				detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 				detail.setUpdateUser(newBudgetPeriod.getUpdateUser());
+				detail.setFullName(budgetDetail.getFullName());
+				detail.setRolodexId(budgetDetail.getRolodexId());
+				detail.setPersonId(budgetDetail.getPersonId());
 				newLineItems.add(detail);
 			}
 			newBudgetPeriod.getBudgetDetails().addAll(newLineItems);
 		}
+		newBudgetPeriod = budgetDao.saveBudgetPeriod(newBudgetPeriod);
         updateBudgetPeriods.add(newBudgetPeriod);
         proposal.getBudgetHeader().getBudgetPeriods().clear();
         proposal.getBudgetHeader().getBudgetPeriods().addAll(updateBudgetPeriods);
@@ -720,6 +730,7 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public String deleteBudgetPeriod(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
 		List<BudgetPeriod> updatedlist = new ArrayList<BudgetPeriod>(budgetPeriods);
 		Collections.copy(updatedlist, budgetPeriods);
@@ -790,6 +801,83 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String copyBudgetPeriod(ProposalVO proposalVO) {
+		Proposal proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
+		BudgetPeriod copyPeriod = budgetDao.getPeriodById(proposalVO.getCopyPeriodId());
+
+		for (BudgetPeriod currentPeriod : budgetPeriods) {
+			if (currentPeriod.getBudgetPeriodId().equals(proposalVO.getCurrentPeriodId())) {
+				List<BudgetDetail> budgetDetails = copyPeriod.getBudgetDetails();
+				if (budgetDetails != null && !budgetDetails.isEmpty()) {
+					List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
+					Collections.copy(copiedBudgetDetails, budgetDetails);
+					List<BudgetDetail> newLineItems = new ArrayList<>();
+					for (BudgetDetail budgetDetail : copiedBudgetDetails) {
+						BudgetDetail detail = new BudgetDetail();
+						detail.setBudgetCategory(budgetDetail.getBudgetCategory());
+						detail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
+						detail.setBudgetJustification(budgetDetail.getBudgetJustification());
+						detail.setBudgetPeriod(budgetDetail.getBudgetPeriod() + 1);
+						detail.setEndDate(budgetDetail.getEndDate());
+						detail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
+						detail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
+						// apply inflation here
+						CostElement costElement = budgetDetail.getCostElement();
+						costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
+						detail.setCostElement(costElement);
+						detail.setCostElementCode(budgetDetail.getCostElementCode());
+						BigDecimal lineItemCost = budgetDetail.getLineItemCost();
+						BigDecimal updatedLineItemCost = BigDecimal.ZERO;
+						List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
+						if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+							for (ValidCeRateType ceRateType : ceRateTypes) {
+								FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(copyPeriod.getBudget().getBudgetId(), copyPeriod.getStartDate(),
+										ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), proposal.getActivityTypeCode());
+								if (applicableRate != null
+										&& (applicableRate.getRateClass().getRateClassTypeCode().equals("I") && "7".equals(applicableRate.getRateClassCode()))) {
+									BigDecimal validRate = BigDecimal.ZERO;
+									validRate = validRate.add(applicableRate.getApplicableRate());
+									if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+										BigDecimal hundred = new BigDecimal(100);
+										BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
+										BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
+										updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
+									}
+								}
+							}
+						}
+						if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+							detail.setLineItemCost(updatedLineItemCost);
+						} else {
+							detail.setLineItemCost(lineItemCost);
+						}
+						detail.setLineItemDescription(budgetDetail.getLineItemDescription());
+						detail.setLineItemNumber(budgetDetail.getLineItemNumber());
+						detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
+						detail.setPeriod(currentPeriod);
+						detail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
+						detail.setStartDate(budgetDetail.getStartDate());
+						detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+						detail.setUpdateUser(proposalVO.getUserName());
+						detail.setFullName(budgetDetail.getFullName());
+						detail.setRolodexId(budgetDetail.getRolodexId());
+						detail.setPersonId(budgetDetail.getPersonId());
+						detail = budgetDao.saveBudgetDetail(detail);
+						newLineItems.add(detail);
+					}
+					currentPeriod.getBudgetDetails().addAll(newLineItems);
+				}
+			}
+		}
+        proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+        proposalVO.setProposal(proposal);
+        return committeeDao.convertObjectToJSON(proposalVO);
 	}
 
 }

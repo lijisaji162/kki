@@ -1,0 +1,15 @@
+1. To delete existing index - mitperson
+
+curl -XDELETE http://localhost:9200/mitperson/
+
+
+2. Create new award index by executing below command
+
+curl -XPUT 'http://localhost:9200/mitperson/' -d '{"settings": {"number_of_shards": 5,"analysis": {"filter": {"ngram_filter": {"type": "edgeNGram","min_gram": 2,"max_gram": 20}},"analyzer": {"ngram_analyzer": {"type": "custom","tokenizer": "standard","filter": ["lowercase", "ngram_filter"]}}}},"mappings": {"person": {"_all": {"type": "string","analyzer": "ngram_analyzer","search_analyzer": "standard"},"properties": { "person_id": {"type": "string","include_in_all": true,"term_vector": "yes","analyzer": "keyword","search_analyzer": "standard"},"full_name": {"type": "string","include_in_all": true,"term_vector": "yes","analyzer": "ngram_analyzer","search_analyzer": "standard"},"user_name": {"type": "string","include_in_all": true,"term_vector": "yes","analyzer": "ngram_analyzer","search_analyzer": "standard"},"email_address": {"type": "string","include_in_all": true,"term_vector": "yes","analyzer": "keyword","search_analyzer": "standard"},"home_unit": {"type": "string","include_in_all": true,"term_vector": "yes","analyzer": "keyword","search_analyzer": "standard"},"addr_line_1": {"type": "string","include_in_all": false,"term_vector": "yes","analyzer": "ngram_analyzer","search_analyzer": "standard"},"phone_nbr": {"type": "string","include_in_all": false,"term_vector": "yes","analyzer": "ngram_analyzer","search_analyzer": "standard"},"job_title": {"type": "string","include_in_all": false,"term_vector": "yes","analyzer": "ngram_analyzer","search_analyzer": "standard"},"@version": {"type": "integer","include_in_all": false},"@timestamp": {"type": "date","include_in_all": false}}}}}'
+
+3. replace "mitperson.conf"
+
+4. Load data using logstash by executing the below command.
+
+	/opt/logstash/bin/logstash -f /etc/logstash/conf.d/mitperson.conf
+	

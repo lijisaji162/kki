@@ -73,4 +73,6 @@ public interface BudgetService {
 
 	public String deleteBudgetLineItem(ProposalVO proposalVO);
 
+	public String copyBudgetPeriod(ProposalVO vo);
+
 }

@@ -20,6 +20,7 @@ import com.polus.fibicomp.budget.common.pojo.InstituteRate;
 import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
+import com.polus.fibicomp.budget.pojo.BudgetDetail;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
@@ -177,6 +178,17 @@ public class BudgetDaoImpl implements BudgetDao {
 		@SuppressWarnings("unchecked")
 		List<CostElement> costElements = criteria.list();
 		return costElements;
+	}
+
+	@Override
+	public BudgetPeriod getPeriodById(Integer periodId) {
+		return hibernateTemplate.get(BudgetPeriod.class, periodId);
+	}
+
+	@Override
+	public BudgetDetail saveBudgetDetail(BudgetDetail budgetDetail) {
+		hibernateTemplate.save(budgetDetail);
+		return budgetDetail;
 	}
 
 }

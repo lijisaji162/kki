@@ -63,4 +63,12 @@ public class ProposalBudgetController {
 		return budgetService.deleteBudgetLineItem(vo);
 	}
 
+	@RequestMapping(value = "/copyBudgetPeriod", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String copyBudgetPeriod(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for copyBudgetPeriod");
+		logger.info("copyPeriodId : " + vo.getCopyPeriodId());
+		logger.info("currentPeriodId : " + vo.getCurrentPeriodId());
+		return budgetService.copyBudgetPeriod(vo);
+	}
+
 }
