@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,6 +31,9 @@ import com.polus.fibicomp.budget.dao.BudgetDao;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.compilance.dao.ComplianceDao;
+import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
+import com.polus.fibicomp.compilance.pojo.SpecialReviewUsage;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.grantcall.dao.GrantCallDao;
@@ -100,6 +104,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Autowired
 	private BudgetDao budgetDao;
+
+	@Autowired
+	private ComplianceDao complianceDao;
 
 	@Override
 	public String createProposal(ProposalVO proposalVO) {
@@ -849,7 +856,7 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
 		proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 		if (proposal.getBudgetHeader() != null) {
-			//proposalVO.setCostElements(budgetDao.getAllCostElements());
+			proposalVO.setCostElements(budgetDao.getAllCostElements());
 			proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
 			Set<String> rateClassTypes = new HashSet<>();
 			List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
@@ -862,6 +869,11 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		}
 		proposalVO.setSponsors(proposalDao.fetchAllSponsors());
+		proposalVO.setReviewTypes(getSpecialReviewTypes());
+		List<String> approvalTypeCodes = new ArrayList<>();
+		approvalTypeCodes.add("5");
+		approvalTypeCodes.add("6");
+		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
 	}
 
 	@Override
@@ -1019,6 +1031,28 @@ public class ProposalServiceImpl implements ProposalService {
 				proposalVO.setHomeUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 			}
 		}
+	}
+
+	public List<SpecialReviewType> getSpecialReviewTypes() {
+		List<SpecialReviewType> specialReviewTypes = complianceDao.fetchAllSpecialReviewType();
+		List<SpecialReviewUsage> specialReviewUsages = complianceDao.fetchSpecialReviewUsageByModuleCode("3");
+		List<SpecialReviewType> reviewTypes = new ArrayList<>();
+		for (SpecialReviewType specialReviewType : specialReviewTypes) {
+			SpecialReviewUsage itemSpecialReviewUsage = null;
+			for (SpecialReviewUsage specialReviewUsage : specialReviewUsages) {
+				if (StringUtils.equals(specialReviewUsage.getSpecialReviewTypeCode(),
+						String.valueOf(specialReviewType.getSpecialReviewTypeCode()))) {
+					itemSpecialReviewUsage = specialReviewUsage;
+					break;
+				}
+			}
+			if (itemSpecialReviewUsage != null && itemSpecialReviewUsage.isActive()) {
+				if (itemSpecialReviewUsage.isGlobal()) {// || canViewNonGlobalSpecialReviewTypes
+					reviewTypes.add(specialReviewType);
+				}
+			}
+		}
+		return reviewTypes;
 	}
 
 }

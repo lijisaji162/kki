@@ -89,6 +89,9 @@ public class BudgetDetailCalcAmount implements Serializable {
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
 
+	@Column(name = "APPLICABLE_RATE", precision = 10, scale = 3)
+	private BigDecimal applicableRate;
+
 	public Integer getId() {
 		return id;
 	}
@@ -219,6 +222,14 @@ public class BudgetDetailCalcAmount implements Serializable {
 
 	public void setUpdateUser(String updateUser) {
 		this.updateUser = updateUser;
+	}
+
+	public BigDecimal getApplicableRate() {
+		return applicableRate;
+	}
+
+	public void setApplicableRate(BigDecimal applicableRate) {
+		this.applicableRate = applicableRate;
 	}
 
 }

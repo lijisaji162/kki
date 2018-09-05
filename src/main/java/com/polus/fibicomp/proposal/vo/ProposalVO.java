@@ -7,6 +7,8 @@ import java.util.Set;
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
+import com.polus.fibicomp.compilance.pojo.SpecialReviewApprovalType;
+import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
@@ -139,6 +141,14 @@ public class ProposalVO {
 	private Set<String> rateClassTypes;
 
 	private List<BudgetCategory> budgetCategories;
+
+	private Integer copyPeriodId;
+
+	private Integer currentPeriodId;
+
+	private List<SpecialReviewType> reviewTypes;
+
+	private List<SpecialReviewApprovalType> specialReviewApprovalTypes;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -582,6 +592,38 @@ public class ProposalVO {
 
 	public void setBudgetCategories(List<BudgetCategory> budgetCategories) {
 		this.budgetCategories = budgetCategories;
+	}
+
+	public Integer getCopyPeriodId() {
+		return copyPeriodId;
+	}
+
+	public void setCopyPeriodId(Integer copyPeriodId) {
+		this.copyPeriodId = copyPeriodId;
+	}
+
+	public Integer getCurrentPeriodId() {
+		return currentPeriodId;
+	}
+
+	public void setCurrentPeriodId(Integer currentPeriodId) {
+		this.currentPeriodId = currentPeriodId;
+	}
+
+	public List<SpecialReviewType> getReviewTypes() {
+		return reviewTypes;
+	}
+
+	public void setReviewTypes(List<SpecialReviewType> reviewTypes) {
+		this.reviewTypes = reviewTypes;
+	}
+
+	public List<SpecialReviewApprovalType> getSpecialReviewApprovalTypes() {
+		return specialReviewApprovalTypes;
+	}
+
+	public void setSpecialReviewApprovalTypes(List<SpecialReviewApprovalType> specialReviewApprovalTypes) {
+		this.specialReviewApprovalTypes = specialReviewApprovalTypes;
 	}
 
 }

@@ -30,7 +30,7 @@ public class InstitutionalProposalDaoImpl implements InstitutionalProposalDao {
 		Connection connection = sessionImpl.connection();
 		CallableStatement statement = null;
 		try {
-			String functionName = "fn_smu_feed_inst_proposal";
+			String functionName = "fn_feed_inst_proposal";
 			String functionCall = "{ ? = call "  + functionName + "(?,?,?) }";			
 			statement = connection.prepareCall(functionCall);
 			statement.registerOutParameter(1, OracleTypes.INTEGER);
