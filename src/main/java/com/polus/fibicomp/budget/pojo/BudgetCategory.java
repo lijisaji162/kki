@@ -22,14 +22,14 @@ public class BudgetCategory implements Serializable {
 	@Column(name = "BUDGET_CATEGORY_CODE")
 	private String code;
 
-	@Column(name = "BUDGET_CATEGORY_TYPE_CODE")
+	@Column(name = "CATEGORY_TYPE")
 	private String budgetCategoryTypeCode;
 
 	@Column(name = "DESCRIPTION")
 	private String description;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_CATEGORY"), name = "BUDGET_CATEGORY_TYPE_CODE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_BUDGET_CATEGORY"), name = "CATEGORY_TYPE", referencedColumnName = "BUDGET_CATEGORY_TYPE_CODE", insertable = false, updatable = false)
 	private BudgetCategoryType budgetCategoryType;
 
 	@Column(name = "UPDATE_TIMESTAMP")
