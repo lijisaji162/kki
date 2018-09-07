@@ -122,6 +122,13 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 	@Column(name = "PERSON_TYPE") // E - Employee, N - Non Employee, TBN - To Be Named
 	private String personType;
 
+	@Column(name = "TBN_ID")
+	private String tbnId;
+
+	@ManyToOne(cascade = { CascadeType.REFRESH })
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_BUDGET_DETAIL"), name = "TBN_ID", referencedColumnName = "TBN_ID", insertable = false, updatable = false)
+	private TbnPerson tbnPerson;
+
 	public BudgetDetail () {
 		budgetDetailCalcAmounts = new ArrayList<>();
 		budgetRateAndBases = new ArrayList<>();
@@ -345,6 +352,22 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 
 	public void setPersonType(String personType) {
 		this.personType = personType;
+	}
+
+	public String getTbnId() {
+		return tbnId;
+	}
+
+	public void setTbnId(String tbnId) {
+		this.tbnId = tbnId;
+	}
+
+	public TbnPerson getTbnPerson() {
+		return tbnPerson;
+	}
+
+	public void setTbnPerson(TbnPerson tbnPerson) {
+		this.tbnPerson = tbnPerson;
 	}
 
 }

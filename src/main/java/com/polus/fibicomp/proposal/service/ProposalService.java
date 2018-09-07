@@ -1,6 +1,7 @@
 package com.polus.fibicomp.proposal.service;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
+import com.polus.fibicomp.vo.SponsorSearchResult;
 
 /**
  * @author Shaji P
@@ -140,5 +142,9 @@ public interface ProposalService {
 	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException;
 
 	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException;
+
+	public String deleteProposalSpecialReview(ProposalVO proposalVO);
+
+	public List<SponsorSearchResult> findSponsor(String searchString);
 
 }

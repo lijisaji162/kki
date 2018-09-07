@@ -2,6 +2,7 @@ package com.polus.fibicomp.proposal.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
+import com.polus.fibicomp.vo.SponsorSearchResult;
 
 @RestController
 public class ProposalController {
@@ -216,6 +218,21 @@ public class ProposalController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Disposition", "inline; filename=BudgetSummary.pdf");
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
+	}
+
+	@RequestMapping(value = "/deleteProposalSpecialReview", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String deleteProposalSpecialReview(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for deleteProposalSpecialReview");
+		logger.info("proposalId : " + vo.getProposalId());
+		logger.info("proposalSpecialReviewId : " + vo.getProposalSpecialReviewId());
+		return proposalService.deleteProposalSpecialReview(vo);
+	}
+
+	@RequestMapping(value = "/findSponsors", method = RequestMethod.GET)
+	public List<SponsorSearchResult> getNext(HttpServletRequest request, HttpServletResponse response, @RequestParam("searchString") String searchString) {
+		logger.info("Requesting for findSponsors");
+		logger.info("searchString : " + searchString);
+		return proposalService.findSponsor(searchString);
 	}
 
 }

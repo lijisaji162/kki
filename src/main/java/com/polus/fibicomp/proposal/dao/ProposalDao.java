@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
@@ -18,6 +19,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
+import com.polus.fibicomp.vo.SponsorSearchResult;
 
 @Service
 public interface ProposalDao {
@@ -101,5 +103,9 @@ public interface ProposalDao {
 	public List<Sponsor> fetchAllSponsors();
 
 	public List<Unit> fetchLeadUnitsByUnitNumbers(Set<String> unitNumbers);
+
+	public ProposalSpecialReview deleteProposalSpecialReview(ProposalSpecialReview specialReview);
+
+	public List<SponsorSearchResult> findSponsor(String searchString);
 
 }

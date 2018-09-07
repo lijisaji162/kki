@@ -14,6 +14,7 @@ import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
+import com.polus.fibicomp.budget.pojo.TbnPerson;
 
 @Service
 public interface BudgetDao {
@@ -49,5 +50,11 @@ public interface BudgetDao {
 	public BudgetPeriod getPeriodById(Integer periodId);
 
 	public BudgetDetail saveBudgetDetail(BudgetDetail budgetDetail);
+
+	public BudgetPeriod deleteBudgetPeriod(BudgetPeriod budgetPeriod);
+
+	public BudgetDetail deleteBudgetDetail(BudgetDetail budgetDetail);
+
+	public List<TbnPerson> fetchAllTbnPerson();
 
 }

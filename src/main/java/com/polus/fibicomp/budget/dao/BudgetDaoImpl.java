@@ -25,6 +25,7 @@ import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
+import com.polus.fibicomp.budget.pojo.TbnPerson;
 import com.polus.fibicomp.constants.Constants;
 
 @Transactional
@@ -190,6 +191,23 @@ public class BudgetDaoImpl implements BudgetDao {
 	public BudgetDetail saveBudgetDetail(BudgetDetail budgetDetail) {
 		hibernateTemplate.save(budgetDetail);
 		return budgetDetail;
+	}
+
+	@Override
+	public BudgetPeriod deleteBudgetPeriod(BudgetPeriod budgetPeriod) {
+		hibernateTemplate.delete(budgetPeriod);
+		return budgetPeriod;
+	}
+
+	@Override
+	public BudgetDetail deleteBudgetDetail(BudgetDetail budgetDetail) {
+		hibernateTemplate.delete(budgetDetail);
+		return budgetDetail;
+	}
+
+	@Override
+	public List<TbnPerson> fetchAllTbnPerson() {
+		return hibernateTemplate.loadAll(TbnPerson.class);
 	}
 
 }
