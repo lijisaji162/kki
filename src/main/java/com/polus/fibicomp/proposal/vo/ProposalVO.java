@@ -153,7 +153,7 @@ public class ProposalVO {
 
 	private List<TbnPerson> tbnPersons;
 
-	private Long proposalSpecialReviewId;
+	private Integer proposalSpecialReviewId;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -639,11 +639,11 @@ public class ProposalVO {
 		this.tbnPersons = tbnPersons;
 	}
 
-	public Long getProposalSpecialReviewId() {
+	public Integer getProposalSpecialReviewId() {
 		return proposalSpecialReviewId;
 	}
 
-	public void setProposalSpecialReviewId(Long proposalSpecialReviewId) {
+	public void setProposalSpecialReviewId(Integer proposalSpecialReviewId) {
 		this.proposalSpecialReviewId = proposalSpecialReviewId;
 	}
 
