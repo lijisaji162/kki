@@ -22,36 +22,41 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 
 @Entity
-@Table(name = "EPS_PROP_SPECIAL_REVIEW")
+@Table(name = "FIBI_PROPOSAL_SPECIAL_REVIEW")
 public class ProposalSpecialReview implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@GenericGenerator(name = "SEQ_SPECIAL_REVIEW", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
-			@Parameter(name = "sequence_name", value = "SEQ_EPS_PROP_SPECIAL_REVIEW_ID"),
-			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
 	@Id
-	@GeneratedValue(generator = "SEQ_SPECIAL_REVIEW")
+	@GenericGenerator(name = "proposalSpecialReviewIdGenerator", strategy = "increment", parameters = {
+			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
+	@GeneratedValue(generator = "proposalSpecialReviewIdGenerator")
 	@Column(name = "PROPOSAL_SPECIAL_REVIEW_ID")
-	private Long id;
+	private Integer id;
 
 	@JsonBackReference
 	@ManyToOne(optional = false)
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_EPS_PROP_SPECIAL_REVIEW"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK1_FIBI_PROPOSAL_SPECIAL_REVIEW"), name = "PROPOSAL_ID", referencedColumnName = "PROPOSAL_ID")
 	private Proposal proposal;
 
-	@Column(name = "SPECIAL_REVIEW_CODE")
+	@Column(name = "SPECIAL_REVIEW_CODE", length = 3)
 	private String specialReviewTypeCode;
 
+	/*@Column(name = "SPECIAL_REVIEW_DESCRIPTION")
+	private String specialReviewTypeDescription;*/
+
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(name = "SPECIAL_REVIEW_CODE", referencedColumnName = "SPECIAL_REVIEW_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_SPECIAL_REVIEW"), name = "SPECIAL_REVIEW_CODE", referencedColumnName = "SPECIAL_REVIEW_CODE", insertable = false, updatable = false)
 	private SpecialReviewType specialReviewType;
 
-	@Column(name = "APPROVAL_TYPE_CODE")
+	@Column(name = "APPROVAL_TYPE_CODE", length = 3)
 	private String approvalTypeCode;
 
+	/*@Column(name = "APPROVAL_TYPE_DESCRIPTION")
+	private String approvalTypeDescription;*/
+
 	@ManyToOne(cascade = { CascadeType.REFRESH })
-	@JoinColumn(name = "APPROVAL_TYPE_CODE", referencedColumnName = "APPROVAL_TYPE_CODE", insertable = false, updatable = false)
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_PROPOSAL_SPECIAL_REVIEW"), name = "APPROVAL_TYPE_CODE", referencedColumnName = "APPROVAL_TYPE_CODE", insertable = false, updatable = false)
 	private SpecialReviewApprovalType approvalType;
 
 	@Column(name = "PROTOCOL_STATUS_DESCRIPTION")
@@ -79,11 +84,11 @@ public class ProposalSpecialReview implements Serializable {
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -194,5 +199,21 @@ public class ProposalSpecialReview implements Serializable {
 	public void setUpdateUser(String updateUser) {
 		this.updateUser = updateUser;
 	}
+
+	/*public String getSpecialReviewTypeDescription() {
+		return specialReviewTypeDescription;
+	}
+
+	public void setSpecialReviewTypeDescription(String specialReviewTypeDescription) {
+		this.specialReviewTypeDescription = specialReviewTypeDescription;
+	}
+
+	public String getApprovalTypeDescription() {
+		return approvalTypeDescription;
+	}
+
+	public void setApprovalTypeDescription(String approvalTypeDescription) {
+		this.approvalTypeDescription = approvalTypeDescription;
+	}*/
 
 }

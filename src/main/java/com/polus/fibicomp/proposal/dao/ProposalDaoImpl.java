@@ -3,8 +3,10 @@ package com.polus.fibicomp.proposal.dao;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -16,6 +18,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
@@ -30,6 +33,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
+import com.polus.fibicomp.vo.SponsorSearchResult;
 
 @Transactional
 @Service(value = "proposalDao")
@@ -168,6 +172,7 @@ public class ProposalDaoImpl implements ProposalDao {
 	public List<Sponsor> fetchAllSponsors() {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(Sponsor.class);
+		criteria.add(Restrictions.not(Restrictions.like("sponsorName", "%DO NOT%")));
 		ProjectionList projList = Projections.projectionList();
 		projList.add(Projections.property("sponsorCode"), "sponsorCode");
 		projList.add(Projections.property("sponsorName"), "sponsorName");
@@ -193,6 +198,24 @@ public class ProposalDaoImpl implements ProposalDao {
 		@SuppressWarnings("unchecked")
 		List<Unit> units = criteria.list();
 		return units;
+	}
+
+	@Override
+	public ProposalSpecialReview deleteProposalSpecialReview(ProposalSpecialReview specialReview) {
+		hibernateTemplate.delete(specialReview);
+		return specialReview;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<SponsorSearchResult> findSponsor(String searchString) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		final String likeCriteria = "%" + searchString.toUpperCase() + "%";
+		Query query = session.createQuery("SELECT NEW com.polus.fibicomp.vo.SponsorSearchResult(t.sponsorCode, t.sponsorName) " +
+                "FROM Sponsor t " +
+                "WHERE UPPER(t.sponsorCode) like :likeCriteria OR UPPER(t.acronym) like :likeCriteria or UPPER(t.sponsorName) like :likeCriteria");
+		query.setParameter("likeCriteria", likeCriteria);
+		return ListUtils.emptyIfNull(query.setMaxResults(25).list());
 	}
 
 }

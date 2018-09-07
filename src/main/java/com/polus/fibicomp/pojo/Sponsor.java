@@ -38,6 +38,9 @@ public class Sponsor implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK_SPONSOR_TYPE_CODE_KRA"), name = "SPONSOR_TYPE_CODE", referencedColumnName = "SPONSOR_TYPE_CODE", insertable = false, updatable = false)
 	private SponsorType sponsorType;
 
+	@Column(name = "ACRONYM")
+    private String acronym;
+
 	public String getSponsorCode() {
 		return sponsorCode;
 	}
@@ -80,6 +83,14 @@ public class Sponsor implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getAcronym() {
+		return acronym;
+	}
+
+	public void setAcronym(String acronym) {
+		this.acronym = acronym;
 	}
 
 }

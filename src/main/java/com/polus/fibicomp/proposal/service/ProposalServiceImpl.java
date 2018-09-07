@@ -32,6 +32,7 @@ import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
 import com.polus.fibicomp.compilance.dao.ComplianceDao;
+import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewUsage;
 import com.polus.fibicomp.constants.Constants;
@@ -53,6 +54,7 @@ import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
 import com.polus.fibicomp.role.pojo.RoleMemberBo;
 import com.polus.fibicomp.util.GenerateBudgetPdfReport;
 import com.polus.fibicomp.util.GeneratePdfReport;
+import com.polus.fibicomp.vo.SponsorSearchResult;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -412,6 +414,7 @@ public class ProposalServiceImpl implements ProposalService {
 		proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS));
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
+		//String sponsorDueDate = proposal.getSubmissionDate() != null ? proposal.getSubmissionDate().toString() : "";
 		String message = "The following application has routed for approval:<br/><br/>Application Title: "+ proposal.getTitle() +"<br/>"
 				+ "Principal Investigator: "+ piName +"<br/>Sponsor Due Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/createProposal?proposalId="+ proposal.getProposalId() +"\">this link</a> "
@@ -867,8 +870,9 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}
 			proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
+			proposalVO.setTbnPersons(budgetDao.fetchAllTbnPerson());
 		}
-		proposalVO.setSponsors(proposalDao.fetchAllSponsors());
+		// proposalVO.setSponsors(proposalDao.fetchAllSponsors());
 		proposalVO.setReviewTypes(getSpecialReviewTypes());
 		List<String> approvalTypeCodes = new ArrayList<>();
 		approvalTypeCodes.add("5");
@@ -1053,6 +1057,38 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 		}
 		return reviewTypes;
+	}
+
+	@Override
+	public String deleteProposalSpecialReview(ProposalVO vo) {
+		try {
+			Proposal proposal = proposalDao.fetchProposalById(vo.getProposalId());
+			List<ProposalSpecialReview> list = proposal.getPropSpecialReviews();
+			List<ProposalSpecialReview> updatedlist = new ArrayList<ProposalSpecialReview>(list);
+			Collections.copy(updatedlist, list);
+			for (ProposalSpecialReview proposalSpecialReview : list) {
+				if (proposalSpecialReview.getId().equals(vo.getProposalSpecialReviewId())) {
+					proposalSpecialReview = proposalDao.deleteProposalSpecialReview(proposalSpecialReview);
+					updatedlist.remove(proposalSpecialReview);
+				}
+			}
+			proposal.getPropSpecialReviews().clear();
+			proposal.getPropSpecialReviews().addAll(updatedlist);
+			proposalDao.saveOrUpdateProposal(proposal);
+			vo.setProposal(proposal);
+			vo.setStatus(true);
+			vo.setMessage("Proposal special review deleted successfully");
+		} catch (Exception e) {
+			vo.setStatus(false);
+			vo.setMessage("Problem occurred in deleting proposal special review");
+			e.printStackTrace();
+		}
+		return committeeDao.convertObjectToJSON(vo);
+	}
+
+	@Override
+	public List<SponsorSearchResult> findSponsor(String searchString) {
+		return proposalDao.findSponsor(searchString);
 	}
 
 }

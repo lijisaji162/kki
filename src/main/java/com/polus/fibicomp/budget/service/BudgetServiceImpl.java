@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,9 +60,6 @@ public class BudgetServiceImpl implements BudgetService {
 	@Autowired
     @Qualifier("dateTimeService")
     private DateTimeService dateTimeService;
-	
-	@Autowired
-	private HibernateTemplate hibernateTemplate;
 
 	@Override
 	public String createProposalBudget(ProposalVO vo) {
@@ -97,15 +93,15 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		loadBudgetInitialData(vo);
-		vo.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		vo.setProposal(proposal);
-		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements(proposal.getActivityTypeCode()));
 		return committeeDao.convertObjectToJSON(vo);
 	}
 
 	private void loadBudgetInitialData(ProposalVO vo) {
-		List<CostElement> costElements = budgetDao.getAllCostElements();
-		vo.setCostElements(costElements);
+		vo.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
+		vo.setCostElements(budgetDao.getAllCostElements());
+		vo.setTbnPersons(budgetDao.fetchAllTbnPerson());
+		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements(vo.getProposal().getActivityTypeCode()));
 	}
 
 	@Override
@@ -147,15 +143,15 @@ public class BudgetServiceImpl implements BudgetService {
 					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
 						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							budgetItemDetail.setLineItemCost(totalFringeCost);
+							budgetItemDetail.setLineItemCost(totalFringeCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						}
 						if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_OH_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							budgetItemDetail.setLineItemCost(totalFandACost);
+							budgetItemDetail.setLineItemCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						}
 						if (Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							budgetItemDetail.setLineItemCost(totalFandACost);
+							budgetItemDetail.setLineItemCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						}
 					}
 				}
@@ -301,8 +297,8 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public String autoCalculate(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
+		proposalDao.saveOrUpdateProposal(proposal);
 		if (proposal.getBudgetHeader().getIsAutoCalc() != null && proposal.getBudgetHeader().getIsAutoCalc()) {
-			proposalDao.saveOrUpdateProposal(proposal);
 			calculate(proposal, null);
 		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
@@ -372,7 +368,6 @@ public class BudgetServiceImpl implements BudgetService {
 		if (budgetDetails != null && !budgetDetails.isEmpty()) {
 			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
 			Collections.copy(copiedBudgetDetails, budgetDetails);
-			// List<BudgetDetail> newLineItems = lastPeriod.getBudgetDetails();
 			List<BudgetDetail> newLineItems = new ArrayList<>();
 			for (BudgetDetail budgetDetail : copiedBudgetDetails) {
 				BudgetDetail detail = new BudgetDetail();
@@ -405,6 +400,9 @@ public class BudgetServiceImpl implements BudgetService {
         updateBudgetPeriods.add(newBudgetPeriod);
         proposal.getBudgetHeader().getBudgetPeriods().clear();
         proposal.getBudgetHeader().getBudgetPeriods().addAll(updateBudgetPeriods);
+        if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
+			proposal = calculateCost(proposal);			
+		}
         proposal = saveOrUpdateProposalBudget(proposalVO);
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
         proposalVO.setProposal(proposal);
@@ -738,7 +736,7 @@ public class BudgetServiceImpl implements BudgetService {
 		for (BudgetPeriod budgetPeriod : budgetPeriods) {
 			if (budgetPeriod.getBudgetPeriodId() != null && budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
 				budgetPeriodNumber = budgetPeriod.getBudgetPeriod();
-				hibernateTemplate.delete(budgetPeriod);
+				budgetPeriod = budgetDao.deleteBudgetPeriod(budgetPeriod);
 				updatedlist.remove(budgetPeriod);
 			}
 		}
@@ -747,6 +745,9 @@ public class BudgetServiceImpl implements BudgetService {
         if (budgetPeriodNumber > 0) {
         	updateBudgetPeriods(budgetPeriods, budgetPeriodNumber, true);
         }
+        if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
+			proposal = calculateCost(proposal);			
+		}
 		proposal = saveOrUpdateProposalBudget(proposalVO);
 		proposalVO.setProposal(proposal);
 		proposalVO.setStatus(true);
@@ -757,6 +758,7 @@ public class BudgetServiceImpl implements BudgetService {
 	@Override
 	public String deleteBudgetLineItem(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
 		for (BudgetPeriod budgetPeriod : budgetPeriods) {
 			if (budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
@@ -765,17 +767,20 @@ public class BudgetServiceImpl implements BudgetService {
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
 					if (budgetDetail.getBudgetDetailId() != null && budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
-						hibernateTemplate.delete(budgetDetail);
+						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 					if (updatedlist.size() <= 2) {
-						hibernateTemplate.delete(budgetDetail);
+						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 				}
 				budgetPeriod.getBudgetDetails().clear();
 				budgetPeriod.getBudgetDetails().addAll(updatedlist);
 			}
+		}
+		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
+			proposal = calculateCost(proposal);			
 		}
 		proposal = saveOrUpdateProposalBudget(proposalVO);
 		proposalVO.setProposal(proposal);
@@ -852,7 +857,8 @@ public class BudgetServiceImpl implements BudgetService {
 							}
 						}
 						if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
-							detail.setLineItemCost(updatedLineItemCost);
+							lineItemCost = lineItemCost.add(updatedLineItemCost);
+							detail.setLineItemCost(lineItemCost);
 						} else {
 							detail.setLineItemCost(lineItemCost);
 						}
@@ -874,10 +880,48 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 			}
 		}
+		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
+			proposal = calculateCost(proposal);			
+		}
         proposal = saveOrUpdateProposalBudget(proposalVO);
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
         proposalVO.setProposal(proposal);
         return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	private Proposal calculateCost(Proposal proposal) {
+		List<BudgetPeriod> budgetPeriodsList = proposal.getBudgetHeader().getBudgetPeriods();
+		for (BudgetPeriod budgetPeriod : budgetPeriodsList) {
+			BigDecimal totalFringeCost = BigDecimal.ZERO;
+			BigDecimal totalFandACost = BigDecimal.ZERO;
+			BigDecimal totalLineItemCost = BigDecimal.ZERO;
+			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails();
+			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
+				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
+					if (!budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						totalLineItemCost = totalLineItemCost.add(budgetItemDetail.getLineItemCost());
+					}
+				}
+				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
+					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFringeCost = totalFringeCost.add(totalFringeCost);
+						}
+						if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_OH_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFandACost = totalFandACost.add(totalFandACost);
+						}
+						if (Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFandACost = totalFandACost.add(totalFandACost);
+						}
+					}
+				}
+				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
+				budgetPeriod.setTotalIndirectCost(totalFandACost);
+				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
+			}
+		}
+		updateBudgetHeader(proposal.getBudgetHeader());
+		return proposal;
 	}
 
 }

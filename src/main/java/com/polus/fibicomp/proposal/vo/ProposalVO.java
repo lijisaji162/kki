@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.CostElement;
+import com.polus.fibicomp.budget.pojo.TbnPerson;
 import com.polus.fibicomp.committee.pojo.ResearchArea;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewApprovalType;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
@@ -149,6 +150,10 @@ public class ProposalVO {
 	private List<SpecialReviewType> reviewTypes;
 
 	private List<SpecialReviewApprovalType> specialReviewApprovalTypes;
+
+	private List<TbnPerson> tbnPersons;
+
+	private Long proposalSpecialReviewId;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -624,6 +629,22 @@ public class ProposalVO {
 
 	public void setSpecialReviewApprovalTypes(List<SpecialReviewApprovalType> specialReviewApprovalTypes) {
 		this.specialReviewApprovalTypes = specialReviewApprovalTypes;
+	}
+
+	public List<TbnPerson> getTbnPersons() {
+		return tbnPersons;
+	}
+
+	public void setTbnPersons(List<TbnPerson> tbnPersons) {
+		this.tbnPersons = tbnPersons;
+	}
+
+	public Long getProposalSpecialReviewId() {
+		return proposalSpecialReviewId;
+	}
+
+	public void setProposalSpecialReviewId(Long proposalSpecialReviewId) {
+		this.proposalSpecialReviewId = proposalSpecialReviewId;
 	}
 
 }
