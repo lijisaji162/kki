@@ -119,7 +119,7 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 	@Column(name = "FULL_NAME")
 	private String fullName;
 
-	@Column(name = "PERSON_TYPE") // E - Employee, N - Non Employee, TBN - To Be Named
+	@Column(name = "PERSON_TYPE") // E - Employee, N - Non Employee, T - To Be Named
 	private String personType;
 
 	@Column(name = "TBN_ID")

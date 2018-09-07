@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -86,6 +87,7 @@ public class BudgetPeriod implements Serializable {
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "period", orphanRemoval = true, cascade = { CascadeType.ALL })
+	@OrderBy("updateTimeStamp DESC")
 	private List<BudgetDetail> budgetDetails;
 
 	public BudgetPeriod() {
