@@ -84,6 +84,7 @@ public class BudgetServiceImpl implements BudgetService {
         }
 		budget.setIsAutoCalc(false);
 		proposal.setBudgetHeader(budget);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		List<FibiProposalRate> fibiProposalRates = budget.getProposalRates();
 		if (fibiProposalRates == null || fibiProposalRates.isEmpty()) {
 			Set<String> rateClassTypes = new HashSet<>();
@@ -873,6 +874,9 @@ public class BudgetServiceImpl implements BudgetService {
 						detail.setFullName(budgetDetail.getFullName());
 						detail.setRolodexId(budgetDetail.getRolodexId());
 						detail.setPersonId(budgetDetail.getPersonId());
+						detail.setTbnId(budgetDetail.getTbnId());
+						detail.setTbnPerson(budgetDetail.getTbnPerson());
+						detail.setPersonType(budgetDetail.getPersonType());
 						detail = budgetDao.saveBudgetDetail(detail);
 						newLineItems.add(detail);
 					}
