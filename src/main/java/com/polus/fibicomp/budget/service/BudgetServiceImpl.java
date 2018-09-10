@@ -2,7 +2,7 @@ package com.polus.fibicomp.budget.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -692,9 +692,17 @@ public class BudgetServiceImpl implements BudgetService {
 		BudgetHeader budget = proposal.getBudgetHeader();
 		List<FibiProposalRate> proposalRates = new ArrayList<FibiProposalRate>();
 		Date startDate = budget.getStartDate();
-		InstituteRate rate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode());
-		if (rate != null) {
-			proposalRates.add(prepareProposalRate(rate, budget, rateClassTypes));
+		InstituteRate rateMTDC = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "1");
+		if (rateMTDC != null) {
+			proposalRates.add(prepareProposalRate(rateMTDC, budget, rateClassTypes));
+		}
+		InstituteRate rateEmployeeBenefits = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "5");
+		if (rateEmployeeBenefits != null) {
+			proposalRates.add(prepareProposalRate(rateEmployeeBenefits, budget, rateClassTypes));
+		}
+		InstituteRate rateInflation = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "7");
+		if (rateInflation != null) {
+			proposalRates.add(prepareProposalRate(rateInflation, budget, rateClassTypes));
 		}
 		List<InstituteRate> instituteRates = budgetDao.filterInstituteRateByDateRange(startDate, budget.getEndDate(), proposal.getActivityTypeCode());
 		if (instituteRates != null && !instituteRates.isEmpty()) {

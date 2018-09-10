@@ -1,6 +1,6 @@
 package com.polus.fibicomp.budget.dao;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public interface BudgetDao {
 
 	public List<ValidCeRateType> fetchCostElementRateTypes(String costElement);
 
-	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode);
+	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode);
 
 	public List<CostElement> fetchCostElementsByIds(List<String> costElements);
 
