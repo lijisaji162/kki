@@ -1,7 +1,7 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;

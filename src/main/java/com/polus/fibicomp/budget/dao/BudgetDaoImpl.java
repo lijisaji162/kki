@@ -1,6 +1,6 @@
 package com.polus.fibicomp.budget.dao;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -105,11 +105,12 @@ public class BudgetDaoImpl implements BudgetDao {
 	}
 
 	@Override
-	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode) {
+	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode) {
 		InstituteRate instituteRate = null;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(InstituteRate.class);
 		criteria.add(Restrictions.eq("activityTypeCode", activityTypeCode));
+		criteria.add(Restrictions.eq("rateClassCode", rateClassCode));
 		criteria.add(Restrictions.le("startDate", startDate));
 		criteria.addOrder(Order.desc("startDate"));
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
