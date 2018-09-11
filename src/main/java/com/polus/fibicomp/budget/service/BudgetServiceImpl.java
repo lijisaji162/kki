@@ -134,7 +134,7 @@ public class BudgetServiceImpl implements BudgetService {
 						BigDecimal fandACostForCE = BigDecimal.ZERO;
 						BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
 						totalLineItemCost = totalLineItemCost.add(lineItemCost);
-						fringeCostForCE = calculateFringCostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, budgetItemDetail, lineItemCost, proposal.getActivityTypeCode());
+						fringeCostForCE = calculateFringeCostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, budgetItemDetail, lineItemCost, proposal.getActivityTypeCode());
 						fandACostForCE = calculateFandACostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, budgetItemDetail, fringeCostForCE.add(lineItemCost), proposal.getActivityTypeCode());
 						totalFringeCost = totalFringeCost.add(fringeCostForCE);
 						totalFandACost = totalFandACost.add(fandACostForCE);
@@ -187,7 +187,7 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 	}
 
-	private BigDecimal calculateFringCostForCE(Integer budgetId, BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
+	private BigDecimal calculateFringeCostForCE(Integer budgetId, BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
 			BigDecimal lineItemCost, String activityTypeCode) {
 		BigDecimal fringeCost = BigDecimal.ZERO;
 		Date budgetPeriodStartDate = budgetPeriod.getStartDate();
@@ -205,11 +205,11 @@ public class BudgetServiceImpl implements BudgetService {
 				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetPeriodStartDate,
 						ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);
 				if (applicableRate != null
-						&& (applicableRate.getRateClass().getRateClassTypeCode().equals("E") && "5".equals(applicableRate.getRateClassCode())
-								&& !"3".equals(applicableRate.getRateTypeCode()))) {
+						&& (applicableRate.getRateClass().getRateClassTypeCode().equals("E") && "5".equals(applicableRate.getRateClassCode()))) {
 					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+						budgetDetail.getBudgetDetailCalcAmounts().clear();
 						BigDecimal hundred = new BigDecimal(100);
 						BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 						BigDecimal calculatedCost = ((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
@@ -256,6 +256,7 @@ public class BudgetServiceImpl implements BudgetService {
 					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+						budgetDetail.getBudgetDetailCalcAmounts().clear();
 						BigDecimal hundred = new BigDecimal(100);
 						BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 						BigDecimal calculatedCost = (fringeWithLineItemCost.multiply(percentageFactor));
@@ -694,14 +695,17 @@ public class BudgetServiceImpl implements BudgetService {
 		Date startDate = budget.getStartDate();
 		InstituteRate rateMTDC = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "1");
 		if (rateMTDC != null) {
+			logger.info("rateMTDC : " + rateMTDC.getInstituteRate());
 			proposalRates.add(prepareProposalRate(rateMTDC, budget, rateClassTypes));
 		}
 		InstituteRate rateEmployeeBenefits = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "5");
 		if (rateEmployeeBenefits != null) {
+			logger.info("rateEmployeeBenefits : " + rateEmployeeBenefits.getInstituteRate());
 			proposalRates.add(prepareProposalRate(rateEmployeeBenefits, budget, rateClassTypes));
 		}
 		InstituteRate rateInflation = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "7");
 		if (rateInflation != null) {
+			logger.info("rateInflation : " + rateInflation.getInstituteRate());
 			proposalRates.add(prepareProposalRate(rateInflation, budget, rateClassTypes));
 		}
 		List<InstituteRate> instituteRates = budgetDao.filterInstituteRateByDateRange(startDate, budget.getEndDate(), proposal.getActivityTypeCode());
@@ -848,6 +852,7 @@ public class BudgetServiceImpl implements BudgetService {
 						BigDecimal lineItemCost = budgetDetail.getLineItemCost();
 						BigDecimal updatedLineItemCost = BigDecimal.ZERO;
 						List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
+						BudgetDetailCalcAmount budgetCalculatedAmount = null;
 						if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
 							for (ValidCeRateType ceRateType : ceRateTypes) {
 								FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(copyPeriod.getBudget().getBudgetId(), copyPeriod.getStartDate(),
@@ -861,6 +866,9 @@ public class BudgetServiceImpl implements BudgetService {
 										BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 										BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
 										updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
+										budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
+										budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+										detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
 									}
 								}
 							}

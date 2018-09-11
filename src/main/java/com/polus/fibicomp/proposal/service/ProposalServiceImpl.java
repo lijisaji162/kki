@@ -31,6 +31,7 @@ import com.polus.fibicomp.budget.dao.BudgetDao;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.common.dao.CommonDao;
 import com.polus.fibicomp.compilance.dao.ComplianceDao;
 import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
@@ -109,6 +110,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Autowired
 	private ComplianceDao complianceDao;
+
+	@Autowired
+	public CommonDao commonDao;
 
 	@Override
 	public String createProposal(ProposalVO proposalVO) {
@@ -191,6 +195,10 @@ public class ProposalServiceImpl implements ProposalService {
 		int statusCode = proposal.getStatusCode();
 		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED) {
 			loadInitialData(proposalVO);
+		} else {
+			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
+					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
+			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		}
 
 		if (proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVED)
@@ -844,13 +852,18 @@ public class ProposalServiceImpl implements ProposalService {
 	}
 
 	public void loadInitialData(ProposalVO proposalVO) {
+		Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
+				Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
+		proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		Proposal proposal = proposalVO.getProposal();
 		proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
 		proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
 		proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
 		proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
 		proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
-		proposalVO.setFundingSourceTypes(grantCallDao.fetchAllFundingSourceTypes());
+		if (isDeclarationSectionRequired) {
+			proposalVO.setFundingSourceTypes(grantCallDao.fetchAllFundingSourceTypes());
+		}
 		proposalVO.setProtocols(proposalDao.fetchAllProtocols());
 		proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
 		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
