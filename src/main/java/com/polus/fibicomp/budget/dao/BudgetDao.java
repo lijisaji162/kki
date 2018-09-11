@@ -33,7 +33,7 @@ public interface BudgetDao {
 
 	public List<ValidCeRateType> fetchCostElementRateTypes(String costElement);
 
-	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode);
+	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode, String rateTyeCode);
 
 	public List<CostElement> fetchCostElementsByIds(List<String> costElements);
 
