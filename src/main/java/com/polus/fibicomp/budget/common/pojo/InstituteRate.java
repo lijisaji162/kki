@@ -61,7 +61,7 @@ public class InstituteRate implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
-	@Column(name = "RATE", precision = 10, scale = 3)
+	@Column(name = "RATE", precision = 10, scale = 2)
 	private BigDecimal instituteRate;
 
 	@Column(name = "UNIT_NUMBER")

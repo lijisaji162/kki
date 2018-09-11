@@ -64,10 +64,10 @@ public class BudgetDetailCalcAmount implements Serializable {
 	@Convert(converter = JpaCharBooleanConversion.class)
 	private Boolean applyRateFlag;
 
-	@Column(name = "CALCULATED_COST", precision = 10, scale = 3)
+	@Column(name = "CALCULATED_COST", precision = 10, scale = 2)
 	private BigDecimal calculatedCost;
 
-	@Column(name = "CALCULATED_COST_SHARING", precision = 10, scale = 3)
+	@Column(name = "CALCULATED_COST_SHARING", precision = 10, scale = 2)
 	private BigDecimal calculatedCostSharing;
 
 	@Column(name = "RATE_TYPE_DESCRIPTION")
@@ -89,7 +89,7 @@ public class BudgetDetailCalcAmount implements Serializable {
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
 
-	@Column(name = "APPLICABLE_RATE", precision = 10, scale = 3)
+	@Column(name = "APPLICABLE_RATE", precision = 10, scale = 2)
 	private BigDecimal applicableRate;
 
 	public Integer getId() {

@@ -31,7 +31,7 @@ public class BudgetRateAndBase implements Serializable {
 	@Column(name = "BUDGET_RATE_AND_BASE_ID")
 	private Long budgetRateAndBaseId;
 
-	@Column(name = "BASE_COST", precision = 10, scale = 3)
+	@Column(name = "BASE_COST", precision = 10, scale = 2)
 	private BigDecimal baseCost;
 
 	@JsonBackReference

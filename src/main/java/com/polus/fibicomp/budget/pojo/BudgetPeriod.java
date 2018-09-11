@@ -67,13 +67,13 @@ public class BudgetPeriod implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
-	@Column(name = "TOTAL_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_COST", precision = 10, scale = 2)
 	private BigDecimal totalCost;
 
-	@Column(name = "TOTAL_DIRECT_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_DIRECT_COST", precision = 10, scale = 2)
 	private BigDecimal totalDirectCost;
 
-	@Column(name = "TOTAL_INDIRECT_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_INDIRECT_COST", precision = 10, scale = 2)
 	private BigDecimal totalIndirectCost;
 
 	@Column(name = "UPDATE_TIMESTAMP")

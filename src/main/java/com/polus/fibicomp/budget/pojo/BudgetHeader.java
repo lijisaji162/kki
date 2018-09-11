@@ -54,10 +54,10 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "MODULE_SEQUENCE_NUMBER")
 	private Integer moduleSequenceNumber;
 
-	@Column(name = "OBLIGATED_TOTAL", precision = 10, scale = 3)
+	@Column(name = "OBLIGATED_TOTAL", precision = 10, scale = 2)
 	private BigDecimal obligatedTotal;
 
-	@Column(name = "OBLIGATED_CHANGE", precision = 10, scale = 3)
+	@Column(name = "OBLIGATED_CHANGE", precision = 10, scale = 2)
 	private BigDecimal obligatedChange;
 
 	@Column(name = "BUDGET_STATUS_CODE")
@@ -86,13 +86,13 @@ public class BudgetHeader implements Serializable {
 	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
-	@Column(name = "TOTAL_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_COST", precision = 10, scale = 2)
 	private BigDecimal totalCost;
 
-	@Column(name = "TOTAL_DIRECT_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_DIRECT_COST", precision = 10, scale = 2)
 	private BigDecimal totalDirectCost;
 
-	@Column(name = "TOTAL_INDIRECT_COST", precision = 10, scale = 3)
+	@Column(name = "TOTAL_INDIRECT_COST", precision = 10, scale = 2)
 	private BigDecimal totalIndirectCost;
 
 	@Column(name = "COMMENTS")
@@ -126,7 +126,7 @@ public class BudgetHeader implements Serializable {
 	@Column(name = "RATE_TYPE_CODE")
 	private String rateTypeCode;
 
-	@Column(name = "ANTICIPATED_TOTAL", precision = 10, scale = 3)
+	@Column(name = "ANTICIPATED_TOTAL", precision = 10, scale = 2)
 	private BigDecimal anticipatedTotal;
 
 	@ManyToOne(cascade = { CascadeType.REFRESH })

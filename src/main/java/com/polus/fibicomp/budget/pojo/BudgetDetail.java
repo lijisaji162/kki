@@ -80,10 +80,10 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 	@Column(name = "LINE_ITEM_DESCRIPTION")
 	private String lineItemDescription;
 
-	@Column(name = "LINE_ITEM_COST", precision = 10, scale = 3)
+	@Column(name = "LINE_ITEM_COST", precision = 10, scale = 2)
 	private BigDecimal lineItemCost;
 
-	@Column(name = "PREVIOUS_LINE_ITEM_COST", precision = 10, scale = 3)
+	@Column(name = "PREVIOUS_LINE_ITEM_COST", precision = 10, scale = 2)
 	private BigDecimal prevLineItemCost;
 
 	@Column(name = "BUDGET_JUSTIFICATION")
