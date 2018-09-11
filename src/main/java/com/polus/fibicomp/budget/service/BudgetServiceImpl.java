@@ -202,6 +202,9 @@ public class BudgetServiceImpl implements BudgetService {
 		List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
 		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
 			int numberOfDays = (int) ((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000);
+			if (numberOfDays == 0) {
+				numberOfDays = 1;
+			}
 			for (ValidCeRateType ceRateType : ceRateTypes) {
 				FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(budgetId, budgetPeriodStartDate,
 						ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);

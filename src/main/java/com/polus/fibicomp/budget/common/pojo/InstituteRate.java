@@ -2,7 +2,7 @@ package com.polus.fibicomp.budget.common.pojo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
@@ -56,6 +58,7 @@ public class InstituteRate implements Serializable {
     private RateType rateType;
 
 	@Column(name = "START_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
 	@Column(name = "RATE", precision = 10, scale = 3)

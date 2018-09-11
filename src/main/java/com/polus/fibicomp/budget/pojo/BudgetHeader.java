@@ -19,6 +19,8 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -77,9 +79,11 @@ public class BudgetHeader implements Serializable {
 	private BudgetType budgetType;
 
 	@Column(name = "END_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date endDate;
 
 	@Column(name = "START_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
 	@Column(name = "TOTAL_COST", precision = 10, scale = 3)

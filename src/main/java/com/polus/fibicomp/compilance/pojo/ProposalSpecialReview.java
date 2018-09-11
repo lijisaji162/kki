@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -66,12 +68,15 @@ public class ProposalSpecialReview implements Serializable {
 	private String protocolNumber;
 
 	@Column(name = "APPLICATION_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date applicationDate;
 
 	@Column(name = "APPROVAL_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date approvalDate;
 
 	@Column(name = "EXPIRATION_DATE")
+	@Temporal(TemporalType.DATE)
 	private Date expirationDate;
 
 	@Column(name = "COMMENTS")
