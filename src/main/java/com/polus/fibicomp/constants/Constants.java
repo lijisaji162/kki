@@ -122,4 +122,7 @@ public interface Constants {
   	public static final String  BUDGET_FRINGE_ON = "BUDGET_FRINGE_ON";
   	public static final String  BUDGET_FRINGE_OFF = "BUDGET_FRINGE_OFF";
 
+  	// Enable Required Section
+  	public static final String  IS_REQUIRED_DECLARATION_SECTION = "IS_REQUIRED_DECLARATION_SECTION";
+
 }

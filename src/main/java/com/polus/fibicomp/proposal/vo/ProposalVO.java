@@ -155,6 +155,8 @@ public class ProposalVO {
 
 	private Integer proposalSpecialReviewId;
 
+	private Boolean isDeclarationSectionRequired = false;
+
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -645,6 +647,14 @@ public class ProposalVO {
 
 	public void setProposalSpecialReviewId(Integer proposalSpecialReviewId) {
 		this.proposalSpecialReviewId = proposalSpecialReviewId;
+	}
+
+	public Boolean getIsDeclarationSectionRequired() {
+		return isDeclarationSectionRequired;
+	}
+
+	public void setIsDeclarationSectionRequired(Boolean isDeclarationSectionRequired) {
+		this.isDeclarationSectionRequired = isDeclarationSectionRequired;
 	}
 
 }
