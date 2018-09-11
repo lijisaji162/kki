@@ -105,13 +105,13 @@ public class BudgetDaoImpl implements BudgetDao {
 	}
 
 	@Override
-	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode, String rateTyeCode) {
+	public InstituteRate fetchInstituteRateByDateLessthanMax(Date startDate, String activityTypeCode, String rateClassCode, String rateTypeCode) {
 		InstituteRate instituteRate = null;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(InstituteRate.class);
 		criteria.add(Restrictions.eq("activityTypeCode", activityTypeCode));
 		criteria.add(Restrictions.eq("rateClassCode", rateClassCode));
-		criteria.add(Restrictions.eq("rateTyeCode", rateTyeCode));
+		criteria.add(Restrictions.eq("rateTypeCode", rateTypeCode));
 		criteria.add(Restrictions.le("startDate", startDate));
 		criteria.addOrder(Order.desc("startDate"));
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
