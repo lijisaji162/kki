@@ -130,6 +130,7 @@ public class BudgetServiceImpl implements BudgetService {
 			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (!budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						budgetItemDetail.getBudgetDetailCalcAmounts().clear();
 						BigDecimal fringeCostForCE = BigDecimal.ZERO;
 						BigDecimal fandACostForCE = BigDecimal.ZERO;
 						BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
@@ -142,6 +143,7 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						budgetItemDetail.getBudgetDetailCalcAmounts().clear();
 						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
 							budgetItemDetail.setLineItemCost(totalFringeCost.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -196,7 +198,6 @@ public class BudgetServiceImpl implements BudgetService {
 		costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision
 		BigDecimal perDayCost = lineItemCost.divide(new BigDecimal(((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000 + 1)), 2, RoundingMode.HALF_UP);
-		// BigDecimal validRate = BigDecimal.ZERO;
 		BudgetDetailCalcAmount budgetCalculatedAmount = null;
 		List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
 		if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
@@ -209,7 +210,6 @@ public class BudgetServiceImpl implements BudgetService {
 					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
-						budgetDetail.getBudgetDetailCalcAmounts().clear();
 						BigDecimal hundred = new BigDecimal(100);
 						BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 						BigDecimal calculatedCost = ((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
@@ -221,14 +221,6 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 			}
 		}
-		/*if (validRate.compareTo(BigDecimal.ZERO) > 0) {
-			int numberOfDays = (int) ((budgetPeriodEndDate.getTime() - budgetPeriodStartDate.getTime()) / 86400000);
-			BigDecimal hundred = new BigDecimal(100);
-			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
-			fringeCost = fringeCost.add((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
-			budgetCalculatedAmount.setCalculatedCost(fringeCost);
-			//budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
-		}*/
 		return fringeCost;
 	}
 
@@ -239,7 +231,6 @@ public class BudgetServiceImpl implements BudgetService {
 		CostElement costElement = budgetDetail.getCostElement();
 		costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
 		// Rounding mode is used to remove an exception thrown in BigDecimal division to get rounding up to 2 precision);
-		// BigDecimal validRate = BigDecimal.ZERO;
 		BudgetDetailCalcAmount budgetCalculatedAmount = null;
 		String ohRateClassTypeCode = commonDao.getParameterValueAsString(Constants.KC_B_PARAMETER_NAMESPACE,
 				Constants.KC_DOC_PARAMETER_DETAIL_TYPE_CODE, Constants.DEFAULT_RATE_CLASS_TYPE_CODE);
@@ -256,7 +247,6 @@ public class BudgetServiceImpl implements BudgetService {
 					BigDecimal validRate = BigDecimal.ZERO;
 					validRate = validRate.add(applicableRate.getApplicableRate());
 					if (validRate.compareTo(BigDecimal.ZERO) > 0) {
-						budgetDetail.getBudgetDetailCalcAmounts().clear();
 						BigDecimal hundred = new BigDecimal(100);
 						BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
 						BigDecimal calculatedCost = (fringeWithLineItemCost.multiply(percentageFactor));
@@ -268,13 +258,6 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 			}
 		}
-		/*if (validRate.compareTo(BigDecimal.ZERO) > 0) {
-			BigDecimal hundred = new BigDecimal(100);
-			BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
-			fandACost = fandACost.add((fringeWithLineItemCost.multiply(percentageFactor)));
-			budgetCalculatedAmount.setCalculatedCost(fandACost);
-			//budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
-		}*/
 		return fandACost;
 	}
 
@@ -555,23 +538,19 @@ public class BudgetServiceImpl implements BudgetService {
         Calendar c1 = Calendar.getInstance(); 
         c1.setTime(new java.util.Date(date.getTime()));
         return c1.get(Calendar.YEAR);
-
     }
 
 	protected boolean isLeapYear(Date date) {
         int year = getYear(date);
-              
         return isLeapYear(year);
     }
 
 	protected boolean isLeapYear(int year) {
         boolean isLeapYear;
-
         isLeapYear = (year % 4 == 0);
         isLeapYear = isLeapYear && (year % 100 != 0);
         isLeapYear = isLeapYear || (year % 400 == 0);        
         return isLeapYear;
-
     }
 
 	@Override
@@ -608,7 +587,6 @@ public class BudgetServiceImpl implements BudgetService {
         c1.setTime(new java.util.Date(date.getTime()));
         c1.add(Calendar.DATE,days);
         return new java.sql.Date(c1.getTime().getTime());
-        
     }
 
 	@Override
@@ -693,17 +671,13 @@ public class BudgetServiceImpl implements BudgetService {
 		BudgetHeader budget = proposal.getBudgetHeader();
 		List<FibiProposalRate> proposalRates = new ArrayList<FibiProposalRate>();
 		Date startDate = budget.getStartDate();
-		InstituteRate rateMTDC = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "1");
+		InstituteRate rateMTDC = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "1", "1");
 		if (rateMTDC != null) {
 			logger.info("rateMTDC : " + rateMTDC.getInstituteRate());
 			proposalRates.add(prepareProposalRate(rateMTDC, budget, rateClassTypes));
 		}
-		InstituteRate rateEmployeeBenefits = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "5");
-		if (rateEmployeeBenefits != null) {
-			logger.info("rateEmployeeBenefits : " + rateEmployeeBenefits.getInstituteRate());
-			proposalRates.add(prepareProposalRate(rateEmployeeBenefits, budget, rateClassTypes));
-		}
-		InstituteRate rateInflation = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "7");
+		fetchEmployeeBenifitsRates(proposalRates, startDate, proposal.getActivityTypeCode(), budget, rateClassTypes);
+		InstituteRate rateInflation = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, proposal.getActivityTypeCode(), "7", "1");
 		if (rateInflation != null) {
 			logger.info("rateInflation : " + rateInflation.getInstituteRate());
 			proposalRates.add(prepareProposalRate(rateInflation, budget, rateClassTypes));
@@ -736,6 +710,34 @@ public class BudgetServiceImpl implements BudgetService {
 		proposalRate.setActivityType(instituteRate.getActivityType());
 		rateClassTypes.add(instituteRate.getRateClass().getDescription());
 		return proposalRate;
+	}
+
+	public void fetchEmployeeBenifitsRates(List<FibiProposalRate> proposalRates, Date startDate, String activityTypeCode, BudgetHeader budget, Set<String> rateClassTypes) {
+		InstituteRate fullTimeRate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, activityTypeCode, "5", "1");
+		if (fullTimeRate != null) {
+			logger.info("fullTimeRate : " + fullTimeRate.getInstituteRate());
+			proposalRates.add(prepareProposalRate(fullTimeRate, budget, rateClassTypes));
+		}
+		InstituteRate partTimeRate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, activityTypeCode, "5", "2");
+		if (partTimeRate != null) {
+			logger.info("partTimeRate : " + partTimeRate.getInstituteRate());
+			proposalRates.add(prepareProposalRate(partTimeRate, budget, rateClassTypes));
+		}
+		InstituteRate stipendsRate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, activityTypeCode, "5", "4");
+		if (stipendsRate != null) {
+			logger.info("stipendsRate : " + stipendsRate.getInstituteRate());
+			proposalRates.add(prepareProposalRate(stipendsRate, budget, rateClassTypes));
+		}
+		InstituteRate jHURate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, activityTypeCode, "5", "5");
+		if (jHURate != null) {
+			logger.info("jHURate : " + jHURate.getInstituteRate());
+			proposalRates.add(prepareProposalRate(jHURate, budget, rateClassTypes));
+		}
+		InstituteRate wagesRate = budgetDao.fetchInstituteRateByDateLessthanMax(startDate, activityTypeCode, "5", "6");
+		if (wagesRate != null) {
+			logger.info("wagesRate : " + wagesRate.getInstituteRate());
+			proposalRates.add(prepareProposalRate(wagesRate, budget, rateClassTypes));
+		}
 	}
 
 	@Override
