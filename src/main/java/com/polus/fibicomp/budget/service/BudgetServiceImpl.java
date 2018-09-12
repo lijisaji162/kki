@@ -158,10 +158,10 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 					}
 				}
-				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
-				budgetPeriod.setTotalIndirectCost(totalFandACost);
-				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
 			}
+			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
+			budgetPeriod.setTotalIndirectCost(totalFandACost);
+			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 	}
@@ -183,10 +183,10 @@ public class BudgetServiceImpl implements BudgetService {
 					totalCost = totalCost.add(period.getTotalCost());
 				}
 			}
-			budget.setTotalDirectCost(totalDirectCost);
-			budget.setTotalIndirectCost(totalIndirectCost);
-			budget.setTotalCost(totalCost);
 		}
+		budget.setTotalDirectCost(totalDirectCost);
+		budget.setTotalIndirectCost(totalIndirectCost);
+		budget.setTotalCost(totalCost);
 	}
 
 	private BigDecimal calculateFringeCostForCE(Integer budgetId, BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
@@ -940,10 +940,10 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 					}
 				}
-				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
-				budgetPeriod.setTotalIndirectCost(totalFandACost);
-				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
 			}
+			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
+			budgetPeriod.setTotalIndirectCost(totalFandACost);
+			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 		return proposal;
