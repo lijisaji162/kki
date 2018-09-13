@@ -1,7 +1,7 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
-import java.util.Date;
+//import java.util.Date;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+//import javax.persistence.Temporal;
+//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -46,12 +46,12 @@ public class ProposalSponsor implements Serializable {
 	private Sponsor sponsor;
 
 	@Column(name = "START_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date startDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp startDate;
 
 	@Column(name = "END_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date endDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp endDate;
 
 	@Column(name = "AMOUNT")
 	private Integer amount;
@@ -94,19 +94,19 @@ public class ProposalSponsor implements Serializable {
 		this.sponsor = sponsor;
 	}
 
-	public Date getStartDate() {
+	public Timestamp getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Timestamp startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getEndDate() {
+	public Timestamp getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Timestamp endDate) {
 		this.endDate = endDate;
 	}
 

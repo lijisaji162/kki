@@ -212,4 +212,10 @@ public class BudgetDaoImpl implements BudgetDao {
 		return hibernateTemplate.loadAll(TbnPerson.class);
 	}
 
+	@Override
+	public BudgetHeader saveBudgetHeader(BudgetHeader budgetHeader) {
+		hibernateTemplate.save(budgetHeader);
+		return budgetHeader;
+	}
+
 }

@@ -2,7 +2,7 @@ package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+//import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+//import javax.persistence.Temporal;
+//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -60,12 +60,12 @@ public class BudgetPeriod implements Serializable {
 	private Integer budgetPeriod;
 
 	@Column(name = "END_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date endDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp endDate;
 
 	@Column(name = "START_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date startDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp startDate;
 
 	@Column(name = "TOTAL_COST", precision = 10, scale = 2)
 	private BigDecimal totalCost;
@@ -146,19 +146,19 @@ public class BudgetPeriod implements Serializable {
 		this.budgetPeriod = budgetPeriod;
 	}
 
-	public Date getEndDate() {
+	public Timestamp getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Timestamp endDate) {
 		this.endDate = endDate;
 	}
 
-	public Date getStartDate() {
+	public Timestamp getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Timestamp startDate) {
 		this.startDate = startDate;
 	}
 

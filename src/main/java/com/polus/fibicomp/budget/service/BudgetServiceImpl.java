@@ -2,6 +2,7 @@ package com.polus.fibicomp.budget.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -264,7 +265,8 @@ public class BudgetServiceImpl implements BudgetService {
 		return fandACost;
 	}
 
-	protected BudgetDetailCalcAmount getNewBudgetCalculatedAmount(BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
+	@Override
+	public BudgetDetailCalcAmount getNewBudgetCalculatedAmount(BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
 			FibiProposalRate proposalRate) {
 		BudgetDetailCalcAmount budgetCalculatedAmount = new BudgetDetailCalcAmount();
 		budgetCalculatedAmount.setBudgetId(budgetPeriod.getBudget().getBudgetId());
@@ -321,8 +323,10 @@ public class BudgetServiceImpl implements BudgetService {
 			}
 			BudgetPeriod budgetPeriod = new BudgetPeriod();
 			budgetPeriod.setBudgetPeriod(budgetPeriodNum);
-			budgetPeriod.setStartDate(periodStartDate);
-			budgetPeriod.setEndDate(periodEndDate);
+			Timestamp periodStartDateTimeStamp =new Timestamp(periodStartDate.getTime());
+			Timestamp periodEndDateTimeStamp = new Timestamp(periodEndDate.getTime());
+			budgetPeriod.setStartDate(periodStartDateTimeStamp);
+			budgetPeriod.setEndDate(periodEndDateTimeStamp);
 			budgetPeriod.setBudget(budget);
 
 			budgetPeriods.add(budgetPeriod);
@@ -462,8 +466,10 @@ public class BudgetServiceImpl implements BudgetService {
 						startEndDates.add(0, budgetPeriod.getStartDate());
 						startEndDates.add(1, budgetPeriod.getEndDate());
 						List<Date> dates = getNewStartEndDates(startEndDates, gap, lineDuration, budgetLineItem.getStartDate(), isLeapDateInPeriod, isLeapDayInGap);
-						budgetLineItem.setStartDate(dates.get(0));
-						budgetLineItem.setEndDate(dates.get(1));
+						Timestamp periodStartDateTimeStamp =new Timestamp(dates.get(0).getTime());
+						Timestamp periodEndDateTimeStamp = new Timestamp(dates.get(1).getTime());
+						budgetLineItem.setStartDate(periodStartDateTimeStamp);
+						budgetLineItem.setEndDate(periodEndDateTimeStamp);
 					}
 					budgetLineItem.setLineItemNumber(budgetLineItem.getLineItemNumber());
 					lineDuration = dateTimeService.dateDiff(periodLineItem.getStartDate(), periodLineItem.getEndDate(), false);
@@ -704,7 +710,8 @@ public class BudgetServiceImpl implements BudgetService {
 		proposalRate.setBudgetHeader(budget);
 		proposalRate.setRateClassCode(instituteRate.getRateClassCode());
 		proposalRate.setRateTypeCode(instituteRate.getRateTypeCode());
-		proposalRate.setStartDate(instituteRate.getStartDate());
+		Timestamp instituteRateStartDateTimeStamp =new Timestamp(instituteRate.getStartDate().getTime());
+		proposalRate.setStartDate(instituteRateStartDateTimeStamp);
 		proposalRate.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 		proposalRate.setUpdateUser(budget.getUpdateUser());
 		proposalRate.setActivityTypeCode(instituteRate.getActivityTypeCode());
@@ -914,7 +921,8 @@ public class BudgetServiceImpl implements BudgetService {
         return committeeDao.convertObjectToJSON(proposalVO);
 	}
 
-	private Proposal calculateCost(Proposal proposal) {
+	@Override
+	public Proposal calculateCost(Proposal proposal) {
 		List<BudgetPeriod> budgetPeriodsList = proposal.getBudgetHeader().getBudgetPeriods();
 		for (BudgetPeriod budgetPeriod : budgetPeriodsList) {
 			BigDecimal totalFringeCost = BigDecimal.ZERO;

@@ -147,4 +147,6 @@ public interface ProposalService {
 
 	public List<SponsorSearchResult> findSponsor(String searchString);
 
+	public String copyProposal(ProposalVO vo);
+
 }
