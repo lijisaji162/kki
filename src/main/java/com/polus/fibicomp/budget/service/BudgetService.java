@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.polus.fibicomp.budget.pojo.BudgetDetail;
+import com.polus.fibicomp.budget.pojo.BudgetDetailCalcAmount;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
@@ -74,5 +76,9 @@ public interface BudgetService {
 	public String deleteBudgetLineItem(ProposalVO proposalVO);
 
 	public String copyBudgetPeriod(ProposalVO vo);
+
+	public BudgetDetailCalcAmount getNewBudgetCalculatedAmount(BudgetPeriod budgetPeriod, BudgetDetail budgetDetail, FibiProposalRate proposalRate);
+
+	public Proposal calculateCost(Proposal proposal);
 
 }

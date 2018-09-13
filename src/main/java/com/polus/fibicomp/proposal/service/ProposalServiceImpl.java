@@ -2,6 +2,7 @@ package com.polus.fibicomp.proposal.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.DocumentException;
+import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.dao.BudgetDao;
+import com.polus.fibicomp.budget.pojo.BudgetDetail;
+import com.polus.fibicomp.budget.pojo.BudgetDetailCalcAmount;
+import com.polus.fibicomp.budget.pojo.BudgetHeader;
+import com.polus.fibicomp.budget.pojo.BudgetPeriod;
+import com.polus.fibicomp.budget.pojo.CostElement;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
@@ -1102,6 +1109,344 @@ public class ProposalServiceImpl implements ProposalService {
 	@Override
 	public List<SponsorSearchResult> findSponsor(String searchString) {
 		return proposalDao.findSponsor(searchString);
+	}
+
+	@Override
+	public String copyProposal(ProposalVO vo) {
+		Proposal proposal = vo.getProposal();
+		Proposal copyProposal = new Proposal();
+		copyProposal.setTitle(proposal.getTitle());
+		copyProposal.setActivityTypeCode(proposal.getActivityTypeCode());
+		copyProposal.setActivityType(proposal.getActivityType());
+		copyProposal.setTypeCode(proposal.getTypeCode());
+		copyProposal.setProposalType(proposal.getProposalType());
+		copyProposal.setHomeUnitNumber(proposal.getHomeUnitNumber());
+		copyProposal.setHomeUnitName(proposal.getHomeUnitName());
+		copyProposal.setSponsorCode(proposal.getSponsorCode());
+		copyProposal.setSponsorName(proposal.getSponsorName());
+		copyProposal.setStartDate(proposal.getStartDate());
+		copyProposal.setEndDate(proposal.getEndDate());
+		copyProposal.setProposalPersons(copyProposalPersons(copyProposal, proposal));
+		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+
+		copyProposal.setGrantCallId(proposal.getGrantCallId());
+		copyProposal.setGrantCall(proposal.getGrantCall());
+		copyProposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
+		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
+		copyProposal.setSubmissionDate(proposal.getSubmissionDate());
+		copyProposal.setIsSmu(proposal.getIsSmu());
+		copyProposal.setAbstractDescription(proposal.getAbstractDescription());
+		copyProposal.setFundingStrategy(proposal.getFundingStrategy());
+		copyProposal.setDetails(proposal.getDetails());
+		copyProposal.setDeliverables(proposal.getDeliverables());
+		copyProposal.setResearchDescription(proposal.getResearchDescription());
+		copyProposal.setCreateUser(proposal.getCreateUser());
+		copyProposal.setUpdateUser(proposal.getUpdateUser());
+		copyProposal.setIpNumber(proposal.getIpNumber());
+		copyProposal.setGrantTypeCode(proposal.getGrantTypeCode());
+		copyProposal.setGrantCallType(proposal.getGrantCallType());
+		copyProposal.setSubmitUser(proposal.getSubmitUser());
+		copyProposal.setSponsorProposalNumber(proposal.getSponsorProposalNumber());
+		copyProposal.setPrincipalInvestigator(proposal.getPrincipalInvestigator());
+		copyProposal.setApplicationActivityType(proposal.getApplicationActivityType());
+		copyProposal.setApplicationType(proposal.getApplicationType());
+		copyProposal.setApplicationStatus(proposal.getApplicationStatus());
+		copyProposal.setCreateTimeStamp(vo.getProposal().getCreateTimeStamp());
+		copyProposal.setUpdateTimeStamp(vo.getProposal().getUpdateTimeStamp());
+		copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, proposal));
+		copyProposal.setPropSpecialReviews(copyProposalSpecialReview(copyProposal, proposal));
+		copyProposal.setProposalKeywords(copyProposalKeywords(copyProposal, proposal));
+		copyProposal.setProposalIrbProtocols(copyProposalIrbProtocols(copyProposal, proposal));
+		copyProposal.setProposalResearchAreas(copyProposalResearchAreas(copyProposal, proposal));
+		copyProposal.setProposalSponsors(copyProposalSponsors(copyProposal, proposal));
+		BudgetHeader budgetHeader = copyProposalBudgetHeader(copyProposal, proposal, vo);
+		copyProposal.setBudgetHeader(budgetHeader);
+		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+		if (copyProposal.getBudgetHeader().getIsAutoCalc() != null && !copyProposal.getBudgetHeader().getIsAutoCalc()) {
+			copyProposal = budgetService.calculateCost(copyProposal);			
+		}
+		vo.setProposal(copyProposal);
+		copyProposal = budgetService.saveOrUpdateProposalBudget(vo);
+		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+		vo.setStatus(true);
+		vo.setMessage("Proposal copied successfully");
+		vo.setProposal(copyProposal);
+		String response = committeeDao.convertObjectToJSON(vo);
+		return response;
+	}
+
+	private List<ProposalPerson> copyProposalPersons(Proposal copyProposal, Proposal proposal) {
+		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+		List<ProposalPerson> proposalPersons = proposal.getProposalPersons();
+		List<ProposalPerson> copiedProposalPersons = new ArrayList<>(proposalPersons);
+		Collections.copy(copiedProposalPersons, proposalPersons);
+		List<ProposalPerson> newProposalPersons = new ArrayList<>();
+		for (ProposalPerson copiedPersonDetail : copiedProposalPersons) {
+			ProposalPerson personDetail = new ProposalPerson();
+			personDetail.setProposal(copyProposal);
+			personDetail.setPersonId(copiedPersonDetail.getPersonId());
+			personDetail.setRolodexId(copiedPersonDetail.getRolodexId());
+			personDetail.setFullName(copiedPersonDetail.getFullName());
+			personDetail.setPersonRoleId(copiedPersonDetail.getPersonRoleId());
+			personDetail.setProposalPersonRole(copiedPersonDetail.getProposalPersonRole());
+			personDetail.setLeadUnitNumber(copiedPersonDetail.getLeadUnitNumber());
+			personDetail.setLeadUnitName(copiedPersonDetail.getLeadUnitName());
+			personDetail.setDepartment(copiedPersonDetail.getDepartment());
+			personDetail.setUpdateUser(copiedPersonDetail.getUpdateUser());
+			personDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newProposalPersons.add(personDetail);
+		}
+		return newProposalPersons;
+	}
+
+	public List<ProposalAttachment> copyProposalAttachments(Proposal copyProposal, Proposal proposal) {
+		List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
+		List<ProposalAttachment> copiedProposalAttachments = new ArrayList<>(proposalAttachments);
+		Collections.copy(copiedProposalAttachments, proposalAttachments);
+		List<ProposalAttachment> newAttachments = new ArrayList<>();
+		for (ProposalAttachment copiedAttachmentDetail : copiedProposalAttachments) {
+			ProposalAttachment attachmentDetail = new ProposalAttachment();
+			attachmentDetail.setProposal(copyProposal);
+			attachmentDetail.setAttachment(copiedAttachmentDetail.getAttachment());
+			attachmentDetail.setAttachmentTypeCode(copiedAttachmentDetail.getAttachmentTypeCode());
+			attachmentDetail.setAttachmentType(copiedAttachmentDetail.getAttachmentType());
+			attachmentDetail.setDescription(copiedAttachmentDetail.getDescription());
+			attachmentDetail.setFileName(copiedAttachmentDetail.getFileName());
+			attachmentDetail.setMimeType(copiedAttachmentDetail.getMimeType());
+			attachmentDetail.setUpdateUser(copiedAttachmentDetail.getUpdateUser());
+			attachmentDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newAttachments.add(attachmentDetail);
+		}
+		return newAttachments;
+	}
+
+	private BudgetHeader copyProposalBudgetHeader(Proposal copyProposal, Proposal proposal, ProposalVO vo) {
+		BudgetHeader budget = proposal.getBudgetHeader();
+		BudgetHeader copyBudget = new BudgetHeader();
+		copyBudget.setStartDate(budget.getStartDate());
+		copyBudget.setEndDate(budget.getEndDate());
+		copyBudget.setCreateTimeStamp(budget.getCreateTimeStamp());
+		copyBudget.setCreateUser(budget.getCreateUser());
+		copyBudget.setCreateUserName(budget.getCreateUserName());
+		copyBudget.setUpdateTimeStamp(budget.getUpdateTimeStamp());
+		copyBudget.setUpdateUser(budget.getUpdateUser());
+		copyBudget.setUpdateUserName(budget.getUpdateUserName());
+		copyBudget.setRateType(budget.getRateType());
+		copyBudget.setRateClassCode(budget.getRateClassCode());
+		copyBudget.setRateTypeCode(budget.getRateTypeCode());
+		copyBudget.setIsAutoCalc(budget.getIsAutoCalc());
+		copyBudget = budgetDao.saveBudgetHeader(copyBudget);
+		copyProposal.setBudgetHeader(copyBudget);
+		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+		List<FibiProposalRate> fibiProposalRates = budget.getProposalRates();
+		if (fibiProposalRates == null || fibiProposalRates.isEmpty()) {
+			Set<String> rateClassTypes = new HashSet<>();
+			fibiProposalRates = budgetService.fetchFilteredProposalRates(copyProposal, rateClassTypes);
+			budget.setProposalRates(fibiProposalRates);
+			vo.setRateClassTypes(rateClassTypes);
+		}
+		copyBudget.getBudgetPeriods().addAll(copyBudgetPeriods(copyBudget, budget, proposal.getActivityTypeCode()));
+		return copyBudget;
+	}
+
+	private List<BudgetPeriod> copyBudgetPeriods(BudgetHeader copyBudget, BudgetHeader budget, String activityTypeCode) {
+		List<BudgetPeriod> budgetPeriods = budget.getBudgetPeriods();
+		List<BudgetPeriod> copiedBudgetPeriods = new ArrayList<>(budgetPeriods);
+		Collections.copy(copiedBudgetPeriods, budgetPeriods);
+		List<BudgetPeriod> newPeriods = new ArrayList<>();
+		for (BudgetPeriod period : copiedBudgetPeriods) {
+				BudgetPeriod copyPeriod = new BudgetPeriod();
+				copyPeriod.setModuleItemCode(period.getModuleItemCode());
+				copyPeriod.setModuleItemKey(period.getModuleItemKey());
+				copyPeriod.setVersionNumber(period.getVersionNumber());
+				copyPeriod.setBudgetPeriod(period.getBudgetPeriod());
+				copyPeriod.setStartDate(period.getStartDate());
+				copyPeriod.setEndDate(period.getEndDate());
+				copyPeriod.setTotalCost(period.getTotalCost());
+				copyPeriod.setTotalDirectCost(period.getTotalDirectCost());
+				copyPeriod.setTotalIndirectCost(period.getTotalIndirectCost());
+				copyPeriod.setPeriodLabel(period.getPeriodLabel());
+				copyPeriod.setIsObligatedPeriod(period.getIsObligatedPeriod());
+				copyPeriod.setBudget(copyBudget);
+				//periodDetail = budgetDao.saveBudgetPeriod(periodDetail);
+				copyBudgetDetails(copyPeriod, period, activityTypeCode);
+				copyPeriod.setUpdateTimeStamp(budget.getUpdateTimeStamp());
+				copyPeriod.setUpdateUser(period.getUpdateUser());
+				copyPeriod = budgetDao.saveBudgetPeriod(copyPeriod);
+				newPeriods.add(copyPeriod);
+			}
+			return newPeriods;
+	}
+
+	private void copyBudgetDetails(BudgetPeriod copyPeriod, BudgetPeriod period, String activityTypeCode) {	
+		List<BudgetDetail> budgetDetails = period.getBudgetDetails();
+		if (budgetDetails != null && !budgetDetails.isEmpty()) {
+			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
+			Collections.copy(copiedBudgetDetails, budgetDetails);
+			List<BudgetDetail> newLineItems = new ArrayList<>();
+			for (BudgetDetail budgetDetail : copiedBudgetDetails) {
+				BudgetDetail copyBudgetDetail = new BudgetDetail();
+				copyBudgetDetail.setBudgetCategory(budgetDetail.getBudgetCategory());
+				copyBudgetDetail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
+				copyBudgetDetail.setBudgetJustification(budgetDetail.getBudgetJustification());
+				copyBudgetDetail.setBudgetPeriod(budgetDetail.getBudgetPeriod());
+				copyBudgetDetail.setEndDate(budgetDetail.getEndDate());
+				copyBudgetDetail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
+				copyBudgetDetail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
+				// apply inflation here
+				CostElement costElement = budgetDetail.getCostElement();
+				costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
+				copyBudgetDetail.setCostElement(costElement);
+				copyBudgetDetail.setCostElementCode(budgetDetail.getCostElementCode());
+				BigDecimal lineItemCost = budgetDetail.getLineItemCost();
+				BigDecimal updatedLineItemCost = BigDecimal.ZERO;
+				List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
+				BudgetDetailCalcAmount budgetCalculatedAmount = null;
+				if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+					for (ValidCeRateType ceRateType : ceRateTypes) {
+						FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(copyPeriod.getBudget().getBudgetId(), copyPeriod.getStartDate(),
+								ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), activityTypeCode);
+						if (applicableRate != null
+								&& (applicableRate.getRateClass().getRateClassTypeCode().equals("I") && "7".equals(applicableRate.getRateClassCode()))) {
+							BigDecimal validRate = BigDecimal.ZERO;
+							validRate = validRate.add(applicableRate.getApplicableRate());
+							if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+								BigDecimal hundred = new BigDecimal(100);
+								BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
+								BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
+								updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
+								budgetCalculatedAmount = budgetService.getNewBudgetCalculatedAmount(copyPeriod, budgetDetail, applicableRate);
+								budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+								copyBudgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+							}
+						}
+					}
+				}
+				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+					lineItemCost = lineItemCost.add(updatedLineItemCost);
+					copyBudgetDetail.setLineItemCost(lineItemCost);
+				} else {
+					copyBudgetDetail.setLineItemCost(lineItemCost);
+				}
+				copyBudgetDetail.setLineItemDescription(budgetDetail.getLineItemDescription());
+				copyBudgetDetail.setLineItemNumber(budgetDetail.getLineItemNumber());
+				copyBudgetDetail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
+				copyBudgetDetail.setPeriod(copyPeriod);
+				copyBudgetDetail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
+				copyBudgetDetail.setStartDate(budgetDetail.getStartDate());
+				copyBudgetDetail.setUpdateTimeStamp(budgetDetail.getUpdateTimeStamp());
+				copyBudgetDetail.setUpdateUser(budgetDetail.getUpdateUser());
+				copyBudgetDetail.setFullName(budgetDetail.getFullName());
+				copyBudgetDetail.setRolodexId(budgetDetail.getRolodexId());
+				copyBudgetDetail.setPersonId(budgetDetail.getPersonId());
+				copyBudgetDetail.setTbnId(budgetDetail.getTbnId());
+				copyBudgetDetail.setTbnPerson(budgetDetail.getTbnPerson());
+				copyBudgetDetail.setPersonType(budgetDetail.getPersonType());
+				//copyBudgetDetail = budgetDao.saveBudgetDetail(copyBudgetDetail);
+				newLineItems.add(copyBudgetDetail);
+			}
+			copyPeriod.getBudgetDetails().addAll(newLineItems);
+		}
+	}
+
+	private List<ProposalKeyword> copyProposalKeywords(Proposal copyProposal, Proposal proposal) {
+		List<ProposalKeyword> proposalKeywords = proposal.getProposalKeywords();
+		List<ProposalKeyword> copiedProposalKeywords = new ArrayList<>(proposalKeywords);
+		Collections.copy(copiedProposalKeywords, proposalKeywords);
+		List<ProposalKeyword> newKeywords = new ArrayList<>();
+		for (ProposalKeyword copiedKeywordDetail : copiedProposalKeywords) {
+			ProposalKeyword keywordtDetail = new ProposalKeyword();
+			keywordtDetail.setProposal(copyProposal);
+			keywordtDetail.setScienceKeywordCode(copiedKeywordDetail.getScienceKeywordCode());
+			keywordtDetail.setScienceKeyword(copiedKeywordDetail.getScienceKeyword());
+			keywordtDetail.setUpdateUser(copiedKeywordDetail.getUpdateUser());
+			keywordtDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newKeywords.add(keywordtDetail);
+		}
+		return newKeywords;
+	}
+
+	private List<ProposalIrbProtocol> copyProposalIrbProtocols(Proposal copyProposal, Proposal proposal) {
+		List<ProposalIrbProtocol> proposalIrbProtocols = proposal.getProposalIrbProtocols();
+		List<ProposalIrbProtocol> copiedProposalIrbProtocols = new ArrayList<>(proposalIrbProtocols);
+		Collections.copy(copiedProposalIrbProtocols, proposalIrbProtocols);
+		List<ProposalIrbProtocol> newIrbProtocols = new ArrayList<>();
+		for (ProposalIrbProtocol copiedIrbProtocolDetail : copiedProposalIrbProtocols) {
+			ProposalIrbProtocol irbProtocolDetail = new ProposalIrbProtocol();
+			irbProtocolDetail.setProposal(copyProposal);
+			irbProtocolDetail.setProtocolId(copiedIrbProtocolDetail.getProtocolId());
+			irbProtocolDetail.setProtocol(copiedIrbProtocolDetail.getProtocol());
+			irbProtocolDetail.setUpdateUser(copiedIrbProtocolDetail.getUpdateUser());
+			irbProtocolDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newIrbProtocols.add(irbProtocolDetail);
+		}
+		return newIrbProtocols;
+	}
+
+	private List<ProposalResearchArea> copyProposalResearchAreas(Proposal copyProposal, Proposal proposal) {
+		List<ProposalResearchArea> proposalResearchAreas = proposal.getProposalResearchAreas();
+		List<ProposalResearchArea> copiedProposalResearchAreas = new ArrayList<>(proposalResearchAreas);
+		Collections.copy(copiedProposalResearchAreas, proposalResearchAreas);
+		List<ProposalResearchArea> newproposalResearchAreas = new ArrayList<>();
+		for (ProposalResearchArea copiedResearchAreaDetail : copiedProposalResearchAreas) {
+			ProposalResearchArea researchAreaDetail = new ProposalResearchArea();
+			researchAreaDetail.setProposal(copyProposal);
+			researchAreaDetail.setResearchAreaCode(copiedResearchAreaDetail.getResearchAreaCode());
+			researchAreaDetail.setResearchArea(copiedResearchAreaDetail.getResearchArea());
+			researchAreaDetail.setResearchTypeCode(copiedResearchAreaDetail.getResearchTypeCode());
+			researchAreaDetail.setProposalResearchType(copiedResearchAreaDetail.getProposalResearchType());
+			researchAreaDetail.setExcellenceAreaCode(copiedResearchAreaDetail.getExcellenceAreaCode());
+			researchAreaDetail.setProposalExcellenceArea(copiedResearchAreaDetail.getProposalExcellenceArea());
+			researchAreaDetail.setUpdateUser(copiedResearchAreaDetail.getUpdateUser());
+			researchAreaDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newproposalResearchAreas.add(researchAreaDetail);
+		}
+		return newproposalResearchAreas;
+	}
+
+	private List<ProposalSponsor> copyProposalSponsors(Proposal copyProposal, Proposal proposal) {
+		List<ProposalSponsor> proposalSponsors = proposal.getProposalSponsors();
+		List<ProposalSponsor> copiedProposalSponsors = new ArrayList<>(proposalSponsors);
+		Collections.copy(copiedProposalSponsors, proposalSponsors);
+		List<ProposalSponsor> newProposalSponsors = new ArrayList<>();
+		for (ProposalSponsor copiedProposalSponsorsDetail : copiedProposalSponsors) {
+			ProposalSponsor sponsorsDetail = new ProposalSponsor();
+			sponsorsDetail.setProposal(copyProposal);
+			sponsorsDetail.setSponsorCode(copiedProposalSponsorsDetail.getSponsorCode());
+			sponsorsDetail.setSponsor(copiedProposalSponsorsDetail.getSponsor());
+			sponsorsDetail.setStartDate(copiedProposalSponsorsDetail.getStartDate());
+			sponsorsDetail.setEndDate(copiedProposalSponsorsDetail.getEndDate());
+			sponsorsDetail.setAmount(copiedProposalSponsorsDetail.getAmount());
+			sponsorsDetail.setUpdateUser(copiedProposalSponsorsDetail.getUpdateUser());
+			sponsorsDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newProposalSponsors.add(sponsorsDetail);
+		}
+		return newProposalSponsors;
+	}
+
+	private List<ProposalSpecialReview> copyProposalSpecialReview(Proposal copyProposal, Proposal proposal) {
+		List<ProposalSpecialReview> proposalSpecialReviews = proposal.getPropSpecialReviews();
+		List<ProposalSpecialReview> copiedProposalSpecialReviews = new ArrayList<>(proposalSpecialReviews);
+		Collections.copy(copiedProposalSpecialReviews, proposalSpecialReviews);
+		List<ProposalSpecialReview> newSpecialReviews = new ArrayList<>();
+		for (ProposalSpecialReview copiedSpecialReviewDetail : copiedProposalSpecialReviews) {
+			ProposalSpecialReview specialReviewDetail = new ProposalSpecialReview();
+			specialReviewDetail.setProposal(copyProposal);
+			specialReviewDetail.setSpecialReviewTypeCode(copiedSpecialReviewDetail.getSpecialReviewTypeCode());
+			specialReviewDetail.setSpecialReviewType(copiedSpecialReviewDetail.getSpecialReviewType());
+			specialReviewDetail.setApprovalTypeCode(copiedSpecialReviewDetail.getApprovalTypeCode());
+			specialReviewDetail.setApprovalType(copiedSpecialReviewDetail.getApprovalType());
+			specialReviewDetail.setProtocolNumber(copiedSpecialReviewDetail.getProtocolNumber());
+			specialReviewDetail.setProtocolStatus(copiedSpecialReviewDetail.getProtocolStatus());
+			specialReviewDetail.setApplicationDate(copiedSpecialReviewDetail.getApplicationDate());
+			specialReviewDetail.setApprovalDate(copiedSpecialReviewDetail.getApprovalDate());
+			specialReviewDetail.setExpirationDate(copiedSpecialReviewDetail.getExpirationDate());
+			specialReviewDetail.setComments(copiedSpecialReviewDetail.getComments());
+			specialReviewDetail.setUpdateUser(copiedSpecialReviewDetail.getUpdateUser());
+			specialReviewDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			newSpecialReviews.add(specialReviewDetail);
+		}
+		return newSpecialReviews;
 	}
 
 }

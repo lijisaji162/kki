@@ -57,4 +57,6 @@ public interface BudgetDao {
 
 	public List<TbnPerson> fetchAllTbnPerson();
 
+	public BudgetHeader saveBudgetHeader(BudgetHeader budgetHeader);
+
 }

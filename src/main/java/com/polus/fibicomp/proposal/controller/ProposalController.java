@@ -235,4 +235,10 @@ public class ProposalController {
 		return proposalService.findSponsor(searchString);
 	}
 
+	@RequestMapping(value = "/copyProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String copyProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for copyProposal");
+		return proposalService.copyProposal(vo);
+	}
+
 }

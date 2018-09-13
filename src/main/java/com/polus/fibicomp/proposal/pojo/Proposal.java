@@ -1,7 +1,7 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
-import java.util.Date;
+//import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+//import javax.persistence.Temporal;
+//import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
@@ -70,16 +70,16 @@ public class Proposal implements Serializable {
 	private String title;
 
 	@Column(name = "START_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date startDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp startDate;
 
 	@Column(name = "END_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date endDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp endDate;
 
 	@Column(name = "SUBMISSION_DATE")
-	@Temporal(TemporalType.DATE)
-	private Date submissionDate;
+	//@Temporal(TemporalType.DATE)
+	private Timestamp submissionDate;
 
 	@Column(name = "IS_SMU")
 	private Boolean isSmu;
@@ -264,27 +264,27 @@ public class Proposal implements Serializable {
 		this.title = title;
 	}
 
-	public Date getStartDate() {
+	public Timestamp getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Timestamp startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getEndDate() {
+	public Timestamp getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Timestamp endDate) {
 		this.endDate = endDate;
 	}
 
-	public Date getSubmissionDate() {
+	public Timestamp getSubmissionDate() {
 		return submissionDate;
 	}
 
-	public void setSubmissionDate(Date submissionDate) {
+	public void setSubmissionDate(Timestamp submissionDate) {
 		this.submissionDate = submissionDate;
 	}
 
