@@ -1159,14 +1159,16 @@ public class ProposalServiceImpl implements ProposalService {
 		copyProposal.setProposalIrbProtocols(copyProposalIrbProtocols(copyProposal, proposal));
 		copyProposal.setProposalResearchAreas(copyProposalResearchAreas(copyProposal, proposal));
 		copyProposal.setProposalSponsors(copyProposalSponsors(copyProposal, proposal));
-		BudgetHeader budgetHeader = copyProposalBudgetHeader(copyProposal, proposal, vo);
-		copyProposal.setBudgetHeader(budgetHeader);
-		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
-		if (copyProposal.getBudgetHeader().getIsAutoCalc() != null && !copyProposal.getBudgetHeader().getIsAutoCalc()) {
-			copyProposal = budgetService.calculateCost(copyProposal);			
+		if(proposal.getBudgetHeader() != null) {
+			BudgetHeader budgetHeader = copyProposalBudgetHeader(copyProposal, proposal, vo);
+			copyProposal.setBudgetHeader(budgetHeader);
+			copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+			if (copyProposal.getBudgetHeader().getIsAutoCalc() != null && !copyProposal.getBudgetHeader().getIsAutoCalc()) {
+				copyProposal = budgetService.calculateCost(copyProposal);			
+			}
+			vo.setProposal(copyProposal);
+			copyProposal = budgetService.saveOrUpdateProposalBudget(vo);
 		}
-		vo.setProposal(copyProposal);
-		copyProposal = budgetService.saveOrUpdateProposalBudget(vo);
 		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
 		vo.setStatus(true);
 		vo.setMessage("Proposal copied successfully");
