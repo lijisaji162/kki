@@ -348,15 +348,15 @@ public class BudgetServiceImpl implements BudgetService {
 		BudgetPeriod newBudgetPeriod = new BudgetPeriod();
 		newBudgetPeriod.setBudget(proposal.getBudgetHeader());
 		newBudgetPeriod.setBudgetPeriod(lastPeriod.getBudgetPeriod() + 1);
-		newBudgetPeriod.setEndDate(lastPeriod.getEndDate());
-		newBudgetPeriod.setStartDate(lastPeriod.getStartDate());
-		newBudgetPeriod.setTotalCost(lastPeriod.getTotalCost());
-		newBudgetPeriod.setTotalDirectCost(lastPeriod.getTotalDirectCost());
-		newBudgetPeriod.setTotalIndirectCost(lastPeriod.getTotalIndirectCost());
+		//newBudgetPeriod.setEndDate(lastPeriod.getEndDate());
+		//newBudgetPeriod.setStartDate(lastPeriod.getStartDate());
+		//newBudgetPeriod.setTotalCost(lastPeriod.getTotalCost());
+		//newBudgetPeriod.setTotalDirectCost(lastPeriod.getTotalDirectCost());
+		//newBudgetPeriod.setTotalIndirectCost(lastPeriod.getTotalIndirectCost());
 		newBudgetPeriod.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 		newBudgetPeriod.setUpdateUser(proposal.getUpdateUser());
 
-		List<BudgetDetail> budgetDetails = lastPeriod.getBudgetDetails();
+		/*List<BudgetDetail> budgetDetails = lastPeriod.getBudgetDetails();
 		if (budgetDetails != null && !budgetDetails.isEmpty()) {
 			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
 			Collections.copy(copiedBudgetDetails, budgetDetails);
@@ -387,7 +387,7 @@ public class BudgetServiceImpl implements BudgetService {
 				newLineItems.add(detail);
 			}
 			newBudgetPeriod.getBudgetDetails().addAll(newLineItems);
-		}
+		}*/
 		newBudgetPeriod = budgetDao.saveBudgetPeriod(newBudgetPeriod);
         updateBudgetPeriods.add(newBudgetPeriod);
         proposal.getBudgetHeader().getBudgetPeriods().clear();
