@@ -1113,54 +1113,13 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public String copyProposal(ProposalVO vo) {
-		Proposal proposal = vo.getProposal();
+		Proposal originalProposal = vo.getProposal();
+		originalProposal = proposalDao.saveOrUpdateProposal(originalProposal);
 		Proposal copyProposal = new Proposal();
-		copyProposal.setTitle(proposal.getTitle());
-		copyProposal.setActivityTypeCode(proposal.getActivityTypeCode());
-		copyProposal.setActivityType(proposal.getActivityType());
-		copyProposal.setTypeCode(proposal.getTypeCode());
-		copyProposal.setProposalType(proposal.getProposalType());
-		copyProposal.setHomeUnitNumber(proposal.getHomeUnitNumber());
-		copyProposal.setHomeUnitName(proposal.getHomeUnitName());
-		copyProposal.setSponsorCode(proposal.getSponsorCode());
-		copyProposal.setSponsorName(proposal.getSponsorName());
-		copyProposal.setStartDate(proposal.getStartDate());
-		copyProposal.setEndDate(proposal.getEndDate());
-		copyProposal.setProposalPersons(copyProposalPersons(copyProposal, proposal));
-		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
-
-		copyProposal.setGrantCallId(proposal.getGrantCallId());
-		copyProposal.setGrantCall(proposal.getGrantCall());
-		copyProposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
-		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
-		copyProposal.setSubmissionDate(proposal.getSubmissionDate());
-		copyProposal.setIsSmu(proposal.getIsSmu());
-		copyProposal.setAbstractDescription(proposal.getAbstractDescription());
-		copyProposal.setFundingStrategy(proposal.getFundingStrategy());
-		copyProposal.setDetails(proposal.getDetails());
-		copyProposal.setDeliverables(proposal.getDeliverables());
-		copyProposal.setResearchDescription(proposal.getResearchDescription());
-		copyProposal.setCreateUser(proposal.getCreateUser());
-		copyProposal.setUpdateUser(proposal.getUpdateUser());
-		copyProposal.setIpNumber(proposal.getIpNumber());
-		copyProposal.setGrantTypeCode(proposal.getGrantTypeCode());
-		copyProposal.setGrantCallType(proposal.getGrantCallType());
-		copyProposal.setSubmitUser(proposal.getSubmitUser());
-		copyProposal.setSponsorProposalNumber(proposal.getSponsorProposalNumber());
-		copyProposal.setPrincipalInvestigator(proposal.getPrincipalInvestigator());
-		copyProposal.setApplicationActivityType(proposal.getApplicationActivityType());
-		copyProposal.setApplicationType(proposal.getApplicationType());
-		copyProposal.setApplicationStatus(proposal.getApplicationStatus());
-		copyProposal.setCreateTimeStamp(vo.getProposal().getCreateTimeStamp());
-		copyProposal.setUpdateTimeStamp(vo.getProposal().getUpdateTimeStamp());
-		copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, proposal));
-		copyProposal.setPropSpecialReviews(copyProposalSpecialReview(copyProposal, proposal));
-		copyProposal.setProposalKeywords(copyProposalKeywords(copyProposal, proposal));
-		copyProposal.setProposalIrbProtocols(copyProposalIrbProtocols(copyProposal, proposal));
-		copyProposal.setProposalResearchAreas(copyProposalResearchAreas(copyProposal, proposal));
-		copyProposal.setProposalSponsors(copyProposalSponsors(copyProposal, proposal));
-		if(proposal.getBudgetHeader() != null) {
-			BudgetHeader budgetHeader = copyProposalBudgetHeader(copyProposal, proposal, vo);
+		copyProposalMandatoryFields(copyProposal, originalProposal, vo.getUserFullName());
+		copyProposalNonMandatoryFields(copyProposal, originalProposal, vo.getUserFullName());
+		if(originalProposal.getBudgetHeader() != null) {
+			BudgetHeader budgetHeader = copyProposalBudgetHeader(copyProposal, originalProposal, vo);
 			copyProposal.setBudgetHeader(budgetHeader);
 			copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
 			if (copyProposal.getBudgetHeader().getIsAutoCalc() != null && !copyProposal.getBudgetHeader().getIsAutoCalc()) {
@@ -1177,8 +1136,68 @@ public class ProposalServiceImpl implements ProposalService {
 		return response;
 	}
 
-	private List<ProposalPerson> copyProposalPersons(Proposal copyProposal, Proposal proposal) {
+	private void copyProposalMandatoryFields(Proposal copyProposal, Proposal originalProposal, String updateUser) {
+		copyProposal.setTitle(originalProposal.getTitle());
+		copyProposal.setActivityTypeCode(originalProposal.getActivityTypeCode());
+		copyProposal.setActivityType(originalProposal.getActivityType());
+		copyProposal.setTypeCode(originalProposal.getTypeCode());
+		copyProposal.setProposalType(originalProposal.getProposalType());
+		copyProposal.setHomeUnitNumber(originalProposal.getHomeUnitNumber());
+		copyProposal.setHomeUnitName(originalProposal.getHomeUnitName());
+		copyProposal.setSponsorCode(originalProposal.getSponsorCode());
+		copyProposal.setSponsorName(originalProposal.getSponsorName());
+		copyProposal.setStartDate(originalProposal.getStartDate());
+		copyProposal.setEndDate(originalProposal.getEndDate());
 		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
+		copyProposal.setProposalPersons(copyProposalPersons(copyProposal, originalProposal, updateUser));
+	}
+
+	private void copyProposalNonMandatoryFields(Proposal copyProposal, Proposal originalProposal, String updateUser) {
+		copyProposal.setGrantCallId(originalProposal.getGrantCallId());
+		copyProposal.setGrantCall(originalProposal.getGrantCall());
+		copyProposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
+		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
+		//copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
+		copyProposal.setIsSmu(originalProposal.getIsSmu());
+		copyProposal.setAbstractDescription(originalProposal.getAbstractDescription());
+		copyProposal.setFundingStrategy(originalProposal.getFundingStrategy());
+		copyProposal.setDetails(originalProposal.getDetails());
+		copyProposal.setDeliverables(originalProposal.getDeliverables());
+		copyProposal.setResearchDescription(originalProposal.getResearchDescription());
+		copyProposal.setCreateUser(updateUser);
+		copyProposal.setUpdateUser(updateUser);
+		//copyProposal.setIpNumber(originalProposal.getIpNumber());
+		copyProposal.setGrantTypeCode(originalProposal.getGrantTypeCode());
+		copyProposal.setGrantCallType(originalProposal.getGrantCallType());
+		//copyProposal.setSubmitUser(originalProposal.getSubmitUser());
+		copyProposal.setSponsorProposalNumber(originalProposal.getSponsorProposalNumber());
+		copyProposal.setPrincipalInvestigator(originalProposal.getPrincipalInvestigator());
+		copyProposal.setApplicationActivityType(originalProposal.getApplicationActivityType());
+		copyProposal.setApplicationType(originalProposal.getApplicationType());
+		copyProposal.setApplicationStatus(originalProposal.getApplicationStatus());
+		copyProposal.setCreateTimeStamp(committeeDao.getCurrentTimestamp());
+		copyProposal.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+		if (originalProposal.getProposalAttachments() != null && !originalProposal.getProposalAttachments().isEmpty()) {
+			copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, originalProposal, updateUser));			
+		}
+		if (originalProposal.getPropSpecialReviews() != null && !originalProposal.getPropSpecialReviews().isEmpty()) {
+			copyProposal.setPropSpecialReviews(copyProposalSpecialReview(copyProposal, originalProposal, updateUser));			
+		}
+		if (originalProposal.getProposalKeywords() != null && !originalProposal.getProposalKeywords().isEmpty()) {
+			copyProposal.setProposalKeywords(copyProposalKeywords(copyProposal, originalProposal, updateUser));
+		}
+		if (originalProposal.getProposalIrbProtocols() != null && !originalProposal.getProposalIrbProtocols().isEmpty()) {
+			copyProposal.setProposalIrbProtocols(copyProposalIrbProtocols(copyProposal, originalProposal, updateUser));			
+		}
+		if (originalProposal.getProposalResearchAreas() != null && !originalProposal.getProposalResearchAreas().isEmpty()) {
+			copyProposal.setProposalResearchAreas(copyProposalResearchAreas(copyProposal, originalProposal, updateUser));			
+		}
+		if (originalProposal.getProposalSponsors() != null && !originalProposal.getProposalSponsors().isEmpty()) {
+			copyProposal.setProposalSponsors(copyProposalSponsors(copyProposal, originalProposal, updateUser));			
+		}
+	}
+
+	private List<ProposalPerson> copyProposalPersons(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalPerson> proposalPersons = proposal.getProposalPersons();
 		List<ProposalPerson> copiedProposalPersons = new ArrayList<>(proposalPersons);
 		Collections.copy(copiedProposalPersons, proposalPersons);
@@ -1194,14 +1213,14 @@ public class ProposalServiceImpl implements ProposalService {
 			personDetail.setLeadUnitNumber(copiedPersonDetail.getLeadUnitNumber());
 			personDetail.setLeadUnitName(copiedPersonDetail.getLeadUnitName());
 			personDetail.setDepartment(copiedPersonDetail.getDepartment());
-			personDetail.setUpdateUser(copiedPersonDetail.getUpdateUser());
-			personDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			personDetail.setUpdateUser(updateUser);
+			personDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newProposalPersons.add(personDetail);
 		}
 		return newProposalPersons;
 	}
 
-	public List<ProposalAttachment> copyProposalAttachments(Proposal copyProposal, Proposal proposal) {
+	public List<ProposalAttachment> copyProposalAttachments(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
 		List<ProposalAttachment> copiedProposalAttachments = new ArrayList<>(proposalAttachments);
 		Collections.copy(copiedProposalAttachments, proposalAttachments);
@@ -1215,65 +1234,69 @@ public class ProposalServiceImpl implements ProposalService {
 			attachmentDetail.setDescription(copiedAttachmentDetail.getDescription());
 			attachmentDetail.setFileName(copiedAttachmentDetail.getFileName());
 			attachmentDetail.setMimeType(copiedAttachmentDetail.getMimeType());
-			attachmentDetail.setUpdateUser(copiedAttachmentDetail.getUpdateUser());
-			attachmentDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			attachmentDetail.setUpdateUser(updateUser);
+			attachmentDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newAttachments.add(attachmentDetail);
 		}
 		return newAttachments;
 	}
 
 	private BudgetHeader copyProposalBudgetHeader(Proposal copyProposal, Proposal proposal, ProposalVO vo) {
-		BudgetHeader budget = proposal.getBudgetHeader();
+		BudgetHeader originalBudget = proposal.getBudgetHeader();
 		BudgetHeader copyBudget = new BudgetHeader();
-		copyBudget.setStartDate(budget.getStartDate());
-		copyBudget.setEndDate(budget.getEndDate());
-		copyBudget.setCreateTimeStamp(budget.getCreateTimeStamp());
-		copyBudget.setCreateUser(budget.getCreateUser());
-		copyBudget.setCreateUserName(budget.getCreateUserName());
-		copyBudget.setUpdateTimeStamp(budget.getUpdateTimeStamp());
-		copyBudget.setUpdateUser(budget.getUpdateUser());
-		copyBudget.setUpdateUserName(budget.getUpdateUserName());
-		copyBudget.setRateType(budget.getRateType());
-		copyBudget.setRateClassCode(budget.getRateClassCode());
-		copyBudget.setRateTypeCode(budget.getRateTypeCode());
-		copyBudget.setIsAutoCalc(budget.getIsAutoCalc());
-		copyBudget = budgetDao.saveBudgetHeader(copyBudget);
+		createBudgetHeader(copyBudget, originalBudget, vo.getUserFullName());
 		copyProposal.setBudgetHeader(copyBudget);
 		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
-		List<FibiProposalRate> fibiProposalRates = budget.getProposalRates();
-		if (fibiProposalRates == null || fibiProposalRates.isEmpty()) {
-			Set<String> rateClassTypes = new HashSet<>();
-			fibiProposalRates = budgetService.fetchFilteredProposalRates(copyProposal, rateClassTypes);
-			budget.setProposalRates(fibiProposalRates);
-			vo.setRateClassTypes(rateClassTypes);
+		Set<String> rateClassTypes = new HashSet<>();
+		copyBudget.setProposalRates(budgetService.fetchFilteredProposalRates(copyProposal, rateClassTypes));
+		vo.setRateClassTypes(rateClassTypes);
+		if (originalBudget.getBudgetPeriods() != null && !originalBudget.getBudgetPeriods().isEmpty()) {
+			copyBudget.getBudgetPeriods().addAll(copyBudgetPeriods(copyBudget, originalBudget, proposal.getActivityTypeCode()));			
 		}
-		copyBudget.getBudgetPeriods().addAll(copyBudgetPeriods(copyBudget, budget, proposal.getActivityTypeCode()));
 		return copyBudget;
 	}
 
-	private List<BudgetPeriod> copyBudgetPeriods(BudgetHeader copyBudget, BudgetHeader budget, String activityTypeCode) {
-		List<BudgetPeriod> budgetPeriods = budget.getBudgetPeriods();
+	private void createBudgetHeader(BudgetHeader copyBudget, BudgetHeader originalBudget, String userName) {
+		copyBudget.setStartDate(originalBudget.getStartDate());
+		copyBudget.setEndDate(originalBudget.getEndDate());
+		copyBudget.setCreateTimeStamp(committeeDao.getCurrentTimestamp());
+		copyBudget.setCreateUser(userName);
+		copyBudget.setCreateUserName(userName);
+		copyBudget.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+		copyBudget.setUpdateUser(userName);
+		copyBudget.setUpdateUserName(userName);
+		copyBudget.setRateType(originalBudget.getRateType());
+		copyBudget.setRateClassCode(originalBudget.getRateClassCode());
+		copyBudget.setRateTypeCode(originalBudget.getRateTypeCode());
+		copyBudget.setIsAutoCalc(originalBudget.getIsAutoCalc());
+		copyBudget = budgetDao.saveBudgetHeader(copyBudget);
+	}
+
+	private List<BudgetPeriod> copyBudgetPeriods(BudgetHeader copyBudget, BudgetHeader originalBudget, String activityTypeCode) {
+		List<BudgetPeriod> budgetPeriods = originalBudget.getBudgetPeriods();
 		List<BudgetPeriod> copiedBudgetPeriods = new ArrayList<>(budgetPeriods);
 		Collections.copy(copiedBudgetPeriods, budgetPeriods);
 		List<BudgetPeriod> newPeriods = new ArrayList<>();
-		for (BudgetPeriod period : copiedBudgetPeriods) {
+		for (BudgetPeriod originalPeriod : copiedBudgetPeriods) {
 				BudgetPeriod copyPeriod = new BudgetPeriod();
-				copyPeriod.setModuleItemCode(period.getModuleItemCode());
-				copyPeriod.setModuleItemKey(period.getModuleItemKey());
-				copyPeriod.setVersionNumber(period.getVersionNumber());
-				copyPeriod.setBudgetPeriod(period.getBudgetPeriod());
-				copyPeriod.setStartDate(period.getStartDate());
-				copyPeriod.setEndDate(period.getEndDate());
-				copyPeriod.setTotalCost(period.getTotalCost());
-				copyPeriod.setTotalDirectCost(period.getTotalDirectCost());
-				copyPeriod.setTotalIndirectCost(period.getTotalIndirectCost());
-				copyPeriod.setPeriodLabel(period.getPeriodLabel());
-				copyPeriod.setIsObligatedPeriod(period.getIsObligatedPeriod());
+				copyPeriod.setModuleItemCode(originalPeriod.getModuleItemCode());
+				copyPeriod.setModuleItemKey(originalPeriod.getModuleItemKey());
+				copyPeriod.setVersionNumber(originalPeriod.getVersionNumber());
+				copyPeriod.setBudgetPeriod(originalPeriod.getBudgetPeriod());
+				copyPeriod.setStartDate(originalPeriod.getStartDate());
+				copyPeriod.setEndDate(originalPeriod.getEndDate());
+				copyPeriod.setTotalCost(originalPeriod.getTotalCost());
+				copyPeriod.setTotalDirectCost(originalPeriod.getTotalDirectCost());
+				copyPeriod.setTotalIndirectCost(originalPeriod.getTotalIndirectCost());
+				copyPeriod.setPeriodLabel(originalPeriod.getPeriodLabel());
+				copyPeriod.setIsObligatedPeriod(originalPeriod.getIsObligatedPeriod());
 				copyPeriod.setBudget(copyBudget);
 				//periodDetail = budgetDao.saveBudgetPeriod(periodDetail);
-				copyBudgetDetails(copyPeriod, period, activityTypeCode);
-				copyPeriod.setUpdateTimeStamp(budget.getUpdateTimeStamp());
-				copyPeriod.setUpdateUser(period.getUpdateUser());
+				if (originalPeriod.getBudgetDetails() != null && !originalPeriod.getBudgetDetails().isEmpty()) {
+					copyBudgetDetails(copyPeriod, originalPeriod, activityTypeCode);					
+				}
+				copyPeriod.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+				copyPeriod.setUpdateUser(copyBudget.getUpdateUser());
 				copyPeriod = budgetDao.saveBudgetPeriod(copyPeriod);
 				newPeriods.add(copyPeriod);
 			}
@@ -1336,8 +1359,8 @@ public class ProposalServiceImpl implements ProposalService {
 				copyBudgetDetail.setPeriod(copyPeriod);
 				copyBudgetDetail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
 				copyBudgetDetail.setStartDate(budgetDetail.getStartDate());
-				copyBudgetDetail.setUpdateTimeStamp(budgetDetail.getUpdateTimeStamp());
-				copyBudgetDetail.setUpdateUser(budgetDetail.getUpdateUser());
+				copyBudgetDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+				copyBudgetDetail.setUpdateUser(copyPeriod.getUpdateUser());
 				copyBudgetDetail.setFullName(budgetDetail.getFullName());
 				copyBudgetDetail.setRolodexId(budgetDetail.getRolodexId());
 				copyBudgetDetail.setPersonId(budgetDetail.getPersonId());
@@ -1351,7 +1374,7 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 	}
 
-	private List<ProposalKeyword> copyProposalKeywords(Proposal copyProposal, Proposal proposal) {
+	private List<ProposalKeyword> copyProposalKeywords(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalKeyword> proposalKeywords = proposal.getProposalKeywords();
 		List<ProposalKeyword> copiedProposalKeywords = new ArrayList<>(proposalKeywords);
 		Collections.copy(copiedProposalKeywords, proposalKeywords);
@@ -1361,14 +1384,14 @@ public class ProposalServiceImpl implements ProposalService {
 			keywordtDetail.setProposal(copyProposal);
 			keywordtDetail.setScienceKeywordCode(copiedKeywordDetail.getScienceKeywordCode());
 			keywordtDetail.setScienceKeyword(copiedKeywordDetail.getScienceKeyword());
-			keywordtDetail.setUpdateUser(copiedKeywordDetail.getUpdateUser());
-			keywordtDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			keywordtDetail.setUpdateUser(updateUser);
+			keywordtDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newKeywords.add(keywordtDetail);
 		}
 		return newKeywords;
 	}
 
-	private List<ProposalIrbProtocol> copyProposalIrbProtocols(Proposal copyProposal, Proposal proposal) {
+	private List<ProposalIrbProtocol> copyProposalIrbProtocols(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalIrbProtocol> proposalIrbProtocols = proposal.getProposalIrbProtocols();
 		List<ProposalIrbProtocol> copiedProposalIrbProtocols = new ArrayList<>(proposalIrbProtocols);
 		Collections.copy(copiedProposalIrbProtocols, proposalIrbProtocols);
@@ -1378,14 +1401,14 @@ public class ProposalServiceImpl implements ProposalService {
 			irbProtocolDetail.setProposal(copyProposal);
 			irbProtocolDetail.setProtocolId(copiedIrbProtocolDetail.getProtocolId());
 			irbProtocolDetail.setProtocol(copiedIrbProtocolDetail.getProtocol());
-			irbProtocolDetail.setUpdateUser(copiedIrbProtocolDetail.getUpdateUser());
-			irbProtocolDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			irbProtocolDetail.setUpdateUser(updateUser);
+			irbProtocolDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newIrbProtocols.add(irbProtocolDetail);
 		}
 		return newIrbProtocols;
 	}
 
-	private List<ProposalResearchArea> copyProposalResearchAreas(Proposal copyProposal, Proposal proposal) {
+	private List<ProposalResearchArea> copyProposalResearchAreas(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalResearchArea> proposalResearchAreas = proposal.getProposalResearchAreas();
 		List<ProposalResearchArea> copiedProposalResearchAreas = new ArrayList<>(proposalResearchAreas);
 		Collections.copy(copiedProposalResearchAreas, proposalResearchAreas);
@@ -1399,14 +1422,14 @@ public class ProposalServiceImpl implements ProposalService {
 			researchAreaDetail.setProposalResearchType(copiedResearchAreaDetail.getProposalResearchType());
 			researchAreaDetail.setExcellenceAreaCode(copiedResearchAreaDetail.getExcellenceAreaCode());
 			researchAreaDetail.setProposalExcellenceArea(copiedResearchAreaDetail.getProposalExcellenceArea());
-			researchAreaDetail.setUpdateUser(copiedResearchAreaDetail.getUpdateUser());
-			researchAreaDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			researchAreaDetail.setUpdateUser(updateUser);
+			researchAreaDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newproposalResearchAreas.add(researchAreaDetail);
 		}
 		return newproposalResearchAreas;
 	}
 
-	private List<ProposalSponsor> copyProposalSponsors(Proposal copyProposal, Proposal proposal) {
+	private List<ProposalSponsor> copyProposalSponsors(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalSponsor> proposalSponsors = proposal.getProposalSponsors();
 		List<ProposalSponsor> copiedProposalSponsors = new ArrayList<>(proposalSponsors);
 		Collections.copy(copiedProposalSponsors, proposalSponsors);
@@ -1419,14 +1442,14 @@ public class ProposalServiceImpl implements ProposalService {
 			sponsorsDetail.setStartDate(copiedProposalSponsorsDetail.getStartDate());
 			sponsorsDetail.setEndDate(copiedProposalSponsorsDetail.getEndDate());
 			sponsorsDetail.setAmount(copiedProposalSponsorsDetail.getAmount());
-			sponsorsDetail.setUpdateUser(copiedProposalSponsorsDetail.getUpdateUser());
-			sponsorsDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			sponsorsDetail.setUpdateUser(updateUser);
+			sponsorsDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newProposalSponsors.add(sponsorsDetail);
 		}
 		return newProposalSponsors;
 	}
 
-	private List<ProposalSpecialReview> copyProposalSpecialReview(Proposal copyProposal, Proposal proposal) {
+	private List<ProposalSpecialReview> copyProposalSpecialReview(Proposal copyProposal, Proposal proposal, String updateUser) {
 		List<ProposalSpecialReview> proposalSpecialReviews = proposal.getPropSpecialReviews();
 		List<ProposalSpecialReview> copiedProposalSpecialReviews = new ArrayList<>(proposalSpecialReviews);
 		Collections.copy(copiedProposalSpecialReviews, proposalSpecialReviews);
@@ -1444,8 +1467,8 @@ public class ProposalServiceImpl implements ProposalService {
 			specialReviewDetail.setApprovalDate(copiedSpecialReviewDetail.getApprovalDate());
 			specialReviewDetail.setExpirationDate(copiedSpecialReviewDetail.getExpirationDate());
 			specialReviewDetail.setComments(copiedSpecialReviewDetail.getComments());
-			specialReviewDetail.setUpdateUser(copiedSpecialReviewDetail.getUpdateUser());
-			specialReviewDetail.setUpdateTimeStamp(proposal.getUpdateTimeStamp());
+			specialReviewDetail.setUpdateUser(updateUser);
+			specialReviewDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			newSpecialReviews.add(specialReviewDetail);
 		}
 		return newSpecialReviews;
