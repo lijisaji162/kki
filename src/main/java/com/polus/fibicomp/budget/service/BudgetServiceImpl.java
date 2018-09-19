@@ -160,9 +160,9 @@ public class BudgetServiceImpl implements BudgetService {
 					}
 				}
 			}
-			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
-			budgetPeriod.setTotalIndirectCost(totalFandACost);
-			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
+			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 	}
@@ -185,9 +185,9 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 			}
 		}
-		budget.setTotalDirectCost(totalDirectCost);
-		budget.setTotalIndirectCost(totalIndirectCost);
-		budget.setTotalCost(totalCost);
+		budget.setTotalDirectCost(totalDirectCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+		budget.setTotalIndirectCost(totalIndirectCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+		budget.setTotalCost(totalCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 	}
 
 	private BigDecimal calculateFringeCostForCE(Integer budgetId, BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,
@@ -219,7 +219,7 @@ public class BudgetServiceImpl implements BudgetService {
 						BigDecimal calculatedCost = ((perDayCost.multiply(percentageFactor)).multiply(new BigDecimal(numberOfDays)));
 						fringeCost = fringeCost.add(calculatedCost);
 						budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
-						budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+						budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
 					}
 				}
@@ -256,7 +256,7 @@ public class BudgetServiceImpl implements BudgetService {
 						BigDecimal calculatedCost = (fringeWithLineItemCost.multiply(percentageFactor));
 						fandACost = fandACost.add(calculatedCost);
 						budgetCalculatedAmount = getNewBudgetCalculatedAmount(budgetPeriod, budgetDetail, applicableRate);
-						budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+						budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						budgetDetail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
 					}
 				}
@@ -949,9 +949,9 @@ public class BudgetServiceImpl implements BudgetService {
 					}
 				}
 			}
-			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost));
-			budgetPeriod.setTotalIndirectCost(totalFandACost);
-			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost));
+			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 		return proposal;
