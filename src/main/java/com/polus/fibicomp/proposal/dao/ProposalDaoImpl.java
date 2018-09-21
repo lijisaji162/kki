@@ -218,4 +218,14 @@ public class ProposalDaoImpl implements ProposalDao {
 		return ListUtils.emptyIfNull(query.setMaxResults(25).list());
 	}
 
+	@Override
+	public String fetchSponsorTypeCodeBySponsorCode(String sponsorCode) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		String hql = "SELECT s.sponsorTypeCode FROM Sponsor s where s.sponsorCode = :sponsorCode";
+		Query query = session.createQuery(hql);
+		query.setParameter("sponsorCode",sponsorCode);
+		String sponsorTypeCode = (String) query.uniqueResult();
+		return sponsorTypeCode;
+	}
+
 }

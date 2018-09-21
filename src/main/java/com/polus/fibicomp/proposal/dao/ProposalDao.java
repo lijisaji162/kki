@@ -100,12 +100,36 @@ public interface ProposalDao {
 	 */
 	public List<ActivityType> fetchAllActivityTypes();
 
+	/**
+	 * This method is used to fetch all sponsors.
+	 * @return A list of sponsors.
+	 */
 	public List<Sponsor> fetchAllSponsors();
 
+	/**
+	 * This method is used to fetch lead units based on unit numbers.
+	 * @param unitNumbers - lead unit numbers.
+	 * @return A list of units.
+	 */
 	public List<Unit> fetchLeadUnitsByUnitNumbers(Set<String> unitNumbers);
 
+	/**
+	 * This method is used to delete special review of a proposal.
+	 * @param specialReview - special review object.
+	 * @return an object of deleted special review.
+	 */
 	public ProposalSpecialReview deleteProposalSpecialReview(ProposalSpecialReview specialReview);
 
+	/**
+	 * This method is used to fetch filtered sponsors based on input string.
+	 * @param searchString - input string.
+	 * @return a list of sponsors.
+	 */
 	public List<SponsorSearchResult> findSponsor(String searchString);
 
+	/**
+	 * @param sponsorCode
+	 * @return
+	 */
+	public String fetchSponsorTypeCodeBySponsorCode(String sponsorCode);
 }
