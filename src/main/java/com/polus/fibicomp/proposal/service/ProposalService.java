@@ -13,7 +13,7 @@ import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.vo.SponsorSearchResult;
 
 /**
- * @author Shaji P
+ * @author liji.saji
  *
  */
 @Transactional
@@ -121,32 +121,48 @@ public interface ProposalService {
 	public String submitProposal(ProposalVO proposalVO);
 
 	/**
-	 * @param files
-	 * @param formDataJSON
-	 * @return
+	 * This method is used to approve or disapprove a proposal.
+	 * @param files - Files need to be attached.
+	 * @param formDataJSON - Request object data.
+	 * @return a String of details of proposal.
 	 */
 	public String approveOrRejectProposal(MultipartFile[] files, String formDataJSON);
 
-	public String assignReviewer(ProposalVO proposalVO);
-
-	public String reviewCompleted(MultipartFile[] files, String formDataJSON);
-
-	public String fetchReviewers(ProposalVO proposalVO);
-
-	public String submitForEndorsement(ProposalVO proposalVO);
-
-	public String approveProvost(ProposalVO proposalVO);
-
-	public String deleteReviewer(ProposalVO proposalVO);
-
+	/**
+	 * This method is used to generate proposal in PDF format.
+	 * @param proposalId - Id of the proposal.
+	 * @return - Proposal in PDF format.
+	 * @throws DocumentException
+	 */
 	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException;
 
+	/**
+	 * This method is used to generate budget in PDF format.
+	 * @param proposalId - Id of the proposal.
+	 * @return - budget in PDF format.
+	 * @throws DocumentException
+	 */
 	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException;
 
+	/**
+	 * This method is used to delete special review of a proposal.
+	 * @param proposalVO - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
 	public String deleteProposalSpecialReview(ProposalVO proposalVO);
 
+	/**
+	 * This method is used to fetch filtered sponsors based on input string.
+	 * @param searchString - input string.
+	 * @return a list of sponsors.
+	 */
 	public List<SponsorSearchResult> findSponsor(String searchString);
 
+	/**
+	 * This method is used to make a copy of proposal.
+	 * @param vo - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
 	public String copyProposal(ProposalVO vo);
 
 }

@@ -562,7 +562,11 @@ public class DashboardDaoImpl implements DashboardDao {
 				proposalView.setProposalNumber(proposal[0].toString());
 				proposalView.setTitle(proposal[1].toString());
 				proposalView.setSponsor(proposal[2].toString());
-				proposalView.setTotalCost(proposal[3].toString());
+				if (proposal[3] != null) {
+					proposalView.setTotalCost(proposal[3].toString());					
+				} else {
+					proposalView.setTotalCost("0.00");
+				}
 				proposalView.setFullName(proposal[4].toString());
 				proposalView.setLeadUnit(proposal[6].toString());
 				inProgressProposals.add(proposalView);
@@ -592,7 +596,11 @@ public class DashboardDaoImpl implements DashboardDao {
 				proposalView.setProposalNumber(proposal[0].toString());
 				proposalView.setTitle(proposal[1].toString());
 				proposalView.setSponsor(proposal[2].toString());
-				proposalView.setTotalCost(proposal[3].toString());
+				if (proposal[3] != null) {
+					proposalView.setTotalCost(proposal[3].toString());
+				} else {
+					proposalView.setTotalCost("0.00");
+				}
 				proposalView.setFullName(proposal[4].toString());
 				proposalView.setLeadUnit(proposal[6].toString());
 				submittedProposals.add(proposalView);
@@ -651,7 +659,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			List<ResearchSummaryPieChart> summaryAwardDonutChart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(
-				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id ) group by t1.sponsor_code,t2.SPONSOR_NAME");
+				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id ) group by t1.sponsor_code,t2.SPONSOR_NAME");
 		query.setString("person_id", person_id);
 		return summaryAwardDonutChart = query.list();
 	}
@@ -661,7 +669,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			List<ResearchSummaryPieChart> summaryProposalDonutChart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(
-				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId) group by t1.sponsor_code,t2.SPONSOR_NAME");
+				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t1.sponsor_code,t2.SPONSOR_NAME");
 		query.setString("person_id", person_id);
 		return summaryProposalDonutChart = query.list();
 	}

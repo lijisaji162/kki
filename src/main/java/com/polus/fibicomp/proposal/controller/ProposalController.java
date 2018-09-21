@@ -148,46 +148,6 @@ public class ProposalController {
 		return proposalService.approveOrRejectProposal(files, formDataJson);
 	}
 
-	@RequestMapping(value = "/assignReviewer", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String assignReviewer(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for assignReviewer");
-		return proposalService.assignReviewer(vo);
-	}
-
-	@RequestMapping(value = "/reviewCompleted", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String reviewCompleted(@RequestParam(value = "files", required = false) MultipartFile[] files, @RequestParam("formDataJson") String formDataJson) {
-		logger.info("Requesting for reviewCompleted");
-		return proposalService.reviewCompleted(files, formDataJson);
-	}
-
-	@RequestMapping(value = "/fetchReviewers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String fetchReviewers(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for fetchReviewers");
-		return proposalService.fetchReviewers(vo);
-	}
-
-	@RequestMapping(value = "/deleteReviewer", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String deleteReviewer(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for deleteReviewer");
-		logger.info("proposalId : " + vo.getProposalId());
-		logger.info("reviewerId : " + vo.getReviewerId());
-		return proposalService.deleteReviewer(vo);
-	}
-
-	@RequestMapping(value = "/submitForEndorsement", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String submitForEndoresment(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for submitForEndorsement");
-		logger.info("proposalId : " + vo.getProposalId());
-		return proposalService.submitForEndorsement(vo);
-	}
-
-	@RequestMapping(value = "/approveProvost", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String approveProvost(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for approveProvost");
-		logger.info("proposalId : " + vo.getProposalId());
-		return proposalService.approveProvost(vo);
-	}
-
 	@RequestMapping(value = "/createProposalBudget", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String createProposalBudget(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for createProposalBudget");

@@ -75,10 +75,12 @@ public interface Constants {
 
 	// Workflow first stop number
 	Integer WORKFLOW_FIRST_STOP_NUMBER = 1;
-	Integer REVIEWER_ROLE_TYPE_CODE = 3;
+	//Integer REVIEWER_ROLE_TYPE_CODE = 3;
 	Integer ADMIN_ROLE_TYPE_CODE = 2;
 	String SMU_GRANT_MANAGER_CODE = "10";
 	String SMU_GRANT_PROVOST_CODE = "11";
+	String FEDERAL_ROLE_TYPE_CODE = "0";
+	String NON_FEDERAL_ROLE_TYPE_CODE = "1";
 
 	// Protocol
 	String PROTOCOL_SATUS_CODE_ACTIVE_OPEN_TO_ENTROLLMENT = "200";
@@ -124,5 +126,8 @@ public interface Constants {
 
   	// Enable Required Section
   	public static final String  IS_REQUIRED_DECLARATION_SECTION = "IS_REQUIRED_DECLARATION_SECTION";
+  	
+  	//Sponsor Type
+  	String SPONSOR_TYPE_CODE_FEDERAL = "0";
 
 }

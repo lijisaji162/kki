@@ -27,7 +27,6 @@ import com.polus.fibicomp.workflow.pojo.Workflow;
 import com.polus.fibicomp.workflow.pojo.WorkflowAttachment;
 import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
 import com.polus.fibicomp.workflow.pojo.WorkflowMapDetail;
-import com.polus.fibicomp.workflow.pojo.WorkflowReviewerDetail;
 
 @Transactional
 @Service(value = "workflowService")
@@ -45,17 +44,15 @@ public class WorkflowServiceImpl implements WorkflowService {
 	private FibiEmailService fibiEmailService;
 
 	@Override
-	public Workflow createWorkflow(Integer moduleItemId, String userName, Integer statusCode, String subject, String message) {
+	public Workflow createWorkflow(Integer moduleItemId, String userName, Integer statusCode, String sponsorTypeCode, String subject, String message) {
 		// for re submission case
 		Set<String> toAddresses = new HashSet<String>();
 		Workflow activeWorkflow = null;
 		Long workflowCount = 0L;
-		boolean isResubmission = false;
 		activeWorkflow = workflowDao.fetchActiveWorkflowByModuleItemId(moduleItemId);
 		if (activeWorkflow != null) {
 			activeWorkflow.setIsWorkflowActive(false);
 			workflowDao.saveWorkflow(activeWorkflow);
-			isResubmission = true;
 		}
 
 		workflowCount = workflowDao.activeWorkflowCountByModuleItemId(moduleItemId);
@@ -68,128 +65,40 @@ public class WorkflowServiceImpl implements WorkflowService {
 		workflow.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 		workflow.setUpdateUser(userName);
 		workflow.setWorkflowSequence((int) (workflowCount + 1));
-
-		List<WorkflowMapDetail> workflowMapDetails = workflowDao.fetchWorkflowMapDetail();
+	
+		List<WorkflowMapDetail> workflowMapDetails = new ArrayList<WorkflowMapDetail>();
+		if(sponsorTypeCode.equals(Constants.FEDERAL_ROLE_TYPE_CODE)) {
+			workflowMapDetails = workflowDao.fetchWorkflowMapDetail();
+		} else {
+			workflowMapDetails = workflowDao.fetchWorkflowMapDetailByRoleType(Integer.parseInt(Constants.NON_FEDERAL_ROLE_TYPE_CODE));
+		}
+		//List<WorkflowMapDetail> workflowMapDetails = workflowDao.fetchWorkflowMapDetail();
 		Collections.sort(workflowMapDetails, new WorkflowMapDetailComparator());
 		List<WorkflowDetail> workflowDetails = new ArrayList<WorkflowDetail>();
 		for (WorkflowMapDetail workflowMapDetail : workflowMapDetails) {
-			if (!workflowMapDetail.getRoleTypeCode().equals(Constants.REVIEWER_ROLE_TYPE_CODE)) {
-				WorkflowDetail workflowDetail = new WorkflowDetail();
-				if (!isResubmission && workflowMapDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)) {
-					workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
-					workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
-					toAddresses.add(workflowMapDetail.getEmailAddress());
-				} else if (isResubmission) {
-					WorkflowDetail rejectedWorkflowDetail = workflowDao.fetchWorkflowByParams(activeWorkflow.getWorkflowId(), workflowMapDetail.getApproverPersonId(), Constants.WORKFLOW_FIRST_STOP_NUMBER);
-					/*if (statusCode.equals(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)
-							&& workflowMapDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)) {
-						workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
-						workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
-						toAddresses.add(workflowMapDetail.getEmailAddress());
-					} else */if (statusCode.equals(Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED)
-							&& workflowMapDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)) {
-						/*workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_APPROVED);
-						workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_APPROVED));*/
-						if (rejectedWorkflowDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER) && rejectedWorkflowDetail.getApprovalStatusCode().equals("R")) {
-							workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
-							workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
-							toAddresses.add(workflowMapDetail.getEmailAddress());	
-						} else {
-							workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_APPROVED);
-							workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_APPROVED));
-							if (rejectedWorkflowDetail != null) {
-								if(rejectedWorkflowDetail.getApproverPersonId().equals(workflowMapDetail.getApproverPersonId())){
-									workflowDetail.setApprovalDate(rejectedWorkflowDetail.getApprovalDate());
-									workflowDetail.setApprovalComment(rejectedWorkflowDetail.getApprovalComment());
-									List<WorkflowAttachment> files = rejectedWorkflowDetail.getWorkflowAttachments();
-									if (files != null && !files.isEmpty()) {
-										List<WorkflowAttachment> workflowAttachments = new ArrayList<WorkflowAttachment>();
-										for (WorkflowAttachment attachment : files) {
-											WorkflowAttachment workflowAttachment = new WorkflowAttachment();
-											workflowAttachment.setDescription(attachment.getDescription());
-											workflowAttachment.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
-											workflowAttachment.setUpdateUser(userName);
-											workflowAttachment.setAttachment(attachment.getAttachment());
-											workflowAttachment.setFileName(attachment.getFileName());
-											workflowAttachment.setMimeType(attachment.getMimeType());
-											workflowAttachment.setWorkflowDetail(workflowDetail);
-											workflowAttachments.add(workflowAttachment);
-										}
-										workflowDetail.getWorkflowAttachments().addAll(workflowAttachments);
-									}
-								}
-								/*workflowDetail.setApprovalDate(rejectedWorkflowDetail.getApprovalDate());
-								workflowDetail.setApprovalComment(rejectedWorkflowDetail.getApprovalComment());
-								List<WorkflowAttachment> files = rejectedWorkflowDetail.getWorkflowAttachments();
-								if (files != null && !files.isEmpty()) {
-									List<WorkflowAttachment> workflowAttachments = new ArrayList<WorkflowAttachment>();
-									for (WorkflowAttachment attachment : files) {
-										WorkflowAttachment workflowAttachment = new WorkflowAttachment();
-										workflowAttachment.setDescription(attachment.getDescription());
-										workflowAttachment.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
-										workflowAttachment.setUpdateUser(userName);
-										workflowAttachment.setAttachment(attachment.getAttachment());
-										workflowAttachment.setFileName(attachment.getFileName());
-										workflowAttachment.setMimeType(attachment.getMimeType());
-										workflowAttachment.setWorkflowDetail(workflowDetail);
-										workflowAttachments.add(workflowAttachment);
-									}
-									workflowDetail.getWorkflowAttachments().addAll(workflowAttachments);
-								}*/
-							}
-						}
-						/*if (rejectedWorkflowDetail != null) {
-							workflowDetail.setApprovalDate(rejectedWorkflowDetail.getApprovalDate());
-							workflowDetail.setApprovalComment(rejectedWorkflowDetail.getApprovalComment());
-							List<WorkflowAttachment> files = rejectedWorkflowDetail.getWorkflowAttachments();
-							if (files != null && !files.isEmpty()) {
-								List<WorkflowAttachment> workflowAttachments = new ArrayList<WorkflowAttachment>();
-								for (WorkflowAttachment attachment : files) {
-									WorkflowAttachment workflowAttachment = new WorkflowAttachment();
-									workflowAttachment.setDescription(attachment.getDescription());
-									workflowAttachment.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
-									workflowAttachment.setUpdateUser(userName);
-									workflowAttachment.setAttachment(attachment.getAttachment());
-									workflowAttachment.setFileName(attachment.getFileName());
-									workflowAttachment.setMimeType(attachment.getMimeType());
-									workflowAttachment.setWorkflowDetail(workflowDetail);
-									workflowAttachments.add(workflowAttachment);
-								}
-								workflowDetail.getWorkflowAttachments().addAll(workflowAttachments);
-							}
-						}*/
-					} else if (statusCode.equals(Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED)) {
-						if (rejectedWorkflowDetail.getApprovalStatusCode().equals("A")) {
-							workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
-							workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
-						} else {
-							workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
-							workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED));
-						}
-						toAddresses.add(workflowMapDetail.getEmailAddress());
-					} else {
-						workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
-						workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED));
-					}
-				} else {
-					workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
-					workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED));
-				}
-				workflowDetail.setApprovalStopNumber(workflowMapDetail.getApprovalStopNumber());
-				workflowDetail.setApproverNumber(workflowMapDetail.getApproverNumber());
-				workflowDetail.setApproverPersonId(workflowMapDetail.getApproverPersonId());
-				workflowDetail.setMapId(workflowMapDetail.getMapId());
-				workflowDetail.setWorkflowMap(workflowMapDetail.getWorkflowMap());
-				workflowDetail.setPrimaryApproverFlag(workflowMapDetail.getPrimaryApproverFlag());
-				workflowDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
-				workflowDetail.setUpdateUser(userName);
-				workflowDetail.setApproverPersonName(workflowMapDetail.getApproverPersonName());
-				workflowDetail.setRoleTypeCode(workflowMapDetail.getRoleTypeCode());
-				workflowDetail.setWorkflowRoleType(workflowMapDetail.getWorkflowRoleType());
-				workflowDetail.setEmailAddress(workflowMapDetail.getEmailAddress());
-				workflowDetail.setWorkflow(workflow);
-				workflowDetails.add(workflowDetail);
+			WorkflowDetail workflowDetail = new WorkflowDetail();
+			if (workflowMapDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)) {
+				workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
+				workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
+				toAddresses.add(workflowMapDetail.getEmailAddress());
+			} else {
+				workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
+				workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED));
 			}
+			workflowDetail.setApprovalStopNumber(workflowMapDetail.getApprovalStopNumber());
+			workflowDetail.setApproverNumber(workflowMapDetail.getApproverNumber());
+			workflowDetail.setApproverPersonId(workflowMapDetail.getApproverPersonId());
+			workflowDetail.setMapId(workflowMapDetail.getMapId());
+			workflowDetail.setWorkflowMap(workflowMapDetail.getWorkflowMap());
+			workflowDetail.setPrimaryApproverFlag(workflowMapDetail.getPrimaryApproverFlag());
+			workflowDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+			workflowDetail.setUpdateUser(userName);
+			workflowDetail.setApproverPersonName(workflowMapDetail.getApproverPersonName());
+			workflowDetail.setRoleTypeCode(workflowMapDetail.getRoleTypeCode());
+			workflowDetail.setWorkflowRoleType(workflowMapDetail.getWorkflowRoleType());
+			workflowDetail.setEmailAddress(workflowMapDetail.getEmailAddress());
+			workflowDetail.setWorkflow(workflow);
+			workflowDetails.add(workflowDetail);
 		}
 		fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
 		workflow.setWorkflowDetails(workflowDetails);
@@ -241,10 +150,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 		workflowDetail.setApprovalDate(new Date(committeeDao.getCurrentDate().getTime()));
 		Integer maxApprovalStopNumber = workflowDao.getMaxStopNumber(workflow.getWorkflowId());
 		Integer nextApproveStopNumber = workflowDetail.getApprovalStopNumber() + 1;
-		/*if (nextApproveStopNumber==3) {
-			nextApproveStopNumber = nextApproveStopNumber + 1;
-		}*/
-		if(!workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_REJECTED) && nextApproveStopNumber <= maxApprovalStopNumber && nextApproveStopNumber != 3) {
+		if(!workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_REJECTED) && nextApproveStopNumber <= maxApprovalStopNumber) {
 			List<WorkflowDetail> workflowDetailList = workflowDao.fetchWorkflowDetailListByApprovalStopNumber(workflow.getWorkflowId(), nextApproveStopNumber, Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
 			for(WorkflowDetail newWorkflowDetail : workflowDetailList) {
 				newWorkflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
@@ -255,18 +161,6 @@ public class WorkflowServiceImpl implements WorkflowService {
 		workflowDetail = workflowDao.saveWorkflowDetail(workflowDetail);
 		fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
 		return workflowDetail;
-	}
-
-	@Override
-	public boolean isFinalApprover(Integer moduleItemId, String personId, Integer approverStopNumber) {
-		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(moduleItemId);
-		WorkflowDetail currentWorkflowDetail = workflowDao.findUniqueWorkflowDetailByCriteria(workflow.getWorkflowId(), personId, null);
-		WorkflowDetail finalWorkflowDetail = workflowDao.fetchFinalApprover(workflow.getWorkflowId());
-		if (currentWorkflowDetail.getApprovalStopNumber() == finalWorkflowDetail.getApprovalStopNumber()
-				&& currentWorkflowDetail.getApproverNumber() == finalWorkflowDetail.getApproverNumber()) {
-			return true;
-		}
-		return false;
 	}
 
 	@Override
@@ -287,59 +181,6 @@ public class WorkflowServiceImpl implements WorkflowService {
 			e.printStackTrace();
 		}
 		return attachmentData;
-	}
-
-	@Override
-	public boolean isFirstApprover(Integer moduleItemId, String personId, Integer approverStopNumber) {
-		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(moduleItemId);
-		WorkflowDetail currentWorkflowDetail = workflowDao.findUniqueWorkflowDetailByCriteria(workflow.getWorkflowId(), personId, approverStopNumber);
-		WorkflowDetail finalWorkflowDetail = workflowDao.fetchFirstApprover(workflow.getWorkflowId());
-		if (currentWorkflowDetail.getApprovalStopNumber() == finalWorkflowDetail.getApprovalStopNumber()
-				&& currentWorkflowDetail.getApproverNumber() == finalWorkflowDetail.getApproverNumber()) {
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public Workflow assignWorkflowReviewers(Integer moduleItemId, WorkflowDetail workflowDetail, String subject, String message) {
-		Set<String> toAddresses = new HashSet<String>();
-		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(moduleItemId);
-		if (!workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING_FOR_REVIEW)) {
-			workflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING_FOR_REVIEW);
-			workflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING_FOR_REVIEW));
-			List<WorkflowReviewerDetail> reviewerDetails = workflowDetail.getWorkflowReviewerDetails();
-			if (reviewerDetails != null && !reviewerDetails.isEmpty()) {
-				for (WorkflowReviewerDetail reviewer : reviewerDetails) {
-					if (reviewer.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
-						toAddresses.add(reviewer.getEmailAddress());
-					}
-				}
-			}
-		}
-		fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
-		workflowDetail.setWorkflow(workflow);
-		workflowDao.saveWorkflowDetail(workflowDetail);
-		workflow = workflowDao.saveWorkflow(workflow);
-		return workflow;
-	}
-
-	@Override
-	public List<WorkflowMapDetail> fetchAvailableReviewers(Integer workflowDetailId) {
-		List<String> personIds = fetchReviewersPersonIds(workflowDetailId, Constants.WORKFLOW_STATUS_CODE_WAITING);
-		List<WorkflowMapDetail> workflowMapDetails = workflowDao.fetchWorkflowMapDetailByNotInPersonId(personIds);
-		return workflowMapDetails;
-	}
-
-	public List<String> fetchReviewersPersonIds(Integer workflowDetailId, String workflowStatus) {
-		List<WorkflowReviewerDetail> reviewerDetails = workflowDao.fetchPersonIdByCriteria(workflowDetailId, workflowStatus);
-		List<String> personIds = new ArrayList<String>();
-		if (reviewerDetails != null && !reviewerDetails.isEmpty()) {
-			for (WorkflowReviewerDetail detail : reviewerDetails) {
-				personIds.add(detail.getReviewerPersonId());
-			}
-		}
-		return personIds;
 	}
 
 	@Override
