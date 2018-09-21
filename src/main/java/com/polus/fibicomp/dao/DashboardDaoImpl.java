@@ -110,7 +110,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					"SELECT to_char(t4.start_date, 'yyyy') AS BUDGET_PERIOD, Sum(T4.total_direct_cost) AS Direct_Cost, Sum(T4.total_indirect_cost) AS FA FROM eps_proposal t1 INNER JOIN eps_proposal_budget_ext t2 ON t1.proposal_number = t2.proposal_number INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN budget_periods t4 ON t3.budget_id = t4.budget_id WHERE t1.owned_by_unit IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY TO_CHAR(t4.start_date, 'yyyy') ORDER BY To_Number(TO_CHAR(t4.start_date, 'yyyy'))");
 		} else {
 			expenditureVolume = session.createSQLQuery(
-					"SELECT date_format(t4.start_date, '%Y') AS BUDGET_PERIOD, Sum(T4.total_direct_cost) AS Direct_Cost, Sum(T4.total_indirect_cost) AS FA FROM eps_proposal t1 INNER JOIN eps_proposal_budget_ext t2 ON t1.proposal_number = t2.proposal_number INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN budget_periods t4 ON t3.budget_id = t4.budget_id WHERE t1.owned_by_unit IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY year(t4.start_date) ORDER BY year(t4.start_date)");
+					"SELECT date_format(t3.start_date, '%Y') AS BUDGET_PERIOD, Sum(t3.total_direct_cost) AS Direct_Cost, Sum(t3.total_indirect_cost) AS FA FROM fibi_proposal t1 INNER JOIN fibi_budget_header t2 ON t1.budget_header_id = t2.budget_header_id INNER JOIN fibi_budget_period t3 ON t2.budget_header_id = t3.budget_header_id WHERE t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY year(t3.start_date) ORDER BY year(t3.start_date)");
 		}
 		expenditureVolume.setString("person_id", person_id);
 		expenditureVolumeChart = expenditureVolume.list();
@@ -125,7 +125,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query submittedProposal = session.createSQLQuery(
-				"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_number) as count,sum(t3.TOTAL_COST) as total_amount from eps_proposal t1 inner join eps_proposal_budget_ext t2 on t1.proposal_number=t2.proposal_number inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.status_code=5 and t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id )");
+				"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
 		submittedProposal.setString("person_id", person_id);
 		subPropCount = submittedProposal.list();
 		if (subPropCount != null && !subPropCount.isEmpty()) {
@@ -133,7 +133,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		}
 
 		Query inprogressProposal = session.createSQLQuery(
-				"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_number) as count,sum(t3.TOTAL_COST) as total_amount from eps_proposal t1 inner join eps_proposal_budget_ext t2 on t1.proposal_number=t2.proposal_number inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.status_code=1 and  t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id )");
+				"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
 		inprogressProposal.setString("person_id", person_id);
 		inPropCount = inprogressProposal.list();
 		if (inPropCount != null && !inPropCount.isEmpty()) {
@@ -141,7 +141,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		}
 
 		Query activeAwards = session.createSQLQuery(
-				"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id )");
+				"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id)");
 		activeAwards.setString("person_id", person_id);
 		activeAwardsCount = activeAwards.list();
 		if (activeAwardsCount != null && !activeAwardsCount.isEmpty()) {
@@ -165,7 +165,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			List<ResearchSummaryPieChart> summaryProposalPiechart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(
-				"select t2.SPONSOR_TYPE_CODE,t3.DESCRIPTION as sponsor_type,count(1) from eps_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.OWNED_BY_UNIT in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
+				"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.HOME_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
 		query.setString("person_id", person_id);
 		return summaryProposalPiechart = query.list();
 	}
@@ -497,7 +497,6 @@ public class DashboardDaoImpl implements DashboardDao {
 	@Override
 	public List<ActionItem> getUserNotification(String principalId) {
 		List<ActionItem> actionLists = null;
-
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(ActionItem.class);
 		criteria.add(Restrictions.eq("principalId", principalId));
@@ -534,7 +533,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalList = session.createSQLQuery(
-					"SELECT t1.DOCUMENT_NUMBER, t1.proposal_number, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI FROM eps_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN eps_prop_person t3 ON t1.proposal_number = t3.proposal_number AND t3.prop_person_role_id = 'PI' INNER JOIN proposal_type t4 ON t1.PROPOSAL_TYPE_CODE=t4.PROPOSAL_TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.owned_by_unit IN(SELECT DISTINCT unit_number FROM   mitkc_user_right_mv WHERE  perm_nm = 'View Proposal' AND person_id = :personId)");
+					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
 			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			proposalBySponsorTypes = proposalList.list();
 			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);
@@ -555,18 +554,17 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query progressProposalList = session.createSQLQuery(
-					"select t1.document_number, t1.proposal_number, t1.title, t5.sponsor_name, t3.TOTAL_COST, t4.full_name AS PI ,t1.OWNED_BY_UNIT as unit_number,t6.UNIT_NAME from eps_proposal t1 inner join eps_proposal_budget_ext t2 on t1.proposal_number=t2.proposal_number inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' LEFT OUTER JOIN eps_prop_person t4 ON t1.proposal_number = t4.proposal_number AND t4.prop_person_role_id = 'PI' INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.OWNED_BY_UNIT= t6.UNIT_NUMBER where t1.status_code=1 and t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId )");
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
 			progressProposalList.setString("personId", personId);
 			List<Object[]> proposals = progressProposalList.list();
 			for (Object[] proposal : proposals) {
 				ProposalView proposalView = new ProposalView();
-				proposalView.setDocumentNumber(proposal[0].toString());
-				proposalView.setProposalNumber(proposal[1].toString());
-				proposalView.setTitle(proposal[2].toString());
-				proposalView.setSponsor(proposal[3].toString());
-				proposalView.setTotalCost(proposal[4].toString());
-				proposalView.setFullName(proposal[5].toString());
-				proposalView.setLeadUnit(proposal[7].toString());
+				proposalView.setProposalNumber(proposal[0].toString());
+				proposalView.setTitle(proposal[1].toString());
+				proposalView.setSponsor(proposal[2].toString());
+				proposalView.setTotalCost(proposal[3].toString());
+				proposalView.setFullName(proposal[4].toString());
+				proposalView.setLeadUnit(proposal[6].toString());
 				inProgressProposals.add(proposalView);
 			}
 			logger.info("getProposalsInProgress : " + inProgressProposals);
@@ -586,18 +584,17 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query subproposalList = session.createSQLQuery(
-					"select t1.document_number, t1.proposal_number, t1.title, t5.sponsor_name, t3.TOTAL_COST, t4.full_name AS PI, t1.OWNED_BY_UNIT as unit_number,t6.UNIT_NAME from eps_proposal t1 inner join eps_proposal_budget_ext t2 on t1.proposal_number=t2.proposal_number inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' LEFT OUTER JOIN eps_prop_person t4 ON t1.proposal_number = t4.proposal_number AND t4.prop_person_role_id = 'PI' INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.OWNED_BY_UNIT= t6.UNIT_NUMBER where t1.status_code=5 and t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
 			subproposalList.setString("personId", personId);
 			List<Object[]> subProposals = subproposalList.list();
 			for (Object[] proposal : subProposals) {
 				ProposalView proposalView = new ProposalView();
-				proposalView.setDocumentNumber(proposal[0].toString());
-				proposalView.setProposalNumber(proposal[1].toString());
-				proposalView.setTitle(proposal[2].toString());
-				proposalView.setSponsor(proposal[3].toString());
-				proposalView.setTotalCost(proposal[4].toString());
-				proposalView.setFullName(proposal[5].toString());
-				proposalView.setLeadUnit(proposal[7].toString());
+				proposalView.setProposalNumber(proposal[0].toString());
+				proposalView.setTitle(proposal[1].toString());
+				proposalView.setSponsor(proposal[2].toString());
+				proposalView.setTotalCost(proposal[3].toString());
+				proposalView.setFullName(proposal[4].toString());
+				proposalView.setLeadUnit(proposal[6].toString());
 				submittedProposals.add(proposalView);
 			}
 			logger.info("SubmittedProposals : " + submittedProposals);
@@ -664,7 +661,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			List<ResearchSummaryPieChart> summaryProposalDonutChart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(
-				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from eps_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t1.sponsor_code,t2.SPONSOR_NAME");
+				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId) group by t1.sponsor_code,t2.SPONSOR_NAME");
 		query.setString("person_id", person_id);
 		return summaryProposalDonutChart = query.list();
 	}
@@ -677,13 +674,13 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalQuery = session.createSQLQuery(
-					"select t1.DOCUMENT_NUMBER, t1.proposal_number, t1.title, t4.full_name AS PI, t1.PROPOSAL_TYPE_CODE, t5.DESCRIPTION as Proposal_Type, t7.TOTAL_COST as BUDGET from eps_proposal t1 LEFT OUTER JOIN eps_prop_person t4 ON t1.proposal_number = t4.proposal_number AND t4.prop_person_role_id = 'PI' INNER JOIN proposal_type t5 ON t1.PROPOSAL_TYPE_CODE=t5.PROPOSAL_TYPE_CODE LEFT OUTER JOIN eps_proposal_budget_ext t6 ON t1.proposal_number = t6.proposal_number LEFT OUTER JOIN budget t7 ON t6.budget_id = t7.budget_id and t7.final_version_flag = 'Y' where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.OWNED_BY_UNIT in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId )");
+					"select t1.proposal_id, t1.title, t4.full_name AS PI, t1.TYPE_CODE, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
 			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			inProgressProposal = proposalQuery.list();
 			logger.info("inProgressProposal : " + inProgressProposal);
 			dashBoardProfile.setProposalViews(inProgressProposal);
 		} catch (Exception e) {
-			logger.error("Error in method getInProgressProposalsBySponsor");
+			logger.error("Error in method getInProgressProposalsBySponsorExpanded");
 			e.printStackTrace();
 		}
 		ObjectMapper mapper = new ObjectMapper();
@@ -704,7 +701,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			logger.info("awardedProposal : " + awardedProposal);
 			dashBoardProfile.setProposalViews(awardedProposal);
 		} catch (Exception e) {
-			logger.error("Error in method getAwardedProposalsBySponsor");
+			logger.error("Error in method getAwardedProposalsBySponsorExpanded");
 			e.printStackTrace();
 		}
 		ObjectMapper mapper = new ObjectMapper();
