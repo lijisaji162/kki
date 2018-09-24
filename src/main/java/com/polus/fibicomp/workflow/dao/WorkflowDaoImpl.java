@@ -83,17 +83,6 @@ public class WorkflowDaoImpl implements WorkflowDao {
 	}
 
 	@Override
-	public WorkflowDetail fetchFinalApprover(Integer workflowId) {
-		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(WorkflowDetail.class);
-		criteria.add(Restrictions.eq("workflow.workflowId", workflowId));
-		//criteria.add(Restrictions.eq("approvalStatusCode", "W"));
-		criteria.add(Restrictions.eq("roleTypeCode", 2));
-		//WorkflowDetail workflowDetail = (WorkflowDetail) criteria.addOrder(Order.desc("approvalStopNumber")).setMaxResults(1).uniqueResult();
-		WorkflowDetail workflowDetail = (WorkflowDetail) criteria.list().get(0);
-		return workflowDetail;
-	}
-
-	@Override
 	public WorkflowAttachment fetchWorkflowAttachmentById(Integer attachmentId) {
 		return hibernateTemplate.get(WorkflowAttachment.class, attachmentId);
 	}
