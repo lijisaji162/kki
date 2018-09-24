@@ -58,13 +58,6 @@ public interface WorkflowDao {
 	public WorkflowDetail saveWorkflowDetail(WorkflowDetail workflowDetail);
 
 	/**
-	 * This method is used to fetch final workflow detail.
-	 * @param workflowId - Id of the workflow. 
-	 * @return an object of workflow detail.
-	 */
-	public WorkflowDetail fetchFinalApprover(Integer workflowId);
-
-	/**
 	 * This method is used to fetch workflow attachment based on attachment Id.
 	 * @param attachmentId - Id of the workflow attachment.
 	 * @return an object of workflow attachment.
@@ -133,6 +126,11 @@ public interface WorkflowDao {
 	 */
 	public Set<String> fetchEmailAdressByUserType(String roleTypeCode);
 
+	/**
+	 * This method is used to fetch workflow map details based on role type.
+	 * @param roleTypeCode - specifies the type of user in routing
+	 * @return a list of workflow map details.
+	 */
 	public List<WorkflowMapDetail> fetchWorkflowMapDetailByRoleType(Integer roleTypeCode);
 
 }

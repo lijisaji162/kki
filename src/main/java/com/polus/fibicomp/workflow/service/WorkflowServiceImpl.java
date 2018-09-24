@@ -72,7 +72,6 @@ public class WorkflowServiceImpl implements WorkflowService {
 		} else {
 			workflowMapDetails = workflowDao.fetchWorkflowMapDetailByRoleType(Integer.parseInt(Constants.NON_FEDERAL_ROLE_TYPE_CODE));
 		}
-		//List<WorkflowMapDetail> workflowMapDetails = workflowDao.fetchWorkflowMapDetail();
 		Collections.sort(workflowMapDetails, new WorkflowMapDetailComparator());
 		List<WorkflowDetail> workflowDetails = new ArrayList<WorkflowDetail>();
 		for (WorkflowMapDetail workflowMapDetail : workflowMapDetails) {

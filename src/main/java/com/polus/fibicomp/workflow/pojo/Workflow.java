@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -76,6 +78,9 @@ public class Workflow implements Serializable {
 
 	@Column(name = "WORKFLOW_END_PERSON")
 	private String workflowEndPerson;
+
+	@Transient
+	private Map<Integer, List<WorkflowDetail>> workflowDetailMap;
 
 	public Integer getWorkflowId() {
 		return workflowId;
@@ -196,4 +201,13 @@ public class Workflow implements Serializable {
 	public void setWorkflowEndPerson(String workflowEndPerson) {
 		this.workflowEndPerson = workflowEndPerson;
 	}
+
+	public Map<Integer, List<WorkflowDetail>> getWorkflowDetailMap() {
+		return workflowDetailMap;
+	}
+
+	public void setWorkflowDetailMap(Map<Integer, List<WorkflowDetail>> workflowDetailMap) {
+		this.workflowDetailMap = workflowDetailMap;
+	}
+
 }
