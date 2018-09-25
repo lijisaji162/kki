@@ -3,6 +3,7 @@ package com.polus.fibicomp.proposal.service;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import com.polus.fibicomp.compilance.pojo.ProposalSpecialReview;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewType;
 import com.polus.fibicomp.compilance.pojo.SpecialReviewUsage;
 import com.polus.fibicomp.constants.Constants;
+import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.grantcall.dao.GrantCallDao;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.ip.service.InstitutionalProposalService;
@@ -110,6 +112,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Autowired
 	public CommonDao commonDao;
+
+	@Autowired
+	private FibiEmailService fibiEmailService;
 
 	@Override
 	public String createProposal(ProposalVO proposalVO) {
@@ -415,11 +420,11 @@ public class ProposalServiceImpl implements ProposalService {
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		//String sponsorDueDate = proposal.getSubmissionDate() != null ? proposal.getSubmissionDate().toString() : "";
-		String message = "The following proposal is successfully for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+		String message = "The following proposal is successfully submitted for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
 				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
-				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/createProposal?proposalId="
+				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 				+ proposal.getProposalId() +"\">this link</a> "
 				+ "to review the application and provide your response by clicking on the Approve or Reject buttons.";
 		String subject = "Action Required: Approval for "+ proposal.getTitle();
@@ -466,6 +471,7 @@ public class ProposalServiceImpl implements ProposalService {
 	@Override
 	public String approveOrRejectProposal(MultipartFile[] files, String formDataJSON) {
 		ProposalVO proposalVO = null;
+		Set<String> toAddresses = new HashSet<String>();
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			proposalVO = mapper.readValue(formDataJSON, ProposalVO.class);
@@ -483,7 +489,7 @@ public class ProposalServiceImpl implements ProposalService {
 					+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
-					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/createProposal?proposalId="
+					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 					+ proposal.getProposalId() +"\">this link</a> "
 					+ "to review the application and provide your response by clicking on the Approve or Reject buttons.";
 			String subject = "Action Required: Review for "+ proposal.getTitle();
@@ -497,16 +503,29 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}			
 			if (isFinalApprover && actionType.equals("A")) {
-				proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
-				proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
-				proposal = proposalDao.saveOrUpdateProposal(proposal);
 				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
 				logger.info("Initial IP Number : " + ipNumber);
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
 				logger.info("isIPCreated : " + isIPCreated);
 				if (isIPCreated) {
+					String fyiMessage = "The following proposal is successfully routed and awarded: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+							+ proposal.getProposalId() +"\">this link</a> "
+							+ "to review the application.";
+					String fyiSubject = "Action Required: Review for "+ proposal.getTitle();		
 					logger.info("Generated IP Number : " + ipNumber);
 					proposal.setIpNumber(ipNumber);
+					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
+					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
+					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.KKI_FYI_EMAIL_RECIPIENTS);
+					List<String> recipients = Arrays.asList(fyiRecipients.split(","));
+					for (String recipient : recipients) {
+						toAddresses.add(recipient);
+					}
+					fibiEmailService.sendEmail(toAddresses, fyiSubject, null, null, fyiMessage, true);
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {

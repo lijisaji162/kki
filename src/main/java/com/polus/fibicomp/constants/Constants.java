@@ -39,6 +39,7 @@ public interface Constants {
 	String INSTITUTIONAL_PROPSAL_PROPSAL_NUMBER_SEQUENCE = "SEQ_PROPOSAL_PROPOSAL_ID";
 	String DEFAULT_HOME_UNIT_NUMBER = "000001";
 	String DEFAULT_HOME_UNIT_NAME = "University";
+	String KKI_FYI_EMAIL_RECIPIENTS = "KKI_FYI_EMAIL_RECIPIENT";
 
 	// Security constants
 	String SECRET = "SecretKeyToGenJWTs";
