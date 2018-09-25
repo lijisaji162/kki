@@ -887,9 +887,13 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 						if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
 							lineItemCost = lineItemCost.add(updatedLineItemCost);
-							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+							if (lineItemCost != null) {
+								detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+							}
 						} else {
-							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+							if (lineItemCost != null) {
+								detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+							}
 						}
 						detail.setLineItemDescription(budgetDetail.getLineItemDescription());
 						detail.setLineItemNumber(budgetDetail.getLineItemNumber());
