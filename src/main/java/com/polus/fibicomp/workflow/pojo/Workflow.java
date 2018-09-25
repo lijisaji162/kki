@@ -49,7 +49,7 @@ public class Workflow implements Serializable {
 	private Timestamp createTimeStamp;
 
 	@Column(name = "UPDATE_TIMESTAMP")
-	private Timestamp UpdateTimeStamp;
+	private Timestamp updateTimeStamp;
 
 	@Column(name = "CREATE_USER")
 	private String createUser;
@@ -123,11 +123,11 @@ public class Workflow implements Serializable {
 	}
 
 	public Timestamp getUpdateTimeStamp() {
-		return UpdateTimeStamp;
+		return updateTimeStamp;
 	}
 
 	public void setUpdateTimeStamp(Timestamp updateTimeStamp) {
-		UpdateTimeStamp = updateTimeStamp;
+		this.updateTimeStamp = updateTimeStamp;
 	}
 
 	public String getCreateUser() {

@@ -879,7 +879,7 @@ public class BudgetServiceImpl implements BudgetService {
 										BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
 										updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
 										budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
-										budgetCalculatedAmount.setCalculatedCost(calculatedCost);
+										budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 										detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
 									}
 								}
@@ -887,9 +887,9 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 						if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
 							lineItemCost = lineItemCost.add(updatedLineItemCost);
-							detail.setLineItemCost(lineItemCost);
+							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						} else {
-							detail.setLineItemCost(lineItemCost);
+							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 						}
 						detail.setLineItemDescription(budgetDetail.getLineItemDescription());
 						detail.setLineItemNumber(budgetDetail.getLineItemNumber());
