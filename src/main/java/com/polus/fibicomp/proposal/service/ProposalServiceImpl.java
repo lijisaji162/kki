@@ -548,6 +548,7 @@ public class ProposalServiceImpl implements ProposalService {
 		return response;
 	}
 
+	@Override
 	public void loadInitialData(ProposalVO proposalVO) {
 		Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
 				Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);

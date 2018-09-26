@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 //import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -223,6 +224,9 @@ public class BudgetPeriod implements Serializable {
 	}
 
 	public List<BudgetDetail> getBudgetDetails() {
+		if (budgetDetails != null && !budgetDetails.isEmpty()) {
+			Collections.sort(budgetDetails);
+		}
 		return budgetDetails;
 	}
 

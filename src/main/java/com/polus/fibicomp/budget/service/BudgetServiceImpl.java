@@ -33,6 +33,7 @@ import com.polus.fibicomp.common.service.DateTimeService;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
+import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 
 @Transactional
@@ -62,8 +63,13 @@ public class BudgetServiceImpl implements BudgetService {
     @Qualifier("dateTimeService")
     private DateTimeService dateTimeService;
 
+	@Autowired
+	@Qualifier(value = "proposalService")
+	private ProposalService proposalService;
+
 	@Override
 	public String createProposalBudget(ProposalVO vo) {
+		proposalService.loadInitialData(vo);
 		Proposal proposal = vo.getProposal();
 		BudgetHeader budget = new BudgetHeader();
 		budget.setStartDate(proposal.getStartDate());

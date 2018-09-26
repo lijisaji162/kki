@@ -165,4 +165,6 @@ public interface ProposalService {
 	 */
 	public String copyProposal(ProposalVO vo);
 
+	public void loadInitialData(ProposalVO proposalVO);
+
 }
