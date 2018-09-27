@@ -1,6 +1,5 @@
 package com.polus.fibicomp.proposal.service;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -8,14 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.vo.SponsorSearchResult;
 
-/**
- * @author liji.saji
- *
- */
 @Transactional
 @Service(value = "proposalService")
 public interface ProposalService {
@@ -129,22 +123,6 @@ public interface ProposalService {
 	public String approveOrRejectProposal(MultipartFile[] files, String formDataJSON);
 
 	/**
-	 * This method is used to generate proposal in PDF format.
-	 * @param proposalId - Id of the proposal.
-	 * @return - Proposal in PDF format.
-	 * @throws DocumentException
-	 */
-	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException;
-
-	/**
-	 * This method is used to generate budget in PDF format.
-	 * @param proposalId - Id of the proposal.
-	 * @return - budget in PDF format.
-	 * @throws DocumentException
-	 */
-	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException;
-
-	/**
 	 * This method is used to delete special review of a proposal.
 	 * @param proposalVO - Object of ProposalVO class.
 	 * @return a String of details of proposal.
@@ -165,6 +143,11 @@ public interface ProposalService {
 	 */
 	public String copyProposal(ProposalVO vo);
 
+	/**
+	 * This method is used to load initial proposal data.
+	 * @param vo - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
 	public void loadInitialData(ProposalVO proposalVO);
 
 }

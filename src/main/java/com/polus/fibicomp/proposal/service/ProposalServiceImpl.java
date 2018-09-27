@@ -1,6 +1,5 @@
 package com.polus.fibicomp.proposal.service;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.dao.BudgetDao;
 import com.polus.fibicomp.budget.pojo.BudgetDetail;
@@ -59,8 +57,6 @@ import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.role.dao.RoleDao;
 import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
 import com.polus.fibicomp.role.pojo.RoleMemberBo;
-import com.polus.fibicomp.util.GenerateBudgetPdfReport;
-import com.polus.fibicomp.util.GeneratePdfReport;
 import com.polus.fibicomp.vo.SponsorSearchResult;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
@@ -595,20 +591,6 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 		}
 		return piName;
-	}
-
-	@Override
-	public ByteArrayInputStream generateProposalPdf(Integer proposalId) throws DocumentException {
-		Proposal proposalData = proposalDao.fetchProposalById(proposalId);
-		ByteArrayInputStream bis = GeneratePdfReport.proposalPdfReport(proposalData);
-		return bis;
-	}
-
-	@Override
-	public ByteArrayInputStream generateBudgetPdf(Integer proposalId) throws DocumentException {
-		Proposal budgetData = proposalDao.fetchProposalById(proposalId);
-		ByteArrayInputStream bis = GenerateBudgetPdfReport.proposalPdfReport(budgetData);
-		return bis;
 	}
 
 	public void getHomeUnits(ProposalVO proposalVO) {

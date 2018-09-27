@@ -2,6 +2,7 @@ package com.polus.fibicomp.proposal.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.service.BudgetService;
+import com.polus.fibicomp.proposal.print.service.ProposalPrintService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.vo.SponsorSearchResult;
@@ -40,6 +42,10 @@ public class ProposalController {
 	@Autowired
 	@Qualifier(value = "budgetService")
 	private BudgetService budgetService;
+
+	@Autowired
+	@Qualifier(value = "proposalPrintService")
+	private ProposalPrintService proposalPrintService;
 
 	@RequestMapping(value = "/createProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String createProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
@@ -157,11 +163,11 @@ public class ProposalController {
 	@RequestMapping(value = "/printProposalPdfReport", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
 	public ResponseEntity<InputStreamResource> proposalPdfReport(HttpServletResponse response,
 			@RequestHeader(value = "proposalId", required = true) String proposalIdInput)
-			throws IOException, DocumentException {
+			throws IOException, DocumentException, ParseException {
 		Integer proposalId = Integer.parseInt(proposalIdInput);
-		logger.info("Requesting for generateProposalPdf");
+		logger.info("Requesting for printProposalPdfReport");
 		logger.info("proposalId : " + proposalId);
-		ByteArrayInputStream bis = proposalService.generateProposalPdf(proposalId);
+		ByteArrayInputStream bis = proposalPrintService.proposalPdfReport(proposalId);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Disposition", "inline; filename=ProposalSummary.pdf");
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
@@ -170,11 +176,11 @@ public class ProposalController {
 	@RequestMapping(value = "/printBudgetPdfReport", method = RequestMethod.GET, produces = MediaType.APPLICATION_PDF_VALUE)
 	public ResponseEntity<InputStreamResource> budgetPdfReport(HttpServletResponse response,
 			@RequestHeader(value = "proposalId", required = true) String proposalIdInput)
-			throws IOException, DocumentException {
+			throws IOException, DocumentException, ParseException {
 		Integer proposalId = Integer.parseInt(proposalIdInput);
-		logger.info("Requesting for generateBudgetPdf");
+		logger.info("Requesting for printBudgetPdfReport");
 		logger.info("proposalId : " + proposalId);
-		ByteArrayInputStream bis = proposalService.generateBudgetPdf(proposalId);
+		ByteArrayInputStream bis = proposalPrintService.proposalBudgetPdfReport(proposalId);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Disposition", "inline; filename=BudgetSummary.pdf");
 		return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
