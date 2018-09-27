@@ -236,7 +236,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		return dashBoardProfile;
 	}
 
-	public DashBoardProfile getDashBoardDataForProposal(CommonVO vo) {
+	/*public DashBoardProfile getDashBoardDataForProposal(CommonVO vo) {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		Integer pageNumber = vo.getPageNumber();
 		String sortBy = vo.getSortBy();
@@ -298,7 +298,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			e.printStackTrace();
 		}
 		return dashBoardProfile;
-	}
+	}*/
 
 	public DashBoardProfile getProtocolDashboardData(CommonVO vo) {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
@@ -1152,7 +1152,7 @@ public class DashboardDaoImpl implements DashboardDao {
 	}
 
 	@Override
-	public DashBoardProfile getDashBoardDataForSmuProposal(CommonVO vo) {
+	public DashBoardProfile getDashBoardDataForProposal(CommonVO vo) {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		Integer pageNumber = vo.getPageNumber();
 		String sortBy = vo.getSortBy();
@@ -1169,7 +1169,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
 		Conjunction and = Restrictions.conjunction();
 		try {
-			logger.info("----------- getDashBoardDataForSmuProposal ------------");
+			logger.info("----------- getDashBoardDataForProposal ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Criteria searchCriteria = session.createCriteria(Proposal.class);
 			searchCriteria.createAlias("proposalStatus", "proposalStatus");
@@ -1206,23 +1206,6 @@ public class DashboardDaoImpl implements DashboardDao {
 			if (property4 != null && !property4.isEmpty()) {
 				//and.add(Restrictions.like("proposalCategory.description", "%" + property4 + "%").ignoreCase());
 				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
-			}
-			if (isProvost) {
-				List<Integer> proposalStatusCode = new ArrayList<Integer>();
-				proposalStatusCode.add(Constants.PROPOSAL_STATUS_CODE_ENDORSEMENT);
-				proposalStatusCode.add(Constants.PROPOSAL_STATUS_CODE_AWARDED);
-				searchCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCode)).add(Restrictions.eq("createUser", vo.getUserName())));
-				searchCriteria.addOrder(Order.asc("statusCode"));
-				countCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCode)).add(Restrictions.eq("createUser", vo.getUserName())));
-			}
-			if (isReviewer) {
-				searchCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
-				countCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
-				searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.ne("statusCode", Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS)).add(Restrictions.eq("createUser", vo.getUserName())));
-				//searchCriteria.addOrder(Order.desc("statusCode"));
-				countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.ne("statusCode", Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS)).add(Restrictions.eq("createUser", vo.getUserName())));
-				//searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())));
-				//countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())));
 			}
 			if (personId != null && !personId.isEmpty()) {
 				if(!isUnitAdmin && !isProvost && !isReviewer) {
@@ -1272,14 +1255,14 @@ public class DashboardDaoImpl implements DashboardDao {
 			}
 			dashBoardProfile.setProposal(proposalList);
 		} catch (Exception e) {
-			logger.error("Error in method getDashBoardDataForSmuProposal");
+			logger.error("Error in method getDashBoardDataForProposal");
 			e.printStackTrace();
 		}
 		return dashBoardProfile;
 	}
 
 	@Override
-	public DashBoardProfile getDashBoardDataForSmuMyProposal(CommonVO vo) {
+	public DashBoardProfile getDashBoardDataForMyProposal(CommonVO vo) {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		Integer pageNumber = vo.getPageNumber();
 		String sortBy = vo.getSortBy();
@@ -1293,7 +1276,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
 		Conjunction and = Restrictions.conjunction();
 		try {
-			logger.info("----------- getDashBoardDataForSmuMyProposal ------------");
+			logger.info("----------- getDashBoardDataForMyProposal ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Criteria searchCriteria = session.createCriteria(Proposal.class);
 			searchCriteria.createAlias("proposalStatus", "proposalStatus");
@@ -1362,14 +1345,14 @@ public class DashboardDaoImpl implements DashboardDao {
 			}
 			dashBoardProfile.setProposal(proposalList);
 		} catch (Exception e) {
-			logger.error("Error in method getDashBoardDataForSmuMyProposal");
+			logger.error("Error in method getDashBoardDataForMyProposal");
 			e.printStackTrace();
 		}
 		return dashBoardProfile;
 	}
 
 	@Override
-	public DashBoardProfile getDashBoardDataForSmuReviewPendingProposal(CommonVO vo) {
+	public DashBoardProfile getDashBoardDataForReviewPendingProposal(CommonVO vo, List<Integer> proposalIds) {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		Integer pageNumber = vo.getPageNumber();
 		String sortBy = vo.getSortBy();
@@ -1382,7 +1365,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
 		Conjunction and = Restrictions.conjunction();
 		try {
-			logger.info("----------- getDashBoardDataForSmuReviewPendingProposal ------------");
+			logger.info("----------- getDashBoardDataForReviewPendingProposal ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Criteria searchCriteria = session.createCriteria(Proposal.class);
 			searchCriteria.createAlias("proposalStatus", "proposalStatus");
@@ -1415,8 +1398,10 @@ public class DashboardDaoImpl implements DashboardDao {
 			if (property4 != null && !property4.isEmpty()) {
 				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
 			}
-			searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS)));
-			countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS)));
+			searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)));
+			searchCriteria.add(Restrictions.in("proposalId", proposalIds));
+			countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)));
+			countCriteria.add(Restrictions.in("proposalId", proposalIds));
 			searchCriteria.add(and);
 			countCriteria.add(and);
 
@@ -1447,10 +1432,24 @@ public class DashboardDaoImpl implements DashboardDao {
 			}
 			dashBoardProfile.setProposal(proposalList);
 		} catch (Exception e) {
-			logger.error("Error in method getDashBoardDataForSmuReviewPendingProposal");
+			logger.error("Error in method getDashBoardDataForReviewPendingProposal");
 			e.printStackTrace();
 		}
 		return dashBoardProfile;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Integer> getApprovalInprogressProposalIds(String personId, String approvalStatusCode, Integer moduleCode) {
+		List<Integer> proposalIds = new ArrayList<Integer>();
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Query query = session.createSQLQuery(
+				"select t1.MODULE_ITEM_ID from fibi_workflow t1 inner join fibi_workflow_detail t2 on t1.WORKFLOW_ID = t2.workflow_id where t1.MODULE_CODE = :module_code and t1.IS_WORKFLOW_ACTIVE='Y' and t2.approver_person_id = :person_id and t2.APPROVAL_STATUS_CODE = :approval_status_code");
+		query.setString("person_id", personId);
+		query.setString("approval_status_code", approvalStatusCode);
+		query.setInteger("module_code", moduleCode);
+		proposalIds = query.list();
+		return proposalIds;
 	}
 
 }

@@ -195,7 +195,7 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalDao.fetchProposalById(proposalId);
 		proposalVO.setProposal(proposal);
 		int statusCode = proposal.getStatusCode();
-		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED) {
+		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
 			loadInitialData(proposalVO);
 		} else {
 			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
@@ -203,11 +203,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		}
 
-		if (proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVED)
-				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)
-				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS)
-				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED)
-				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_ENDORSEMENT)
+		if (proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)
 				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_AWARDED)) {
 			canTakeRoutingAction(proposalVO);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
@@ -520,7 +516,7 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setIpNumber(ipNumber);
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
-					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.KKI_FYI_EMAIL_RECIPIENTS);
+					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FYI_EMAIL_RECIPIENTS);
 					List<String> recipients = Arrays.asList(fyiRecipients.split(","));
 					for (String recipient : recipients) {
 						toAddresses.add(recipient);

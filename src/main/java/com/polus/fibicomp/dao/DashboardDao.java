@@ -41,7 +41,7 @@ public interface DashboardDao {
 	 * @param vo - Object of CommonVO class.
 	 * @return A list of proposal.
 	 */
-	public DashBoardProfile getDashBoardDataForProposal(CommonVO vo);
+	//public DashBoardProfile getDashBoardDataForProposal(CommonVO vo);
 
 	/**
 	 * This method is used to get list of IRB protocols.
@@ -187,10 +187,12 @@ public interface DashboardDao {
 	 * @param vo - Object of CommonVO class.
 	 * @return A list of proposals.
 	 */
-	public DashBoardProfile getDashBoardDataForSmuProposal(CommonVO vo);
+	public DashBoardProfile getDashBoardDataForProposal(CommonVO vo);
 
-	public DashBoardProfile getDashBoardDataForSmuMyProposal(CommonVO vo);
+	public DashBoardProfile getDashBoardDataForMyProposal(CommonVO vo);
 
-	public DashBoardProfile getDashBoardDataForSmuReviewPendingProposal(CommonVO vo);
+	public DashBoardProfile getDashBoardDataForReviewPendingProposal(CommonVO vo, List<Integer> proposalIds);
+
+	public List<Integer> getApprovalInprogressProposalIds(String personId, String approvalStatusCode, Integer moduleCode);
 
 }
