@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.DashboardDao;
 import com.polus.fibicomp.pojo.ActionItem;
 import com.polus.fibicomp.pojo.DashBoardProfile;
@@ -42,7 +43,23 @@ public class DashboardServiceImpl implements DashboardService {
 				dashBoardProfile = dashboardDao.getDashBoardDataForAward(vo);
 			}
 			if (requestType.equals("PROPOSAL")) {
-				dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
+				//dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
+				if (vo.getIsUnitAdmin()) {
+					String proposalTabName = vo.getProposalTabName();
+					logger.info("proposalTabName : " + proposalTabName);
+					if (proposalTabName.equals("MY_PROPOSAL")) {
+						dashBoardProfile = dashboardDao.getDashBoardDataForMyProposal(vo);
+					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
+						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
+						if (proposalIds != null && !proposalIds.isEmpty()) {
+							dashBoardProfile = dashboardDao.getDashBoardDataForReviewPendingProposal(vo, proposalIds);							
+						}
+					} else {
+						dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
+					}
+				} else {
+					dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
+				}
 			}
 			if (requestType.equals("IRB")) {
 				dashBoardProfile = dashboardDao.getProtocolDashboardData(vo);
@@ -61,21 +78,6 @@ public class DashboardServiceImpl implements DashboardService {
 			}
 			if (requestType.equals("GRANT")) {
 				dashBoardProfile = dashboardDao.getDashBoardDataForGrantCall(vo);
-			}
-			if (requestType.equals("SMU_PROPOSAL")) {
-				if (vo.getIsUnitAdmin()) {
-					String proposalTabName = vo.getProposalTabName();
-					logger.info("proposalTabName : " + proposalTabName);
-					if (proposalTabName.equals("MY_PROPOSAL")) {
-						dashBoardProfile = dashboardDao.getDashBoardDataForSmuMyProposal(vo);
-					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
-						dashBoardProfile = dashboardDao.getDashBoardDataForSmuReviewPendingProposal(vo);
-					} else {
-						dashBoardProfile = dashboardDao.getDashBoardDataForSmuProposal(vo);
-					}
-				} else {
-					dashBoardProfile = dashboardDao.getDashBoardDataForSmuProposal(vo);
-				}
 			}
 			// dashBoardProfile.setPersonDTO(personDTO);
 		} catch (Exception e) {

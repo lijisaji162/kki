@@ -57,11 +57,6 @@ public class ReportDaoImpl implements ReportDao {
 		Integer grantCallId = reportVO.getGrantCallId();
 		List<Integer> proposalStatus = new ArrayList<Integer>();
 		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS);
-		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_APPROVED);
-		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_SUBMITTED);
-		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_REVIEW_INPROGRESS);
-		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_REVISION_REQUESTED);
-		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_ENDORSEMENT);
 		proposalStatus.add(Constants.PROPOSAL_STATUS_CODE_AWARDED);
 
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
