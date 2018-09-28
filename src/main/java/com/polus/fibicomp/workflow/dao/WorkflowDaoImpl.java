@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +39,7 @@ public class WorkflowDaoImpl implements WorkflowDao {
 
 	@Override
 	public List<WorkflowMapDetail> fetchWorkflowMapDetail() {
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Criteria criteria = session.createCriteria(WorkflowMapDetail.class);
-		criteria.add(Restrictions.eq("mapId", 1));
-		@SuppressWarnings("unchecked")
-		List<WorkflowMapDetail> workflowMapDetails = criteria.list();
+		List<WorkflowMapDetail> workflowMapDetails = hibernateTemplate.loadAll(WorkflowMapDetail.class);
 		return workflowMapDetails;
 	}
 

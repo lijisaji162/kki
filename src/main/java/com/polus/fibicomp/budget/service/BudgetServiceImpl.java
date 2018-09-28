@@ -137,7 +137,17 @@ public class BudgetServiceImpl implements BudgetService {
 			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (!budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						List<BudgetDetailCalcAmount> list = budgetItemDetail.getBudgetDetailCalcAmounts();
+						List<BudgetDetailCalcAmount> updatedList = new ArrayList<BudgetDetailCalcAmount>(list);
+						Collections.copy(updatedList, list);
+						for (BudgetDetailCalcAmount amount : list) {
+							if (!amount.getRateClassCode().equals("7")) {
+								updatedList.remove(amount);
+							}
+						}
 						budgetItemDetail.getBudgetDetailCalcAmounts().clear();
+						budgetItemDetail.getBudgetDetailCalcAmounts().addAll(updatedList);
+
 						BigDecimal fringeCostForCE = BigDecimal.ZERO;
 						BigDecimal fandACostForCE = BigDecimal.ZERO;
 						BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
@@ -150,7 +160,17 @@ public class BudgetServiceImpl implements BudgetService {
 				}
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						List<BudgetDetailCalcAmount> list = budgetItemDetail.getBudgetDetailCalcAmounts();
+						List<BudgetDetailCalcAmount> updatedList = new ArrayList<BudgetDetailCalcAmount>(list);
+						Collections.copy(updatedList, list);
+						for (BudgetDetailCalcAmount amount : list) {
+							if (!amount.getRateClassCode().equals("7")) {
+								updatedList.remove(amount);
+							}
+						}
 						budgetItemDetail.getBudgetDetailCalcAmounts().clear();
+						budgetItemDetail.getBudgetDetailCalcAmounts().addAll(updatedList);
+
 						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType())
 								|| Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
 							budgetItemDetail.setLineItemCost(totalFringeCost.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -907,7 +927,8 @@ public class BudgetServiceImpl implements BudgetService {
 						detail.setPeriod(currentPeriod);
 						detail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
 						detail.setStartDate(budgetDetail.getStartDate());
-						detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+						// detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+						detail.setUpdateTimeStamp(budgetDetail.getUpdateTimeStamp());
 						detail.setUpdateUser(proposalVO.getUserName());
 						detail.setFullName(budgetDetail.getFullName());
 						detail.setRolodexId(budgetDetail.getRolodexId());

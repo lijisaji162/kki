@@ -189,7 +189,6 @@ public class ProposalServiceImpl implements ProposalService {
 		ProposalVO proposalVO = new ProposalVO();
 		proposalVO.setPersonId(personId);
 		Proposal proposal = proposalDao.fetchProposalById(proposalId);
-		proposal.getBudgetHeader().getBudgetPeriods().get(0).getBudgetDetails();
 		proposalVO.setProposal(proposal);
 		int statusCode = proposal.getStatusCode();
 		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
