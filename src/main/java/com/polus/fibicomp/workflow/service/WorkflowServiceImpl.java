@@ -151,6 +151,10 @@ public class WorkflowServiceImpl implements WorkflowService {
 		Integer nextApproveStopNumber = workflowDetail.getApprovalStopNumber() + 1;
 		if(!workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_REJECTED) && nextApproveStopNumber <= maxApprovalStopNumber) {
 			List<WorkflowDetail> workflowDetailList = workflowDao.fetchWorkflowDetailListByApprovalStopNumber(workflow.getWorkflowId(), nextApproveStopNumber, Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
+			if (workflowDetailList == null || workflowDetailList.isEmpty()) {
+				nextApproveStopNumber = nextApproveStopNumber + 1;
+				workflowDetailList = workflowDao.fetchWorkflowDetailListByApprovalStopNumber(workflow.getWorkflowId(), nextApproveStopNumber, Constants.WORKFLOW_STATUS_CODE_TO_BE_SUBMITTED);
+			}
 			for(WorkflowDetail newWorkflowDetail : workflowDetailList) {
 				newWorkflowDetail.setApprovalStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING);
 				newWorkflowDetail.setWorkflowStatus(workflowDao.fetchWorkflowStatusByStatusCode(Constants.WORKFLOW_STATUS_CODE_WAITING));
