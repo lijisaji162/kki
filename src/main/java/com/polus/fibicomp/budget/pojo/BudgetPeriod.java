@@ -2,7 +2,6 @@ package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-//import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,10 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -61,11 +57,9 @@ public class BudgetPeriod implements Serializable {
 	private Integer budgetPeriod;
 
 	@Column(name = "END_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp endDate;
 
 	@Column(name = "START_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp startDate;
 
 	@Column(name = "TOTAL_COST", precision = 10, scale = 2)
@@ -92,7 +86,6 @@ public class BudgetPeriod implements Serializable {
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "period", orphanRemoval = true, cascade = { CascadeType.ALL })
-	@OrderBy("updateTimeStamp DESC")
 	private List<BudgetDetail> budgetDetails;
 
 	public BudgetPeriod() {

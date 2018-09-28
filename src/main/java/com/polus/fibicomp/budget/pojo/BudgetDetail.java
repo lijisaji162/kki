@@ -2,7 +2,6 @@ package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-//import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +17,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -56,11 +53,9 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 	private Integer lineItemNumber;
 
 	@Column(name = "END_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp endDate;
 
 	@Column(name = "START_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp startDate;
 
 	@Column(name = "BUDGET_CATEGORY_CODE")
@@ -347,7 +342,7 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 		if (getUpdateTimeStamp() == null) {
 			return 0;
 		}
-		return getUpdateTimeStamp().compareTo(o.getUpdateTimeStamp());
+		return o.getUpdateTimeStamp().compareTo(getUpdateTimeStamp());
 	}
 
 	public String getPersonType() {

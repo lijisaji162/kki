@@ -2,7 +2,6 @@ package com.polus.fibicomp.compilance.pojo;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-//import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,8 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -68,15 +65,12 @@ public class ProposalSpecialReview implements Serializable {
 	private String protocolNumber;
 
 	@Column(name = "APPLICATION_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp applicationDate;
 
 	@Column(name = "APPROVAL_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp approvalDate;
 
 	@Column(name = "EXPIRATION_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp expirationDate;
 
 	@Column(name = "COMMENTS")

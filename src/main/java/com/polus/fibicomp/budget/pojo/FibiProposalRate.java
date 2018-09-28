@@ -2,7 +2,6 @@ package com.polus.fibicomp.budget.pojo;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-//import java.util.Date;
 import java.sql.Timestamp;
 
 import javax.persistence.CascadeType;
@@ -16,8 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -68,7 +65,6 @@ public class FibiProposalRate implements Serializable {
 	private Boolean onOffCampusFlag;
 
 	@Column(name = "START_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp startDate;
 
 	@Column(name = "INSTITUTE_RATE", precision = 10, scale = 2)

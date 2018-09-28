@@ -1,7 +1,6 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
-//import java.util.Date;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -46,11 +43,9 @@ public class ProposalSponsor implements Serializable {
 	private Sponsor sponsor;
 
 	@Column(name = "START_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp startDate;
 
 	@Column(name = "END_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp endDate;
 
 	@Column(name = "AMOUNT")

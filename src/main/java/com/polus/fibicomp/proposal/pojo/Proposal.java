@@ -1,7 +1,6 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
-//import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-//import javax.persistence.Temporal;
-//import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
@@ -70,15 +67,12 @@ public class Proposal implements Serializable {
 	private String title;
 
 	@Column(name = "START_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp startDate;
 
 	@Column(name = "END_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp endDate;
 
 	@Column(name = "SUBMISSION_DATE")
-	//@Temporal(TemporalType.DATE)
 	private Timestamp submissionDate;
 
 	@Column(name = "IS_SMU")
