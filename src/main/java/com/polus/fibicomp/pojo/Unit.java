@@ -15,8 +15,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -59,9 +61,13 @@ public class Unit implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK_UNIT_PARENT_UNIT_NUMBER"), name = "PARENT_UNIT_NUMBER", referencedColumnName = "UNIT_NUMBER", insertable = false, updatable = false)
 	private Unit parentUnit;
 
+	@JsonBackReference
 	@OneToMany(mappedBy = "unit")
 	@OrderBy("unitNumber")
 	private List<UnitAdministrator> unitAdministrators;
+
+	@Transient
+	private String unitDetail;
 
 	public String getUnitNumber() {
 		return unitNumber;
@@ -153,5 +159,17 @@ public class Unit implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	@Transient
+	public String getUnitDetail() {
+		if (unitNumber != null && !unitNumber.isEmpty() && unitName != null && !unitName.isEmpty()) {
+			unitDetail = unitNumber + " - " + unitName;
+		}
+		return unitDetail;
+	}
+
+	public void setUnitDetail(String unitDetail) {
+		this.unitDetail = unitDetail;
 	}
 }

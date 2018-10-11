@@ -3,7 +3,10 @@ package com.polus.fibicomp.proposal.pojo;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -11,12 +14,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 
 @Entity
@@ -53,11 +58,11 @@ public class ProposalPerson implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_PERSONS"), name = "PROP_PERSON_ROLE_ID", referencedColumnName = "PROP_PERSON_ROLE_ID", insertable = false, updatable = false)
 	private ProposalPersonRole proposalPersonRole;
 
-	@Column(name = "UNIT_NUMBER")
+	/*@Column(name = "UNIT_NUMBER")
 	private String leadUnitNumber;
 
 	@Column(name = "UNIT_NAME")
-	private String leadUnitName;
+	private String leadUnitName;*/
 
 	@Column(name = "UPDATE_TIMESTAMP")
 	private Timestamp updateTimeStamp;
@@ -65,8 +70,19 @@ public class ProposalPerson implements Serializable {
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
 
-	@Column(name = "DEPARTMENT")
-	private String department;
+	/*@Column(name = "DEPARTMENT")
+	private String department;*/
+
+	@Column(name = "PERCENTAGE_OF_EFFORT")
+	private Integer percentageOfEffort;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "proposalPerson", orphanRemoval = true, cascade = { CascadeType.ALL })
+	private List<ProposalPersonUnit> units;
+
+	public ProposalPerson() {
+		units = new ArrayList<>();
+	}
 
 	public Integer getProposalPersonId() {
 		return proposalPersonId;
@@ -132,7 +148,7 @@ public class ProposalPerson implements Serializable {
 		this.proposalPersonRole = proposalPersonRole;
 	}
 
-	public String getLeadUnitNumber() {
+	/*public String getLeadUnitNumber() {
 		return leadUnitNumber;
 	}
 
@@ -154,7 +170,7 @@ public class ProposalPerson implements Serializable {
 
 	public void setDepartment(String department) {
 		this.department = department;
-	}
+	}*/
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -166,6 +182,22 @@ public class ProposalPerson implements Serializable {
 
 	public void setPersonRoleId(BigDecimal personRoleId) {
 		this.personRoleId = personRoleId;
+	}
+
+	public Integer getPercentageOfEffort() {
+		return percentageOfEffort;
+	}
+
+	public void setPercentageOfEffort(Integer percentageOfEffort) {
+		this.percentageOfEffort = percentageOfEffort;
+	}
+
+	public List<ProposalPersonUnit> getUnits() {
+		return units;
+	}
+
+	public void setUnits(List<ProposalPersonUnit> units) {
+		this.units = units;
 	}
 
 }

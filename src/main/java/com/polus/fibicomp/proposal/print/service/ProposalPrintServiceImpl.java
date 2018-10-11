@@ -123,10 +123,10 @@ public class ProposalPrintServiceImpl implements ProposalPrintService {
 						getTableCell(persons.getFullName(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
 				personTable.addCell(getTableCell(persons.getProposalPersonRole().getDescription(),
 						PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
-				personTable.addCell(getTableCell(persons.getLeadUnitName(), PdfPCell.ALIGN_MIDDLE,
+				/*personTable.addCell(getTableCell(persons.getLeadUnitName(), PdfPCell.ALIGN_MIDDLE,
 						PdfPCell.ALIGN_CENTER, bodyFont));
 				personTable.addCell(
-						getTableCell(persons.getDepartment(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
+						getTableCell(persons.getDepartment(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));*/
 			}
 			document.add(personTable);
 
