@@ -58,20 +58,11 @@ public class ProposalPerson implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_PERSONS"), name = "PROP_PERSON_ROLE_ID", referencedColumnName = "PROP_PERSON_ROLE_ID", insertable = false, updatable = false)
 	private ProposalPersonRole proposalPersonRole;
 
-	/*@Column(name = "UNIT_NUMBER")
-	private String leadUnitNumber;
-
-	@Column(name = "UNIT_NAME")
-	private String leadUnitName;*/
-
 	@Column(name = "UPDATE_TIMESTAMP")
 	private Timestamp updateTimeStamp;
 
 	@Column(name = "UPDATE_USER")
 	private String updateUser;
-
-	/*@Column(name = "DEPARTMENT")
-	private String department;*/
 
 	@Column(name = "PERCENTAGE_OF_EFFORT")
 	private Integer percentageOfEffort;
@@ -147,30 +138,6 @@ public class ProposalPerson implements Serializable {
 	public void setProposalPersonRole(ProposalPersonRole proposalPersonRole) {
 		this.proposalPersonRole = proposalPersonRole;
 	}
-
-	/*public String getLeadUnitNumber() {
-		return leadUnitNumber;
-	}
-
-	public void setLeadUnitNumber(String leadUnitNumber) {
-		this.leadUnitNumber = leadUnitNumber;
-	}
-
-	public String getLeadUnitName() {
-		return leadUnitName;
-	}
-
-	public void setLeadUnitName(String leadUnitName) {
-		this.leadUnitName = leadUnitName;
-	}
-
-	public String getDepartment() {
-		return department;
-	}
-
-	public void setDepartment(String department) {
-		this.department = department;
-	}*/
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
