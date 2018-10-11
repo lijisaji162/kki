@@ -10,6 +10,7 @@ import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.BudgetDetail;
+import com.polus.fibicomp.budget.pojo.BudgetDetailCalcAmount;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
@@ -58,5 +59,7 @@ public interface BudgetDao {
 	public List<TbnPerson> fetchAllTbnPerson();
 
 	public BudgetHeader saveBudgetHeader(BudgetHeader budgetHeader);
+
+	public BudgetDetailCalcAmount deleteBudgetDetailCalcAmount(BudgetDetailCalcAmount budgetDetailCalcAmount);
 
 }

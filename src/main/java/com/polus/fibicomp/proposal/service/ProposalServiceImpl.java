@@ -788,7 +788,7 @@ public class ProposalServiceImpl implements ProposalService {
 		List<ProposalPersonUnit> newProposalPersonUnits = new ArrayList<>();
 		for (ProposalPersonUnit copiedPersonPersonUnit : copiedProposalPersonUnits) {
 			ProposalPersonUnit personUnit = new ProposalPersonUnit();
-			// personUnit.setProposalPerson(personDetail);
+			personUnit.setProposalPerson(personDetail);
 			personUnit.setUnitNumber(copiedPersonPersonUnit.getUnitNumber());
 			personUnit.setLeadUnit(copiedPersonPersonUnit.isLeadUnit());
 			personUnit.setUnit(copiedPersonPersonUnit.getUnit());

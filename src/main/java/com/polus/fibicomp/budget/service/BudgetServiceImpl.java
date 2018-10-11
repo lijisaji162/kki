@@ -818,10 +818,12 @@ public class BudgetServiceImpl implements BudgetService {
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
 					if (budgetDetail.getBudgetDetailId() != null && budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
+						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 					if (updatedlist.size() <= 2) {
+						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
@@ -986,6 +988,22 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 		return proposal;
+	}
+
+	public BudgetDetail deleteBudgetDetailCalcAmount(BudgetDetail budgetDetail) {		
+		if (budgetDetail.getBudgetDetailCalcAmounts() != null && !budgetDetail.getBudgetDetailCalcAmounts().isEmpty()) {
+			List<BudgetDetailCalcAmount> budgetDetailCalcAmounts = budgetDetail.getBudgetDetailCalcAmounts();
+			List<BudgetDetailCalcAmount> updatedlist = new ArrayList<BudgetDetailCalcAmount>(budgetDetailCalcAmounts);
+			Collections.copy(updatedlist, budgetDetailCalcAmounts);
+			for (BudgetDetailCalcAmount budgetDetailCalcAmount : budgetDetailCalcAmounts) {
+				budgetDetailCalcAmount = budgetDao.deleteBudgetDetailCalcAmount(budgetDetailCalcAmount);
+				updatedlist.remove(budgetDetailCalcAmount);
+			}
+			budgetDetail.getBudgetDetailCalcAmounts().clear();
+			budgetDetail.getBudgetDetailCalcAmounts().addAll(updatedlist);
+			budgetDetail = budgetDao.saveBudgetDetail(budgetDetail);
+		}
+		return budgetDetail;
 	}
 
 }
