@@ -29,6 +29,7 @@ import com.polus.fibicomp.common.service.DateTimeService;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
+import com.polus.fibicomp.proposal.pojo.ProposalPersonUnit;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 
 @Transactional
@@ -109,13 +110,13 @@ public class ProposalPrintServiceImpl implements ProposalPrintService {
 
 			PdfPTable personTable = new PdfPTable(4);
 			personTable.setWidthPercentage(100);
-			personTable.setWidths(new int[] { 3, 3, 3, 3 });
+			personTable.setWidths(new int[] { 3, 2, 2, 5 });
 			personTable.setSpacingBefore(5f);
 			personTable.setSpacingAfter(5f);
 
 			personTable.addCell(getTableCell("Name", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
 			personTable.addCell(getTableCell("Role", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
-			personTable.addCell(getTableCell("Home Unit", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
+			personTable.addCell(getTableCell("% of Effort", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
 			personTable.addCell(getTableCell("Department", PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, headFont));
 
 			for (ProposalPerson persons : pdfData.getProposalPersons()) {
@@ -123,10 +124,27 @@ public class ProposalPrintServiceImpl implements ProposalPrintService {
 						getTableCell(persons.getFullName(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
 				personTable.addCell(getTableCell(persons.getProposalPersonRole().getDescription(),
 						PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));
-				/*personTable.addCell(getTableCell(persons.getLeadUnitName(), PdfPCell.ALIGN_MIDDLE,
-						PdfPCell.ALIGN_CENTER, bodyFont));
-				personTable.addCell(
-						getTableCell(persons.getDepartment(), PdfPCell.ALIGN_MIDDLE, PdfPCell.ALIGN_CENTER, bodyFont));*/
+				if (persons.getPercentageOfEffort() != null) {
+					personTable.addCell(getTableCell(persons.getPercentageOfEffort().toString(), PdfPCell.ALIGN_MIDDLE,
+							PdfPCell.ALIGN_CENTER, bodyFont));
+				} else {
+					personTable.addCell(getTableCell("", PdfPCell.ALIGN_MIDDLE,
+							PdfPCell.ALIGN_CENTER, bodyFont));
+				}
+				PdfPTable departmentsTable = new PdfPTable(1);
+				departmentsTable.setWidthPercentage(100);
+				departmentsTable.setWidths(new int[] { 12 });
+				departmentsTable.setSpacingAfter(5f);
+				if (!persons.getUnits().isEmpty()) {
+					for ( ProposalPersonUnit unit : persons.getUnits()) {
+						departmentsTable.addCell(getGeneralDetailsCell(unit.getUnit().getUnitDetail(), PdfPCell.ALIGN_MIDDLE,
+								PdfPCell.ALIGN_CENTER, bodyFont));
+					}
+				} else {
+					departmentsTable.addCell(getGeneralDetailsCell("", PdfPCell.ALIGN_MIDDLE,
+							PdfPCell.ALIGN_CENTER, bodyFont));
+				}
+				personTable.addCell(departmentsTable);
 			}
 			document.add(personTable);
 

@@ -21,6 +21,7 @@ import com.polus.fibicomp.budget.common.pojo.RateType;
 import com.polus.fibicomp.budget.common.pojo.ValidCeRateType;
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.BudgetDetail;
+import com.polus.fibicomp.budget.pojo.BudgetDetailCalcAmount;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
 import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.CostElement;
@@ -216,6 +217,12 @@ public class BudgetDaoImpl implements BudgetDao {
 	public BudgetHeader saveBudgetHeader(BudgetHeader budgetHeader) {
 		hibernateTemplate.save(budgetHeader);
 		return budgetHeader;
+	}
+
+	@Override
+	public BudgetDetailCalcAmount deleteBudgetDetailCalcAmount(BudgetDetailCalcAmount budgetDetailCalcAmount) {
+		hibernateTemplate.delete(budgetDetailCalcAmount);
+		return budgetDetailCalcAmount;
 	}
 
 }
