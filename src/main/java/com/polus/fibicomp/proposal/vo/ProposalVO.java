@@ -157,6 +157,8 @@ public class ProposalVO {
 
 	private Boolean isDeclarationSectionRequired = false;
 
+	private List<Unit> departments;
+
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -655,6 +657,14 @@ public class ProposalVO {
 
 	public void setIsDeclarationSectionRequired(Boolean isDeclarationSectionRequired) {
 		this.isDeclarationSectionRequired = isDeclarationSectionRequired;
+	}
+
+	public List<Unit> getDepartments() {
+		return departments;
+	}
+
+	public void setDepartments(List<Unit> departments) {
+		this.departments = departments;
 	}
 
 }

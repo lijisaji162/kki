@@ -228,4 +228,9 @@ public class ProposalDaoImpl implements ProposalDao {
 		return sponsorTypeCode;
 	}
 
+	@Override
+	public List<Unit> fetchAllUnits() {
+		return hibernateTemplate.loadAll(Unit.class);
+	}
+
 }

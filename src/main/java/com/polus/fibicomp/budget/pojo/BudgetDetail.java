@@ -339,10 +339,10 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 
 	@Override
 	public int compareTo(BudgetDetail o) {
-		if (getUpdateTimeStamp() == null) {
+		if (getBudgetCategoryCode() == null || getIsSystemGeneratedCostElement()) {
 			return 0;
 		}
-		return o.getUpdateTimeStamp().compareTo(getUpdateTimeStamp());
+		return o.getBudgetCategoryCode().compareTo(getBudgetCategoryCode());
 	}
 
 	public String getPersonType() {

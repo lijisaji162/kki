@@ -51,6 +51,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalIrbProtocol;
 import com.polus.fibicomp.proposal.pojo.ProposalKeyword;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
+import com.polus.fibicomp.proposal.pojo.ProposalPersonUnit;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
@@ -513,11 +514,13 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
 					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FYI_EMAIL_RECIPIENTS);
-					List<String> recipients = Arrays.asList(fyiRecipients.split(","));
-					for (String recipient : recipients) {
-						toAddresses.add(recipient);
+					if (fyiRecipients != null && !fyiRecipients.isEmpty()) {
+						List<String> recipients = Arrays.asList(fyiRecipients.split(","));
+						for (String recipient : recipients) {
+							toAddresses.add(recipient);
+						}
+						fibiEmailService.sendEmail(toAddresses, fyiSubject, null, null, fyiMessage, true);						
 					}
-					fibiEmailService.sendEmail(toAddresses, fyiSubject, null, null, fyiMessage, true);
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {
@@ -581,6 +584,7 @@ public class ProposalServiceImpl implements ProposalService {
 		approvalTypeCodes.add("5");
 		approvalTypeCodes.add("6");
 		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
+		proposalVO.setDepartments(proposalDao.fetchAllUnits());
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
@@ -766,14 +770,33 @@ public class ProposalServiceImpl implements ProposalService {
 			personDetail.setFullName(copiedPersonDetail.getFullName());
 			personDetail.setPersonRoleId(copiedPersonDetail.getPersonRoleId());
 			personDetail.setProposalPersonRole(copiedPersonDetail.getProposalPersonRole());
-			personDetail.setLeadUnitNumber(copiedPersonDetail.getLeadUnitNumber());
-			personDetail.setLeadUnitName(copiedPersonDetail.getLeadUnitName());
-			personDetail.setDepartment(copiedPersonDetail.getDepartment());
 			personDetail.setUpdateUser(updateUser);
 			personDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+			List<ProposalPersonUnit> units = copiedPersonDetail.getUnits();
+			if (units != null && !units.isEmpty()) {
+				personDetail.getUnits().addAll(copyProposalPersonUnits(copiedPersonDetail, personDetail, updateUser));
+			}
 			newProposalPersons.add(personDetail);
 		}
 		return newProposalPersons;
+	}
+
+	private List<ProposalPersonUnit> copyProposalPersonUnits(ProposalPerson copiedPersonDetail, ProposalPerson personDetail, String updateUser) {
+		List<ProposalPersonUnit> proposalPersonUnits = copiedPersonDetail.getUnits();
+		List<ProposalPersonUnit> copiedProposalPersonUnits = new ArrayList<>(proposalPersonUnits);
+		Collections.copy(copiedProposalPersonUnits, proposalPersonUnits);
+		List<ProposalPersonUnit> newProposalPersonUnits = new ArrayList<>();
+		for (ProposalPersonUnit copiedPersonPersonUnit : copiedProposalPersonUnits) {
+			ProposalPersonUnit personUnit = new ProposalPersonUnit();
+			// personUnit.setProposalPerson(personDetail);
+			personUnit.setUnitNumber(copiedPersonPersonUnit.getUnitNumber());
+			personUnit.setLeadUnit(copiedPersonPersonUnit.isLeadUnit());
+			personUnit.setUnit(copiedPersonPersonUnit.getUnit());
+			personUnit.setUpdateUser(updateUser);
+			personUnit.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+			newProposalPersonUnits.add(personUnit);
+		}
+		return newProposalPersonUnits;
 	}
 
 	public List<ProposalAttachment> copyProposalAttachments(Proposal copyProposal, Proposal proposal, String updateUser) {

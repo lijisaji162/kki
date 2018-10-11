@@ -132,4 +132,11 @@ public interface ProposalDao {
 	 * @return
 	 */
 	public String fetchSponsorTypeCodeBySponsorCode(String sponsorCode);
+
+	/**
+	 * This method is used to fetch all units.
+	 * @return A list of units.
+	 */
+	public List<Unit> fetchAllUnits();
+
 }

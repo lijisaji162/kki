@@ -1,6 +1,7 @@
 package com.polus.fibicomp.dao;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -533,7 +534,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
 			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			proposalBySponsorTypes = proposalList.list();
 			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);
@@ -554,7 +555,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query progressProposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
 			progressProposalList.setString("personId", personId);
 			List<Object[]> proposals = progressProposalList.list();
 			for (Object[] proposal : proposals) {
@@ -569,6 +570,14 @@ public class DashboardDaoImpl implements DashboardDao {
 				}
 				proposalView.setFullName(proposal[4].toString());
 				proposalView.setLeadUnit(proposal[6].toString());
+				Object deadLineObj = proposal[7];
+				if (deadLineObj != null) {
+					String deadLineDate = deadLineObj.toString();
+					SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+					java.util.Date utilDeadLineDate = sdf1.parse(deadLineDate);
+					java.sql.Date sqlDeadLineDate = new java.sql.Date(utilDeadLineDate.getTime());
+					proposalView.setDeadLinedate(sqlDeadLineDate);
+				}
 				inProgressProposals.add(proposalView);
 			}
 			logger.info("getProposalsInProgress : " + inProgressProposals);
@@ -588,7 +597,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query subproposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.HOME_UNIT_NUMBER as unit_number, t6.UNIT_NAME, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
 			subproposalList.setString("personId", personId);
 			List<Object[]> subProposals = subproposalList.list();
 			for (Object[] proposal : subProposals) {
@@ -603,6 +612,14 @@ public class DashboardDaoImpl implements DashboardDao {
 				}
 				proposalView.setFullName(proposal[4].toString());
 				proposalView.setLeadUnit(proposal[6].toString());
+				Object deadLineObj = proposal[7];
+				if (deadLineObj != null) {
+					String deadLineDate = deadLineObj.toString();
+					SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+					java.util.Date utilDeadLineDate = sdf1.parse(deadLineDate);
+					java.sql.Date sqlDeadLineDate = new java.sql.Date(utilDeadLineDate.getTime());
+					proposalView.setDeadLinedate(sqlDeadLineDate);
+				}
 				submittedProposals.add(proposalView);
 			}
 			logger.info("SubmittedProposals : " + submittedProposals);
@@ -682,7 +699,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalQuery = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t4.full_name AS PI, t1.TYPE_CODE, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
+					"select t1.proposal_id, t1.title, t4.full_name AS PI, t1.TYPE_CODE, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
 			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			inProgressProposal = proposalQuery.list();
 			logger.info("inProgressProposal : " + inProgressProposal);
