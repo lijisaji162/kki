@@ -81,4 +81,6 @@ public interface BudgetService {
 
 	public Proposal calculateCost(Proposal proposal);
 
+	public String generateBudgetPeriods(ProposalVO vo);
+
 }

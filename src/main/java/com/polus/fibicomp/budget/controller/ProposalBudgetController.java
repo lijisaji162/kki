@@ -71,4 +71,10 @@ public class ProposalBudgetController {
 		return budgetService.copyBudgetPeriod(vo);
 	}
 
+	@RequestMapping(value = "/generateBudgetPeriods", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String generateBudgetPeriods(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for genereteBudgetPeriods");
+		logger.info("currentPeriodId : " + vo.getCurrentPeriodId());
+		return budgetService.generateBudgetPeriods(vo);
+	}
 }

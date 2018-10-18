@@ -870,79 +870,7 @@ public class BudgetServiceImpl implements BudgetService {
 
 		for (BudgetPeriod currentPeriod : budgetPeriods) {
 			if (currentPeriod.getBudgetPeriodId().equals(proposalVO.getCurrentPeriodId())) {
-				List<BudgetDetail> budgetDetails = copyPeriod.getBudgetDetails();
-				if (budgetDetails != null && !budgetDetails.isEmpty()) {
-					List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
-					Collections.copy(copiedBudgetDetails, budgetDetails);
-					List<BudgetDetail> newLineItems = new ArrayList<>();
-					for (BudgetDetail budgetDetail : copiedBudgetDetails) {
-						BudgetDetail detail = new BudgetDetail();
-						detail.setBudgetCategory(budgetDetail.getBudgetCategory());
-						detail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
-						detail.setBudgetJustification(budgetDetail.getBudgetJustification());
-						detail.setBudgetPeriod(budgetDetail.getBudgetPeriod() + 1);
-						detail.setEndDate(budgetDetail.getEndDate());
-						detail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
-						detail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
-						// apply inflation here
-						CostElement costElement = budgetDetail.getCostElement();
-						costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
-						detail.setCostElement(costElement);
-						detail.setCostElementCode(budgetDetail.getCostElementCode());
-						BigDecimal lineItemCost = budgetDetail.getLineItemCost();
-						BigDecimal updatedLineItemCost = BigDecimal.ZERO;
-						List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
-						BudgetDetailCalcAmount budgetCalculatedAmount = null;
-						if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
-							for (ValidCeRateType ceRateType : ceRateTypes) {
-								FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(copyPeriod.getBudget().getBudgetId(), copyPeriod.getStartDate(),
-										ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), proposal.getActivityTypeCode());
-								if (applicableRate != null
-										&& (applicableRate.getRateClass().getRateClassTypeCode().equals("I") && "7".equals(applicableRate.getRateClassCode()))) {
-									BigDecimal validRate = BigDecimal.ZERO;
-									validRate = validRate.add(applicableRate.getApplicableRate());
-									if (validRate.compareTo(BigDecimal.ZERO) > 0) {
-										BigDecimal hundred = new BigDecimal(100);
-										BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
-										BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
-										updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
-										budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
-										budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-										detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
-									}
-								}
-							}
-						}
-						if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
-							lineItemCost = lineItemCost.add(updatedLineItemCost);
-							if (lineItemCost != null) {
-								detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-							}
-						} else {
-							if (lineItemCost != null) {
-								detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-							}
-						}
-						detail.setLineItemDescription(budgetDetail.getLineItemDescription());
-						detail.setLineItemNumber(budgetDetail.getLineItemNumber());
-						detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
-						detail.setPeriod(currentPeriod);
-						detail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
-						detail.setStartDate(budgetDetail.getStartDate());
-						// detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
-						detail.setUpdateTimeStamp(budgetDetail.getUpdateTimeStamp());
-						detail.setUpdateUser(proposalVO.getUserName());
-						detail.setFullName(budgetDetail.getFullName());
-						detail.setRolodexId(budgetDetail.getRolodexId());
-						detail.setPersonId(budgetDetail.getPersonId());
-						detail.setTbnId(budgetDetail.getTbnId());
-						detail.setTbnPerson(budgetDetail.getTbnPerson());
-						detail.setPersonType(budgetDetail.getPersonType());
-						detail = budgetDao.saveBudgetDetail(detail);
-						newLineItems.add(detail);
-					}
-					currentPeriod.getBudgetDetails().addAll(newLineItems);
-				}
+				copyBudgetDetails(proposal, copyPeriod, currentPeriod, proposalVO.getUserName());
 			}
 		}
 		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
@@ -1004,6 +932,103 @@ public class BudgetServiceImpl implements BudgetService {
 			budgetDetail = budgetDao.saveBudgetDetail(budgetDetail);
 		}
 		return budgetDetail;
+	}
+
+	@Override
+	public String generateBudgetPeriods(ProposalVO proposalVO) {
+		Proposal proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
+		BudgetPeriod copyPeriod = budgetDao.getPeriodById(proposalVO.getCurrentPeriodId());
+
+		for (BudgetPeriod currentPeriod : budgetPeriods) {
+			if (!currentPeriod.getBudgetPeriodId().equals(proposalVO.getCurrentPeriodId())) {
+				copyBudgetDetails(proposal, copyPeriod, currentPeriod, proposalVO.getUserName());
+			}
+		}
+		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
+			proposal = calculateCost(proposal);			
+		}
+        proposal = saveOrUpdateProposalBudget(proposalVO);
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
+        proposalVO.setProposal(proposal);
+        return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	private void copyBudgetDetails(Proposal proposal, BudgetPeriod copyPeriod, BudgetPeriod currentPeriod, String userName) {
+		List<BudgetDetail> budgetDetails = copyPeriod.getBudgetDetails();
+		if (budgetDetails != null && !budgetDetails.isEmpty()) {
+			List<BudgetDetail> copiedBudgetDetails = new ArrayList<>(budgetDetails);
+			Collections.copy(copiedBudgetDetails, budgetDetails);
+			List<BudgetDetail> newLineItems = new ArrayList<>();
+			for (BudgetDetail budgetDetail : copiedBudgetDetails) {
+				BudgetDetail detail = new BudgetDetail();
+				detail.setBudgetCategory(budgetDetail.getBudgetCategory());
+				detail.setBudgetCategoryCode(budgetDetail.getBudgetCategoryCode());
+				detail.setBudgetJustification(budgetDetail.getBudgetJustification());
+				detail.setBudgetPeriod(currentPeriod.getBudgetPeriod());
+				detail.setEndDate(budgetDetail.getEndDate());
+				detail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
+				detail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
+				// apply inflation here
+				CostElement costElement = budgetDetail.getCostElement();
+				costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
+				detail.setCostElement(costElement);
+				detail.setCostElementCode(budgetDetail.getCostElementCode());
+				BigDecimal lineItemCost = budgetDetail.getLineItemCost();
+				BigDecimal updatedLineItemCost = BigDecimal.ZERO;
+				List<ValidCeRateType> ceRateTypes = costElement.getValidCeRateTypes();
+				BudgetDetailCalcAmount budgetCalculatedAmount = null;
+				if (ceRateTypes != null && !ceRateTypes.isEmpty()) {
+					for (ValidCeRateType ceRateType : ceRateTypes) {
+						FibiProposalRate applicableRate = budgetDao.fetchApplicableProposalRate(copyPeriod.getBudget().getBudgetId(), copyPeriod.getStartDate(),
+								ceRateType.getRateClassCode(), ceRateType.getRateTypeCode(), proposal.getActivityTypeCode());
+						if (applicableRate != null
+								&& (applicableRate.getRateClass().getRateClassTypeCode().equals("I") && "7".equals(applicableRate.getRateClassCode()))) {
+							BigDecimal validRate = BigDecimal.ZERO;
+							validRate = validRate.add(applicableRate.getApplicableRate());
+							if (validRate.compareTo(BigDecimal.ZERO) > 0) {
+								BigDecimal hundred = new BigDecimal(100);
+								BigDecimal percentageFactor = validRate.divide(hundred, 2, BigDecimal.ROUND_HALF_UP);
+								BigDecimal calculatedCost = ((lineItemCost.multiply(percentageFactor)));
+								updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
+								budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
+								budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+								detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+							}
+						}
+					}
+				}
+				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+					lineItemCost = lineItemCost.add(updatedLineItemCost);
+					if (lineItemCost != null) {
+						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+					}
+				} else {
+					if (lineItemCost != null) {
+						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+					}
+				}
+				detail.setLineItemDescription(budgetDetail.getLineItemDescription());
+				detail.setLineItemNumber(budgetDetail.getLineItemNumber());
+				detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
+				detail.setPeriod(currentPeriod);
+				detail.setPrevLineItemCost(budgetDetail.getPrevLineItemCost());
+				detail.setStartDate(budgetDetail.getStartDate());
+				// detail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+				detail.setUpdateTimeStamp(budgetDetail.getUpdateTimeStamp());
+				detail.setUpdateUser(userName);
+				detail.setFullName(budgetDetail.getFullName());
+				detail.setRolodexId(budgetDetail.getRolodexId());
+				detail.setPersonId(budgetDetail.getPersonId());
+				detail.setTbnId(budgetDetail.getTbnId());
+				detail.setTbnPerson(budgetDetail.getTbnPerson());
+				detail.setPersonType(budgetDetail.getPersonType());
+				detail = budgetDao.saveBudgetDetail(detail);
+				newLineItems.add(detail);
+			}
+			currentPeriod.getBudgetDetails().addAll(newLineItems);
+		}
 	}
 
 }
