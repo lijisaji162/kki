@@ -27,7 +27,7 @@ import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
 @Table(name = "FIBI_BUDGET_DETAIL")
-public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
+public class BudgetDetail implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -335,14 +335,6 @@ public class BudgetDetail implements Serializable, Comparable<BudgetDetail> {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
-	}
-
-	@Override
-	public int compareTo(BudgetDetail o) {
-		if (getBudgetCategoryCode() == null || getIsSystemGeneratedCostElement()) {
-			return 0;
-		}
-		return o.getBudgetCategoryCode().compareTo(getBudgetCategoryCode());
 	}
 
 	public String getPersonType() {

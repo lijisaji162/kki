@@ -24,6 +24,8 @@ import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.polus.fibicomp.proposal.comparator.BudgetDetailComparatorByBudgetCategoryCode;
+import com.polus.fibicomp.proposal.comparator.BudgetDetailComparatorBySystemGenerated;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
 
 @Entity
@@ -218,7 +220,8 @@ public class BudgetPeriod implements Serializable {
 
 	public List<BudgetDetail> getBudgetDetails() {
 		if (budgetDetails != null && !budgetDetails.isEmpty()) {
-			Collections.sort(budgetDetails);
+			Collections.sort(budgetDetails, new BudgetDetailComparatorByBudgetCategoryCode());
+			Collections.sort(budgetDetails, new BudgetDetailComparatorBySystemGenerated());
 		}
 		return budgetDetails;
 	}

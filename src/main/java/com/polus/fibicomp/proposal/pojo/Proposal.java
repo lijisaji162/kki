@@ -3,6 +3,7 @@ package com.polus.fibicomp.proposal.pojo;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -28,6 +29,7 @@ import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
+import com.polus.fibicomp.proposal.comparator.ProposalAttachmentComparator;
 
 @Entity
 @Table(name = "FIBI_PROPOSAL")
@@ -80,15 +82,6 @@ public class Proposal implements Serializable {
 
 	@Column(name = "ABSTRACT_DESC")
 	private String abstractDescription;
-
-	@Column(name = "FUNDING_STRATEGY")
-	private String fundingStrategy;
-
-	@Column(name = "DETAILS")
-	private String details;
-
-	@Column(name = "DELIVERABLES")
-	private String deliverables;
 
 	@Column(name = "RESEARCH_AREA_DESC")
 	private String researchDescription;
@@ -298,30 +291,6 @@ public class Proposal implements Serializable {
 		this.abstractDescription = abstractDescription;
 	}
 
-	public String getFundingStrategy() {
-		return fundingStrategy;
-	}
-
-	public void setFundingStrategy(String fundingStrategy) {
-		this.fundingStrategy = fundingStrategy;
-	}
-
-	public String getDetails() {
-		return details;
-	}
-
-	public void setDetails(String details) {
-		this.details = details;
-	}
-
-	public String getDeliverables() {
-		return deliverables;
-	}
-
-	public void setDeliverables(String deliverables) {
-		this.deliverables = deliverables;
-	}
-
 	public String getResearchDescription() {
 		return researchDescription;
 	}
@@ -367,6 +336,9 @@ public class Proposal implements Serializable {
 	}
 
 	public List<ProposalAttachment> getProposalAttachments() {
+		if (proposalAttachments != null && !proposalAttachments.isEmpty()) {
+			Collections.sort(proposalAttachments, new ProposalAttachmentComparator());
+		}
 		return proposalAttachments;
 	}
 
