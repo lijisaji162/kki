@@ -52,9 +52,9 @@ public class GrantCallContact implements Serializable {
 	@Column(name = "MOBILE")
 	private String mobile;
 
-	@Column(name = "IS_SMU_PERSON")
+	@Column(name = "IS_EMPLOYEE")
 	@Convert(converter = JpaCharBooleanConversion.class)
-	private Boolean isSMUPerson;
+	private Boolean isEmployee;
 
 	public Integer getGrantContactId() {
 		return grantContactId;
@@ -116,12 +116,12 @@ public class GrantCallContact implements Serializable {
 		return serialVersionUID;
 	}
 
-	public Boolean getIsSMUPerson() {
-		return isSMUPerson;
+	public Boolean getIsEmployee() {
+		return isEmployee;
 	}
 
-	public void setIsSMUPerson(Boolean isSMUPerson) {
-		this.isSMUPerson = isSMUPerson;
+	public void setIsEmployee(Boolean isEmployee) {
+		this.isEmployee = isEmployee;
 	}
 
 }
