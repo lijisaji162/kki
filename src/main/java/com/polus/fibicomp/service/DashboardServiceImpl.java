@@ -403,37 +403,37 @@ public class DashboardServiceImpl implements DashboardService {
 			if (dashboardIndex.equals("PROPOSALSINPROGRESS")) {
 				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
-				Object[] tableHeadingRow = { "Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
 				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
-				Object[] tableHeadingRow = { "Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("AWARDSACTIVE")) {
 				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Active Awards");
-				Object[] tableHeadingRow = { "Award#", "Account", "Title", "Sponsor", "PI", "Budget"};
+				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI", "Budget"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("INPROGRESS")) {
 				dashboardData = dashboardDao.getInProgressProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals By Sponsor");
-				Object[] tableHeadingRow = { "Proposal#", "Title", "Type", "Budget", "PI", "Sponsor Deadline"};
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Type", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("AWARDED")) {
 				dashboardData = dashboardDao.getAwardedProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awarded Proposals By Sponsor");
-				Object[] tableHeadingRow = { "Award#", "Title", "Type", "Activity Type", "PI"};
+				Object[] tableHeadingRow = {"Award#", "Title", "Type", "Activity Type", "PI"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("AWARD")) {
 				dashboardData = dashboardDao.getAwardBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awards by sponsor types");
-				Object[] tableHeadingRow = { "Award#", "Account", "Title", "Sponsor", "PI"};
+				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			} else if (dashboardIndex.equals("PROPOSAL")) {
 				dashboardData = dashboardDao.getProposalBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Proposal by sponsor types");
-				Object[] tableHeadingRow = { "Proposal#", "Title", "Sponsor", "Proposal Type", "PI", "Sponsor Deadline"};
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Proposal Type", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
 			}
 		} catch (Exception e) {
