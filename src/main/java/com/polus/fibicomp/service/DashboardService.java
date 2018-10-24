@@ -100,25 +100,25 @@ public interface DashboardService {
 
 	/**
 	 * This method is used to get XSSFWorkbook based on index clicked in research summary tab.
-	 * @param vo - for input of user, dashboardIndex and sponsorCode
-	 * @return XSSFWorkbook that contains excel sheet with data
+	 * @param vo - for input of user, dashboardIndex and sponsorCode.
+	 * @return XSSFWorkbook that contains excel sheet with data.
 	 * @throws Exception
 	 */
 	public XSSFWorkbook getXSSFWorkbookForResearchSummary(CommonVO vo) throws Exception;
 
 	/**
 	 * This method is used to get XSSFWorkbook based on index tab clicked in dashboard.
-	 * @param vo - object of CommonVO
-	 * @param XSSFWorkbook for excel sheet preparation
-	 * @return XSSFWorkbookthat contains excel sheet with data
+	 * @param vo - object of CommonVO.
+	 * @param XSSFWorkbook for excel sheet preparation.
+	 * @return XSSFWorkbookthat contains excel sheet with data.
 	 * @throws Exception
 	 */
 	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo, XSSFWorkbook workbook) throws Exception;
 
 	/**
 	 * This method is used to get excel sheet in byte array format.
-	 * @param XSSFWorkbook for excel sheet
-	 * @return ResponseEntity<byte[]> that contains data in byte array
+	 * @param XSSFWorkbook for excel sheet.
+	 * @return ResponseEntity<byte[]> that contains data in byte array.
 	 * @throws Exception
 	 */
 	public ResponseEntity<byte[]> getResponseEntityForExcelDownload(XSSFWorkbook workbook) throws Exception;

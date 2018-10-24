@@ -1587,7 +1587,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
 			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			proposalBySponsorTypes = proposalList.list();
-			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);	
+			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);
 		} catch (Exception e) {
 			logger.error("Error in method getProposalBySponsorTypesForDownload");
 			e.printStackTrace();
@@ -1597,12 +1597,12 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals) throws Exception {	
-		try {	
+	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals) throws Exception {
+		try {
 			logger.info("----------- getDashBoardDataOfProposalForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalList = session.createSQLQuery(
-					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE");		
+					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE");
 			proposals = proposalList.list();
 			logger.info("allProposals : " + proposals);
 		} catch (Exception e) {
@@ -1628,7 +1628,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where (T2.Person_Id = :personId or T1.Create_User = :createUser or t1.home_unit_number = :homeUnitNumber)");
 			proposalList.setString("personId", personId).setString("createUser", createUser).setString("homeUnitNumber", homeUnitNumber);
 			myProposals = proposalList.list();
-			logger.info("myProposals : " + myProposals);	
+			logger.info("myProposals : " + myProposals);
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardDataOfMyProposalForDownload");
 			e.printStackTrace();

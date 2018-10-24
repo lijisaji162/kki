@@ -197,8 +197,8 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of inprogress proposals.
-	 * @param personId
-	 * @param proposals for inprogress proposals data
+	 * @param personId - Logged in person Id.
+	 * @param proposals - for inprogress proposals data.
 	 * @return A list of inprogress proposals.
 	 * @throws Exception
 	 */
@@ -206,8 +206,8 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of submitted proposals.
-	 * @param personId
-	 * @param proposals for submitted proposals data
+	 * @param personId - Logged in person Id.
+	 * @param proposals - for submitted proposals data.
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
@@ -215,8 +215,8 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of active awards.
-	 * @param personId
-	 * @param awards for active awards data
+	 * @param personId - Logged in person Id.
+	 * @param awards - for active awards data.
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
@@ -224,9 +224,9 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of inprogress proposals by sponsor.
-	 * @param personId
+	 * @param personId - Logged in person Id.
 	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
-	 * @param proposals for inprogress proposals by sponsor data
+	 * @param proposals - for inprogress proposals by sponsor data.
 	 * @return A list of inprogress proposals by sponsor.
 	 * @throws Exception
 	 */
@@ -234,9 +234,9 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of awarded proposals by sponsor.
-	 * @param personId
-	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
-	 * @param proposals for awarded proposals by sponsor data
+	 * @param personId - Logged in person Id.
+	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart.
+	 * @param proposals - for awarded proposals by sponsor data.
 	 * @return A list of awarded proposals by sponsor.
 	 * @throws Exception
 	 */
@@ -244,9 +244,9 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of awards by sponsor types.
-	 * @param personId
-	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
-	 * @param awards for award by sponsor types data
+	 * @param personId - Logged in person Id.
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart.
+	 * @param awards for award by sponsor types data.
 	 * @return A list of awards by sponsor types.
 	 * @throws Exception
 	 */
@@ -254,17 +254,17 @@ public interface DashboardDao {
 
 	/**
 	 * This method is used to get list of proposals by sponsor types.
-	 * @param personId
-	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
-	 * @param proposals for proposal by sponsor types data
+	 * @param personId - Logged in person Id.
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart.
+	 * @param proposals - for proposal by sponsor types data.
 	 * @return A list of proposals by sponsor types.
 	 * @throws Exception
 	 */
 	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
 
 	/**
-	 * This method is used to get list of proposals.	
-	 * @param proposals for proposal data
+	 * This method is used to get list of proposals.
+	 * @param proposals - for proposal data.
 	 * @return A list of proposals.
 	 * @throws Exception
 	 */
@@ -273,7 +273,7 @@ public interface DashboardDao {
 	/**
 	 * This method is used to get list of my proposals.
 	 * @param vo - Object of CommonVO class.
-	 * @param proposals for my proposal data
+	 * @param proposals - for my proposal data.
 	 * @return A list of my proposals.
 	 * @throws Exception
 	 */
@@ -282,7 +282,7 @@ public interface DashboardDao {
 	/**
 	 * This method is used to get list of review pending proposals.
 	 * @param vo - Object of CommonVO class.
-	 * @param proposals for my proposal data
+	 * @param proposals - for my proposal data.
 	 * @return A list of my review pending proposals.
 	 * @throws Exception
 	 */
@@ -291,7 +291,7 @@ public interface DashboardDao {
 	/**
 	 * This method is used to get list of awards.
 	 * @param vo - Object of CommonVO class.
-	 * @param awards for award data
+	 * @param awards - for award data.
 	 * @return A list of awards.
 	 * @throws Exception
 	 */
@@ -300,7 +300,7 @@ public interface DashboardDao {
 	/**
 	 * This method is used to get list of protocols.
 	 * @param vo - Object of CommonVO class.
-	 * @param awards for award data
+	 * @param protocols - for protocol data.
 	 * @return A list of protocols.
 	 * @throws Exception
 	 */
