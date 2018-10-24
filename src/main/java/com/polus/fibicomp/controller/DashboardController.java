@@ -5,9 +5,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -61,4 +63,17 @@ public class DashboardController {
 		return dashboardService.getDonutChartDataBySponsor(vo);
 	}
 
+	@RequestMapping(value = "/exportResearchSummaryDatas", method = RequestMethod.POST)
+	public ResponseEntity<byte[]> exportResearchSummaryDatas(HttpServletRequest request, @RequestBody CommonVO vo) throws Exception {
+		XSSFWorkbook workbook = dashboardService.getXSSFWorkbookForResearchSummary(vo);
+		return dashboardService.getResponseEntityForExcelDownload(workbook);
+	}
+
+	@RequestMapping(value = "/exportDashboardDatas", method = RequestMethod.POST)
+	public ResponseEntity<byte[]> exportDashboardData(HttpServletRequest request, @RequestBody CommonVO vo) throws Exception {
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		workbook = dashboardService.getXSSFWorkbookForDashboard(vo, workbook);
+		return dashboardService.getResponseEntityForExcelDownload(workbook);
+	}
+	
 }

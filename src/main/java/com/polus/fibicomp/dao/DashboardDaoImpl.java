@@ -1469,4 +1469,227 @@ public class DashboardDaoImpl implements DashboardDao {
 		return proposalIds;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getInprogressProposalsForDownload(String personId,List<Object[]> inprogressProposals) throws Exception {
+		try {
+			logger.info("----------- getInprogressProposalsForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query progressProposalList = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI,  t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			progressProposalList.setString("personId", personId);
+			inprogressProposals = progressProposalList.list();
+			logger.info("Inprogress Proposals : " + inprogressProposals);
+		} catch (Exception e) {
+			logger.error("Error in method getInprogressProposalsForDownload");
+			e.printStackTrace();
+		}
+		return inprogressProposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getSubmittedProposalsForDownload(String personId,List<Object[]> submittedProposals) throws Exception {
+		try {
+			logger.info("----------- getSubmittedProposalsForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query subproposalList = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			subproposalList.setString("personId", personId);
+			submittedProposals = subproposalList.list();
+			logger.info("Submitted Proposals : " + submittedProposals);
+		} catch (Exception e) {
+			logger.error("Error in method getSubmittedProposalsForDownload");
+			e.printStackTrace();
+		}
+		return submittedProposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getActiveAwardsForDownload(String personId,List<Object[]> activeAwards) throws Exception {
+		try {
+			logger.info("----------- getActiveAwardsForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query activeAwardList = session.createSQLQuery(
+					"SELECT t1.award_number, t1.account_number, t1.title, t4.sponsor_name, t5.full_name  AS PI, t3.total_cost AS total_amount FROM award t1 INNER JOIN award_budget_ext t2 ON t1.award_id = t2.award_id INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN sponsor t4 ON t1.sponsor_code = t4.sponsor_code LEFT OUTER JOIN award_persons t5 ON t1.award_id = t5.award_id AND t5.contact_role_code = 'PI' WHERE t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Award' AND person_id = :personId)");
+			activeAwardList.setString("personId", personId);
+			activeAwards = activeAwardList.list();
+			logger.info("Active Awards : " + activeAwards);
+		} catch (Exception e) {
+			logger.error("Error in method getActiveAwardsForDownload");
+			e.printStackTrace();
+		}
+		return activeAwards;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> inProgressProposalsBySponsor) throws Exception {
+		try {
+			logger.info("----------- getInProgressProposalsBySponsorForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalQuery = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
+			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			inProgressProposalsBySponsor = proposalQuery.list();
+			logger.info("inProgressProposalsBySponsor : " + inProgressProposalsBySponsor);	
+		} catch (Exception e) {
+			logger.error("Error in method getInProgressProposalsBySponsorForDownload");
+			e.printStackTrace();
+		}
+		return inProgressProposalsBySponsor;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> awardedProposalsBySponsor) throws Exception {
+		try {
+			logger.info("----------- getAwardedProposalsBySponsorForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalQuery = session.createSQLQuery(
+					"select t1.proposal_number, t1.title, T6.description as PROPOSAL_TYPE, t5.DESCRIPTION as ACTIVITY_TYPE, t4.full_name AS PI from proposal t1 INNER JOIN SPONSOR t2 on t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN PROPOSAL_PERSONS t4 ON t1.proposal_id = t4.proposal_id AND t4.CONTACT_ROLE_CODE = 'PI' INNER JOIN ACTIVITY_TYPE t5 on t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN PROPOSAL_TYPE t6 on T1.PROPOSAL_TYPE_CODE = T6.PROPOSAL_TYPE_CODE where  t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.sponsor_code = :sponsorCode and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId )");
+			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			awardedProposalsBySponsor = proposalQuery.list();
+			logger.info("awardedProposalsBySponsor : " + awardedProposalsBySponsor);
+		} catch (Exception e) {
+			logger.error("Error in method getAwardedProposalsBySponsorForDownload");
+			e.printStackTrace();
+		}
+		return awardedProposalsBySponsor;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> awardBySponsorTypes) throws Exception {
+		try {
+			logger.info("----------- getAwardBySponsorTypesForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query awardList = session.createSQLQuery(
+					"SELECT t1.award_number, t1.account_number, t1.title, t2.sponsor_name, t3.full_name AS PI FROM award t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN award_persons t3 ON t1.award_id = t3.award_id AND t3.contact_role_code = 'PI' WHERE t2.sponsor_type_code = :sponsorCode and t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Award' AND person_id = :personId)");
+			awardList.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			awardBySponsorTypes = awardList.list();
+			logger.info("awardsBySponsorTypes : " + awardBySponsorTypes);
+		} catch (Exception e) {
+			logger.error("Error in method getAwardBySponsorTypesForDownload");
+			e.printStackTrace();
+		}
+		return awardBySponsorTypes;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> proposalBySponsorTypes) throws Exception {	
+		try {
+			logger.info("----------- getProposalBySponsorTypesForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			proposalBySponsorTypes = proposalList.list();
+			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);	
+		} catch (Exception e) {
+			logger.error("Error in method getProposalBySponsorTypesForDownload");
+			e.printStackTrace();
+		}
+		return proposalBySponsorTypes;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals) throws Exception {	
+		try {	
+			logger.info("----------- getDashBoardDataOfProposalForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE");		
+			proposals = proposalList.list();
+			logger.info("allProposals : " + proposals);
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataOfProposalForDownload");
+			e.printStackTrace();
+		}
+		return proposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getDashBoardDataOfMyProposalForDownload(CommonVO vo,List<Object[]> myProposals) throws Exception {
+		try {
+			logger.info("----------- getDashBoardDataOfMyProposalForDownload ------------");
+			String homeUnitNumber = vo.getUnitNumber();
+			String createUser = vo.getUserName();
+			String personId = vo.getPersonId();
+			logger.info("homeUnitNumber : " + homeUnitNumber);
+			logger.info("createUser : " + createUser);
+			logger.info("personId : " + personId);
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where (T2.Person_Id = :personId or T1.Create_User = :createUser or t1.home_unit_number = :homeUnitNumber)");
+			proposalList.setString("personId", personId).setString("createUser", createUser).setString("homeUnitNumber", homeUnitNumber);
+			myProposals = proposalList.list();
+			logger.info("myProposals : " + myProposals);	
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataOfMyProposalForDownload");
+			e.printStackTrace();
+		}
+		return myProposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getDashBoardDataOfReviewPendingProposalForDownload(CommonVO vo,List<Object[]> pendingReviewProposals) throws Exception {
+		try {
+			logger.info("----------- getDashBoardDataOfReviewPendingProposalForDownload ------------");
+			String personId = vo.getPersonId();
+			logger.info("personId : " + personId);
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SUBMISSION_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId");
+			 proposalList.setString("personId", personId);
+			pendingReviewProposals = proposalList.list();
+			logger.info("pendingReviewProposals : " + pendingReviewProposals);
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataOfReviewPendingProposalForDownload");
+			e.printStackTrace();
+		}
+		return pendingReviewProposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getDashBoardDataForAwardForDownload(String personId, String sponsorCode,List<Object[]> awards) throws Exception {
+		try {
+			logger.info("----------- getDashBoardDataForAwardForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			awards = proposalList.list();
+			logger.info("dashBoardDataForAward : " + awards);
+		} catch (Exception e) {
+			logger.error("Error in method getDashBoardDataForAwardForDownload");
+			e.printStackTrace();
+		}
+		return awards;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getProtocolDashboardDataForDownload(String personId, String sponsorCode,List<Object[]> protocols) throws Exception {
+		try {
+			logger.info("----------- getProtocolDashboardDataForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
+			protocols = proposalList.list();
+			logger.info("dashBoardDataForProtocols : " + protocols);
+		} catch (Exception e) {
+			logger.error("Error in method getProtocolDashboardDataForDownload");
+			e.printStackTrace();
+		}
+		return protocols;
+	}
+
 }

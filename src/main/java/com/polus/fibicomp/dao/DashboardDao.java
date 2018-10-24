@@ -195,4 +195,114 @@ public interface DashboardDao {
 
 	public List<Integer> getApprovalInprogressProposalIds(String personId, String approvalStatusCode, Integer moduleCode);
 
+	/**
+	 * This method is used to get list of inprogress proposals.
+	 * @param personId
+	 * @param proposals for inprogress proposals data
+	 * @return A list of inprogress proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getInprogressProposalsForDownload(String personId,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of submitted proposals.
+	 * @param personId
+	 * @param proposals for submitted proposals data
+	 * @return A list of submitted proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getSubmittedProposalsForDownload(String personId,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of active awards.
+	 * @param personId
+	 * @param awards for active awards data
+	 * @return A list of submitted proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getActiveAwardsForDownload(String personId,List<Object[]> awards) throws Exception;
+
+	/**
+	 * This method is used to get list of inprogress proposals by sponsor.
+	 * @param personId
+	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
+	 * @param proposals for inprogress proposals by sponsor data
+	 * @return A list of inprogress proposals by sponsor.
+	 * @throws Exception
+	 */
+	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of awarded proposals by sponsor.
+	 * @param personId
+	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
+	 * @param proposals for awarded proposals by sponsor data
+	 * @return A list of awarded proposals by sponsor.
+	 * @throws Exception
+	 */
+	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of awards by sponsor types.
+	 * @param personId
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
+	 * @param awards for award by sponsor types data
+	 * @return A list of awards by sponsor types.
+	 * @throws Exception
+	 */
+	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> awards) throws Exception;
+
+	/**
+	 * This method is used to get list of proposals by sponsor types.
+	 * @param personId
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
+	 * @param proposals for proposal by sponsor types data
+	 * @return A list of proposals by sponsor types.
+	 * @throws Exception
+	 */
+	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of proposals.	
+	 * @param proposals for proposal data
+	 * @return A list of proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of my proposals.
+	 * @param vo - Object of CommonVO class.
+	 * @param proposals for my proposal data
+	 * @return A list of my proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getDashBoardDataOfMyProposalForDownload(CommonVO vo,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of review pending proposals.
+	 * @param vo - Object of CommonVO class.
+	 * @param proposals for my proposal data
+	 * @return A list of my review pending proposals.
+	 * @throws Exception
+	 */
+	public List<Object[]> getDashBoardDataOfReviewPendingProposalForDownload(CommonVO vo,List<Object[]> proposals) throws Exception;
+
+	/**
+	 * This method is used to get list of awards.
+	 * @param vo - Object of CommonVO class.
+	 * @param awards for award data
+	 * @return A list of awards.
+	 * @throws Exception
+	 */
+	public List<Object[]> getDashBoardDataForAwardForDownload(String personId, String sponsorCode,List<Object[]> awards) throws Exception;
+
+	/**
+	 * This method is used to get list of protocols.
+	 * @param vo - Object of CommonVO class.
+	 * @param awards for award data
+	 * @return A list of protocols.
+	 * @throws Exception
+	 */
+	public List<Object[]> getProtocolDashboardDataForDownload(String personId, String sponsorCode,List<Object[]> protocols) throws Exception;
 }
