@@ -12,6 +12,7 @@ import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.Unit;
+import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -138,5 +139,11 @@ public interface ProposalDao {
 	 * @return A list of units.
 	 */
 	public List<Unit> fetchAllUnits();
+
+	/**
+	 * This method is used to fetch all NarrativeStatus.
+	 * @return A list of NarrativeStatus.
+	 */
+	public List<NarrativeStatus> fetchAllNarrativeStatus();
 
 }
