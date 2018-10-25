@@ -585,6 +585,7 @@ public class ProposalServiceImpl implements ProposalService {
 		approvalTypeCodes.add("6");
 		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
 		proposalVO.setDepartments(proposalDao.fetchAllUnits());
+		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
@@ -812,6 +813,8 @@ public class ProposalServiceImpl implements ProposalService {
 			attachmentDetail.setMimeType(copiedAttachmentDetail.getMimeType());
 			attachmentDetail.setUpdateUser(updateUser);
 			attachmentDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+			attachmentDetail.setNarrativeStatusCode(copiedAttachmentDetail.getNarrativeStatusCode());
+			attachmentDetail.setNarrativeStatus(copiedAttachmentDetail.getNarrativeStatus());
 			newAttachments.add(attachmentDetail);
 		}
 		return newAttachments;

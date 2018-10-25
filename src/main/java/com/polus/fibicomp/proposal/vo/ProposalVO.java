@@ -20,6 +20,7 @@ import com.polus.fibicomp.pojo.ScienceKeyword;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.SponsorType;
 import com.polus.fibicomp.pojo.Unit;
+import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -158,6 +159,8 @@ public class ProposalVO {
 	private Boolean isDeclarationSectionRequired = false;
 
 	private List<Unit> departments;
+
+	private List<NarrativeStatus> narrativeStatus;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -665,6 +668,14 @@ public class ProposalVO {
 
 	public void setDepartments(List<Unit> departments) {
 		this.departments = departments;
+	}
+
+	public List<NarrativeStatus> getNarrativeStatus() {
+		return narrativeStatus;
+	}
+
+	public void setNarrativeStatus(List<NarrativeStatus> narrativeStatus) {
+		this.narrativeStatus = narrativeStatus;
 	}
 
 }

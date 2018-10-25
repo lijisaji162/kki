@@ -26,6 +26,7 @@ import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.Unit;
+import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
@@ -231,6 +232,11 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public List<Unit> fetchAllUnits() {
 		return hibernateTemplate.loadAll(Unit.class);
+	}
+
+	@Override
+	public List<NarrativeStatus> fetchAllNarrativeStatus() {
+		return hibernateTemplate.loadAll(NarrativeStatus.class);
 	}
 
 }
