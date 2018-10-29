@@ -122,5 +122,7 @@ public interface Constants {
 
   	//Module Code
   	Integer MODULE_CODE_PROPOSAL = 1;
+  	//Attachment Status
+  	String NARRATIVE_STATUS_CODE_INCOMPLETE = "I";
 
 }

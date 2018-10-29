@@ -128,6 +128,10 @@ public class BudgetDetail implements Serializable {
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK4_FIBI_BUDGET_DETAIL"), name = "TBN_ID", referencedColumnName = "TBN_ID", insertable = false, updatable = false)
 	private TbnPerson tbnPerson;
 
+	@Column(name = "IS_APPLY_INFLATION_RATE")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isApplyInflationRate = true;
+
 	public BudgetDetail () {
 		budgetDetailCalcAmounts = new ArrayList<>();
 		budgetRateAndBases = new ArrayList<>();
@@ -359,6 +363,14 @@ public class BudgetDetail implements Serializable {
 
 	public void setTbnPerson(TbnPerson tbnPerson) {
 		this.tbnPerson = tbnPerson;
+	}
+
+	public Boolean getIsApplyInflationRate() {
+		return isApplyInflationRate;
+	}
+
+	public void setIsApplyInflationRate(Boolean isApplyInflationRate) {
+		this.isApplyInflationRate = isApplyInflationRate;
 	}
 
 }

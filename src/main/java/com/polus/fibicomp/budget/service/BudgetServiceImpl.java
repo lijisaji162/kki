@@ -818,12 +818,12 @@ public class BudgetServiceImpl implements BudgetService {
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
 					if (budgetDetail.getBudgetDetailId() != null && budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
-						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
+						//budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 					if (updatedlist.size() <= 2) {
-						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
+						//budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
@@ -832,6 +832,7 @@ public class BudgetServiceImpl implements BudgetService {
 				budgetPeriod.getBudgetDetails().addAll(updatedlist);
 			}
 		}
+		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
 			proposal = calculateCost(proposal);			
 		}
@@ -1000,6 +1001,23 @@ public class BudgetServiceImpl implements BudgetService {
 					}
 				}
 				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+					if(budgetDetail.getIsApplyInflationRate().equals(true)) {
+						lineItemCost = lineItemCost.add(updatedLineItemCost);
+						if (lineItemCost != null) {
+							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+						}
+					} else {
+						//lineItemCost = lineItemCost.subtract(updatedLineItemCost);
+						if (lineItemCost != null) {
+							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+						}
+					}
+				} else {
+					if (lineItemCost != null) {
+						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+					}
+				}
+				/*if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
 					lineItemCost = lineItemCost.add(updatedLineItemCost);
 					if (lineItemCost != null) {
 						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -1008,7 +1026,7 @@ public class BudgetServiceImpl implements BudgetService {
 					if (lineItemCost != null) {
 						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 					}
-				}
+				}*/
 				detail.setLineItemDescription(budgetDetail.getLineItemDescription());
 				detail.setLineItemNumber(budgetDetail.getLineItemNumber());
 				detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());

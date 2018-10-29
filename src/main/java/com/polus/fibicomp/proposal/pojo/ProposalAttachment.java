@@ -63,7 +63,7 @@ public class ProposalAttachment implements Serializable {
 	private String updateUser;
 
 	@Column(name = "NARRATIVE_STATUS_CODE")
-	private Integer narrativeStatusCode;
+	private String narrativeStatusCode;
 
 	@ManyToOne(optional = false)
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK3_FIBI_PROP_ATTACHMENTS"), name = "NARRATIVE_STATUS_CODE", referencedColumnName = "NARRATIVE_STATUS_CODE", insertable = false, updatable = false)
@@ -153,20 +153,20 @@ public class ProposalAttachment implements Serializable {
 		return serialVersionUID;
 	}
 
-	public Integer getNarrativeStatusCode() {
-		return narrativeStatusCode;
-	}
-
-	public void setNarrativeStatusCode(Integer narrativeStatusCode) {
-		this.narrativeStatusCode = narrativeStatusCode;
-	}
-
 	public NarrativeStatus getNarrativeStatus() {
 		return narrativeStatus;
 	}
 
 	public void setNarrativeStatus(NarrativeStatus narrativeStatus) {
 		this.narrativeStatus = narrativeStatus;
+	}
+
+	public String getNarrativeStatusCode() {
+		return narrativeStatusCode;
+	}
+
+	public void setNarrativeStatusCode(String narrativeStatusCode) {
+		this.narrativeStatusCode = narrativeStatusCode;
 	}
 
 }
