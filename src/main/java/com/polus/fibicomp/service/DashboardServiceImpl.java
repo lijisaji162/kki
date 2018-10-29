@@ -8,12 +8,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.IOUtils;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.DashboardDao;
 import com.polus.fibicomp.pojo.ActionItem;
@@ -293,39 +308,195 @@ public class DashboardServiceImpl implements DashboardService {
 		return "";
 	}
 
-	public ResponseEntity<byte[]> getResponseEntityForExcelDownload(XSSFWorkbook workbook) throws Exception {
-		File file = new File("DashboardData.xlsx");
-		FileOutputStream outputStream = new FileOutputStream(file);
+	private int getColumnsCount(XSSFSheet xssfSheet) {
+		int columnCount = 0;
+		Iterator<Row> rowIterator = xssfSheet.iterator();
+		while (rowIterator.hasNext()) {
+			Row row = rowIterator.next();
+			List<Cell> cells = new ArrayList<>();
+			Iterator<Cell> cellIterator = row.cellIterator();
+			while (cellIterator.hasNext()) {
+				cells.add(cellIterator.next());
+			}
+			for (int cellIndex = cells.size(); cellIndex >= 0; cellIndex--) {
+				Cell cell = cells.get(cellIndex - 1);
+				if (cell.toString().trim().isEmpty()) {
+					cells.remove(cellIndex - 1);
+				} else {
+					columnCount = cells.size() > columnCount ? cells.size() : columnCount;
+					break;
+				}
+			}
+		}
+		return columnCount;
+	}
+
+	private File generatePDFFile(File pdfFile, File excelFile, String documentHeading) {
+		try {
+			FileInputStream inputStream = new FileInputStream(excelFile);
+			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+			if (workbook.getNumberOfSheets() != 0) {
+				XSSFSheet worksheet = workbook.getSheetAt(0);
+				Iterator<Row> rowIterator = worksheet.iterator();
+				Document document = new Document();
+				pdfFile = new File("PDFFile.pdf");
+				FileOutputStream outputStream = new FileOutputStream(pdfFile);
+				PdfWriter.getInstance(document, outputStream);
+				document.open();
+				Paragraph paragraph = new Paragraph(documentHeading);
+				paragraph.setAlignment(Element.ALIGN_CENTER);
+				document.add(paragraph);
+				document.add(Chunk.NEWLINE);
+				int columnCount = getColumnsCount(worksheet);
+				PdfPTable table = new PdfPTable(columnCount);
+				PdfPCell table_cell;
+				Font tableHeadingFont = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.BOLD);
+				Font tableBodyFont = new Font(Font.FontFamily.TIMES_ROMAN, 10, Font.NORMAL);
+				while (rowIterator.hasNext()) {
+					Row row = rowIterator.next();
+					int rowIndex = row.getRowNum();
+					Iterator<Cell> cellIterator = row.cellIterator();
+					while (cellIterator.hasNext()) {
+						Cell cell = cellIterator.next();
+						switch (cell.getCellType()) {
+						case Cell.CELL_TYPE_STRING:
+							if (rowIndex == 0) {
+							} else if (rowIndex == 1) {
+								table_cell = new PdfPCell(new Phrase(cell.getStringCellValue(), tableHeadingFont));
+								table.addCell(table_cell);
+							} else {
+								table_cell = new PdfPCell(new Phrase(cell.getStringCellValue(), tableBodyFont));
+								table.addCell(table_cell);
+							}
+							break;
+						}
+					}
+				}
+				document.add(table);
+				document.close();
+				inputStream.close();
+			}
+		} catch (Exception e) {
+			logger.error("Error in method generatePDFFile", e);
+		}
+		return pdfFile;
+	}
+
+	private MultipartFile generateMultiPartFile(MultipartFile multipartFile, File file) {
+		try {
+			FileInputStream inputStream = new FileInputStream(file);
+			multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(inputStream));
+			inputStream.close();
+		} catch (Exception e) {
+			logger.error("Error in method generateMultiPartFile", e);
+		}
+		return multipartFile;
+	}
+
+	@Override
+	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception {
+		logger.info("---------getResponseEntityForExcelDownload---------");
+		File excelFile = new File("ExcelFile.xlsx");
+		FileOutputStream outputStream = new FileOutputStream(excelFile);
 		workbook.write(outputStream);
 		outputStream.close();
-		FileInputStream inputStream = new FileInputStream(file);
-		MultipartFile multipartFile = new MockMultipartFile("file", file.getName(), "text/plain",IOUtils.toByteArray(inputStream));
-		inputStream.close();
+		String exportType = vo.getExportType();
+		String documentHeading = vo.getDocumentHeading();
+		logger.info("exportType : " + exportType);
+		logger.info("documentHeading : " + documentHeading);
+		File pdfFile = null;
+		MultipartFile multipartFile = null;
+		if (exportType.equals("pdf")) {
+			pdfFile = generatePDFFile(pdfFile, excelFile, documentHeading);
+			multipartFile = generateMultiPartFile(multipartFile, pdfFile);
+		} else {
+			multipartFile = generateMultiPartFile(multipartFile, excelFile);
+		}
+		return getResponseEntity(multipartFile);
+	}
+
+	private ResponseEntity<byte[]> getResponseEntity(MultipartFile multipartFile) {
 		ResponseEntity<byte[]> dashboardData = null;
-		byte[] bytes = multipartFile.getBytes();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
-		headers.setContentDispositionFormData("DashboardData.xlsx", "DashboardData.xlsx");
-		headers.setContentLength(bytes.length);
-		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-		headers.setPragma("public");
-		dashboardData = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+		try {
+			byte[] bytes = multipartFile.getBytes();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
+			headers.setContentLength(bytes.length);
+			headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+			headers.setPragma("public");
+			dashboardData = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.error("Error in method getResponseEntity", e);
+		}
 		return dashboardData;
 	}
 
-	public void prepareExcelSheet(List<Object[]> dashboardData, XSSFSheet sheet, Object[] tableHeadingRow) {
-		Row headingRow = sheet.createRow(1);
-		int headingCellNumber = 0;
-		for (Object heading : tableHeadingRow) {
-			Cell cell = headingRow.createCell(headingCellNumber++);
-			cell.setCellValue((String) heading);
+	private void autoSizeColumns(XSSFWorkbook workbook) {
+		int numberOfSheets = workbook.getNumberOfSheets();
+		for (int i = 0; i < numberOfSheets; i++) {
+			XSSFSheet sheet = workbook.getSheetAt(i);
+			if (sheet.getPhysicalNumberOfRows() > 0) {
+				Row row = sheet.getRow(1);
+				Iterator<Cell> cellIterator = row.cellIterator();
+				while (cellIterator.hasNext()) {
+					Cell cell = cellIterator.next();
+					int columnIndex = cell.getColumnIndex();
+					sheet.autoSizeColumn(columnIndex);
+				}
+			}
 		}
+	}
+
+	private void prepareExcelSheet(List<Object[]> dashboardData, XSSFSheet sheet, Object[] tableHeadingRow, XSSFWorkbook workbook, CommonVO vo) {
+		int headingCellNumber = 0;
+		String documentHeading = vo.getDocumentHeading();
+		logger.info("documentHeading : " + documentHeading);
+		// Excel sheet heading style and font creation code.
+		Row headerRow = sheet.createRow(0);
+		Cell headingCell = headerRow.createCell(0);
+		headingCell.setCellValue((String) documentHeading);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, tableHeadingRow.length - 1));
+		XSSFFont headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerFont.setFontHeightInPoints((short) 15);
+		XSSFCellStyle headerStyle = workbook.createCellStyle();
+		headerStyle.setAlignment(CellStyle.ALIGN_CENTER);
+		headerStyle.setFont(headerFont);
+		headingCell.setCellStyle(headerStyle);
+		// Table head style and font creation code.
+		Row tableHeadRow = sheet.createRow(1);
+		XSSFCellStyle tableHeadStyle = workbook.createCellStyle();
+		tableHeadStyle.setBorderTop(BorderStyle.HAIR);
+		tableHeadStyle.setBorderBottom(BorderStyle.HAIR);
+		tableHeadStyle.setBorderLeft(BorderStyle.HAIR);
+		tableHeadStyle.setBorderRight(BorderStyle.HAIR);
+		XSSFFont tableHeadFont = workbook.createFont();
+		tableHeadFont.setBold(true);
+		tableHeadFont.setFontHeightInPoints((short) 12);
+		tableHeadStyle.setFont(tableHeadFont);
+		// Table body style and font creation code.
+		XSSFCellStyle tableBodyStyle = workbook.createCellStyle();
+		tableBodyStyle.setBorderTop(BorderStyle.HAIR);
+		tableBodyStyle.setBorderBottom(BorderStyle.HAIR);
+		tableBodyStyle.setBorderLeft(BorderStyle.HAIR);
+		tableBodyStyle.setBorderRight(BorderStyle.HAIR);
+		XSSFFont tableBodyFont = workbook.createFont();
+		tableBodyFont.setFontHeightInPoints((short) 12);
+		tableBodyStyle.setFont(tableBodyFont);
+		// Set table head data to each column.
+		for (Object heading : tableHeadingRow) {
+			Cell cell = tableHeadRow.createCell(headingCellNumber++);
+			cell.setCellValue((String) heading);
+			cell.setCellStyle(tableHeadStyle);
+		}
+		// Set table body data to each column.
 		int rowNumber = 2;
 		for (Object[] objectArray : dashboardData) {
 			Row row = sheet.createRow(rowNumber++);
 			int cellNumber = 0;
 			for (Object objectData : objectArray) {
 				Cell cell = row.createCell(cellNumber++);
+				cell.setCellStyle(tableBodyStyle);
 				if (objectData instanceof String)
 					cell.setCellValue((String) objectData);
 				else if (objectData instanceof Integer)
@@ -340,14 +511,19 @@ public class DashboardServiceImpl implements DashboardService {
 						String dateValue = dateFormat.format(date);
 						cell.setCellValue((String) dateValue);
 					}
+				} else if (objectData == null) {
+					cell.setCellValue((String) " ");
 				}
 			}
 		}
+		// Adjust size of table columns according to length of table data.
+		autoSizeColumns(workbook);
 	}
 
 	@Override
-	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo,XSSFWorkbook workbook) throws Exception {
+	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo) throws Exception {
 		logger.info("---------getXSSFWorkbookForDashboard---------");
+		XSSFWorkbook workbook = new XSSFWorkbook();
 		List<Object[]> dashboardData = new ArrayList<Object[]>();
 		String requestType = vo.getTabIndex();
 		logger.info("requestType : " + requestType);
@@ -360,26 +536,26 @@ public class DashboardServiceImpl implements DashboardService {
 						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo,dashboardData);
 						XSSFSheet sheet = workbook.createSheet("My Proposals");
 						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-						prepareExcelSheet(dashboardData,sheet,tableHeadingRow);
+						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
 						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
 						if (proposalIds != null && !proposalIds.isEmpty()) {
 							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,dashboardData);
 							XSSFSheet sheet = workbook.createSheet("Pending Review");
 							Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-							prepareExcelSheet(dashboardData,sheet,tableHeadingRow);
+							prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 						}
 					} else {
 						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 						XSSFSheet sheet = workbook.createSheet("All Proposals");
 						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-						prepareExcelSheet(dashboardData,sheet,tableHeadingRow);
+						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 					}
 				} else {
 					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 					XSSFSheet sheet = workbook.createSheet("Proposals");
 					Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-					prepareExcelSheet(dashboardData,sheet,tableHeadingRow);
+					prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 				}
 			}
 		} catch (Exception e) {
@@ -404,37 +580,37 @@ public class DashboardServiceImpl implements DashboardService {
 				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
 				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("AWARDSACTIVE")) {
 				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Active Awards");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI", "Budget"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("INPROGRESS")) {
 				dashboardData = dashboardDao.getInProgressProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Type", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("AWARDED")) {
 				dashboardData = dashboardDao.getAwardedProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awarded Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Award#", "Title", "Type", "Activity Type", "PI"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("AWARD")) {
 				dashboardData = dashboardDao.getAwardBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awards by sponsor types");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			} else if (dashboardIndex.equals("PROPOSAL")) {
 				dashboardData = dashboardDao.getProposalBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Proposal by sponsor types");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Proposal Type", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
 			}
 		} catch (Exception e) {
 			logger.error("Error in method getXSSFWorkbookForResearchSummary", e);

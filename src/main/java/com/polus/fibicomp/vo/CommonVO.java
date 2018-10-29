@@ -107,6 +107,10 @@ public class CommonVO {
 	private Integer ostprojectId;
 
 	private String proposalTabName;
+	
+	private String exportType;
+	
+	private String documentHeading;
 
 	public String getUserName() {
 		return userName;
@@ -491,5 +495,21 @@ public class CommonVO {
 	public void setProposalTabName(String proposalTabName) {
 		this.proposalTabName = proposalTabName;
 	}
+
+	public String getExportType() {
+		return exportType;
+	}
+
+	public void setExportType(String exportType) {
+		this.exportType = exportType;
+	}
+
+	public String getDocumentHeading() {
+		return documentHeading;
+	}
+
+	public void setDocumentHeading(String documentHeading) {
+		this.documentHeading = documentHeading;
+	}	
 
 }
