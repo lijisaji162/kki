@@ -77,8 +77,8 @@ public class Proposal implements Serializable {
 	@Column(name = "SUBMISSION_DATE")
 	private Timestamp submissionDate;
 
-	@Column(name = "IS_SMU")
-	private Boolean isSmu;
+	@Column(name = "INTERNAL_DEADLINE_DATE")
+	private Timestamp internalDeadLineDate;
 
 	@Column(name = "ABSTRACT_DESC")
 	private String abstractDescription;
@@ -273,14 +273,6 @@ public class Proposal implements Serializable {
 
 	public void setSubmissionDate(Timestamp submissionDate) {
 		this.submissionDate = submissionDate;
-	}
-
-	public Boolean getIsSmu() {
-		return isSmu;
-	}
-
-	public void setIsSmu(Boolean isSmu) {
-		this.isSmu = isSmu;
 	}
 
 	public String getAbstractDescription() {
@@ -528,6 +520,14 @@ public class Proposal implements Serializable {
 
 	public void setSponsorProposalNumber(String sponsorProposalNumber) {
 		this.sponsorProposalNumber = sponsorProposalNumber;
+	}
+
+	public Timestamp getInternalDeadLineDate() {
+		return internalDeadLineDate;
+	}
+
+	public void setInternalDeadLineDate(Timestamp internalDeadLineDate) {
+		this.internalDeadLineDate = internalDeadLineDate;
 	}
 
 }

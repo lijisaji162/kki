@@ -56,7 +56,7 @@ public class ProposalVO {
 
 	private List<ProposalPersonRole> proposalPersonRoles;
 
-	private ProposalAttachment newAttachment;
+	private List<ProposalAttachment> newAttachments;
 
 	private List<ProposalExcellenceArea> proposalExcellenceAreas;
 
@@ -244,14 +244,6 @@ public class ProposalVO {
 
 	public void setProposalPersonRoles(List<ProposalPersonRole> proposalPersonRoles) {
 		this.proposalPersonRoles = proposalPersonRoles;
-	}
-
-	public ProposalAttachment getNewAttachment() {
-		return newAttachment;
-	}
-
-	public void setNewAttachment(ProposalAttachment newAttachment) {
-		this.newAttachment = newAttachment;
 	}
 
 	public List<ProposalExcellenceArea> getProposalExcellenceAreas() {
@@ -676,6 +668,14 @@ public class ProposalVO {
 
 	public void setNarrativeStatus(List<NarrativeStatus> narrativeStatus) {
 		this.narrativeStatus = narrativeStatus;
+	}
+
+	public List<ProposalAttachment> getNewAttachments() {
+		return newAttachments;
+	}
+
+	public void setNewAttachments(List<ProposalAttachment> newAttachments) {
+		this.newAttachments = newAttachments;
 	}
 
 }

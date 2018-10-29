@@ -207,4 +207,11 @@ public class ProposalController {
 		return proposalService.copyProposal(vo);
 	}
 
+	/*@RequestMapping(value = "/fetchRouteLog", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public List<WorkflowDetail> fetchRouteLog(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for fetchRouteLog");
+		logger.info("proposalId : " + vo.getProposalId());
+		return proposalService.fetchRouteLog(vo.getProposalId());
+	}*/
+
 }

@@ -144,19 +144,25 @@ public class ProposalServiceImpl implements ProposalService {
 			ObjectMapper mapper = new ObjectMapper();
 			proposalVO = mapper.readValue(formDataJSON, ProposalVO.class);
 			Proposal proposal = proposalVO.getProposal();
-			ProposalAttachment newAttachment = proposalVO.getNewAttachment();
+			List<ProposalAttachment> newAttachments = proposalVO.getNewAttachments();
 			List<ProposalAttachment> proposalAttachments = new ArrayList<ProposalAttachment>();
 			for (int i = 0; i < files.length; i++) {
-				ProposalAttachment proposalAttachment = new ProposalAttachment();
-				proposalAttachment.setAttachmentType(newAttachment.getAttachmentType());
-				proposalAttachment.setAttachmentTypeCode(newAttachment.getAttachmentTypeCode());
-				proposalAttachment.setDescription(newAttachment.getDescription());
-				proposalAttachment.setUpdateTimeStamp(newAttachment.getUpdateTimeStamp());
-				proposalAttachment.setUpdateUser(newAttachment.getUpdateUser());
-				proposalAttachment.setAttachment(files[i].getBytes());
-				proposalAttachment.setFileName(files[i].getOriginalFilename());
-				proposalAttachment.setMimeType(files[i].getContentType());
-				proposalAttachments.add(proposalAttachment);
+				for (ProposalAttachment newAttachment : newAttachments) {
+					if (newAttachment.getFileName().equals(files[i].getOriginalFilename())) {
+						ProposalAttachment proposalAttachment = new ProposalAttachment();
+						proposalAttachment.setAttachmentType(newAttachment.getAttachmentType());
+						proposalAttachment.setAttachmentTypeCode(newAttachment.getAttachmentTypeCode());
+						proposalAttachment.setDescription(newAttachment.getDescription());
+						proposalAttachment.setUpdateTimeStamp(newAttachment.getUpdateTimeStamp());
+						proposalAttachment.setUpdateUser(newAttachment.getUpdateUser());
+						proposalAttachment.setAttachment(files[i].getBytes());
+						proposalAttachment.setFileName(files[i].getOriginalFilename());
+						proposalAttachment.setNarrativeStatus(newAttachment.getNarrativeStatus());
+						proposalAttachment.setNarrativeStatusCode(newAttachment.getNarrativeStatusCode());
+						proposalAttachment.setMimeType(files[i].getContentType());
+						proposalAttachments.add(proposalAttachment);
+					}
+				}
 			}
 			proposal.getProposalAttachments().addAll(proposalAttachments);
 		} catch (Exception e) {
@@ -496,6 +502,20 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}			
 			if (isFinalApprover && actionType.equals("A")) {
+				/*List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
+				for(ProposalAttachment proposalAttachment : proposalAttachments) {
+					if(proposalAttachment.getNarrativeStatusCode().equals(Constants.NARRATIVE_STATUS_CODE_INCOMPLETE)) {
+						String incompleteAttachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+								+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+								+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+								+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+								+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+								+ proposal.getProposalId() +"\">this link</a> "
+								+ "to review the application.";
+						String incompleteAttachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
+						fibiEmailService.sendEmail(toAddresses, incompleteAttachmentSubject, null, null, incompleteAttachmentMessage, true);
+					}
+				}*/
 				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
 				logger.info("Initial IP Number : " + ipNumber);
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
@@ -674,7 +694,12 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public String copyProposal(ProposalVO vo) {
-		Proposal originalProposal = vo.getProposal();
+		Proposal originalProposal = null;
+		if(vo.getProposal() != null) {
+			originalProposal = vo.getProposal();
+		} else {
+			originalProposal = proposalDao.fetchProposalById(vo.getProposalId());
+		}
 		originalProposal = proposalDao.saveOrUpdateProposal(originalProposal);
 		Proposal copyProposal = new Proposal();
 		copyProposalMandatoryFields(copyProposal, originalProposal, vo.getUserFullName());
@@ -719,7 +744,8 @@ public class ProposalServiceImpl implements ProposalService {
 		copyProposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
 		// copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
-		copyProposal.setIsSmu(originalProposal.getIsSmu());
+		//copyProposal.setIsSmu(originalProposal.getIsSmu());
+		//copyProposal.setInternalDeadLineDate(originalProposal.getInternalDeadLineDate());
 		copyProposal.setAbstractDescription(originalProposal.getAbstractDescription());
 		copyProposal.setResearchDescription(originalProposal.getResearchDescription());
 		copyProposal.setCreateUser(updateUser);
@@ -927,11 +953,22 @@ public class ProposalServiceImpl implements ProposalService {
 					}
 				}
 				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+					if(budgetDetail.getIsApplyInflationRate().equals(true)) {
+						lineItemCost = lineItemCost.add(updatedLineItemCost);
+						copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+					} else {
+						//lineItemCost = lineItemCost.subtract(updatedLineItemCost);
+						copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+					}
+				} else {
+						copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+				}
+				/*if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
 					lineItemCost = lineItemCost.add(updatedLineItemCost);
 					copyBudgetDetail.setLineItemCost(lineItemCost);
 				} else {
 					copyBudgetDetail.setLineItemCost(lineItemCost);
-				}
+				}*/
 				copyBudgetDetail.setLineItemDescription(budgetDetail.getLineItemDescription());
 				copyBudgetDetail.setLineItemNumber(budgetDetail.getLineItemNumber());
 				copyBudgetDetail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
@@ -1069,5 +1106,13 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 		workflow.setWorkflowDetailMap(workflowDetailMap);
 	}
+
+/*	@Override
+	public List<WorkflowDetail> fetchRouteLog(Integer proposalId) {
+		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposalId);
+		List<WorkflowDetail> workflowDetail = new ArrayList<WorkflowDetail>();
+		workflowDetail = workflowDao.fetchWorkflowDetailByWorkflowId(workflow.getWorkflowId());
+		return workflowDetail;
+	}*/
 
 }
