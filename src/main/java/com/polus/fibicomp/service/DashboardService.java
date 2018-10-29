@@ -113,7 +113,7 @@ public interface DashboardService {
 	 * @return XSSFWorkbookthat contains excel sheet with data.
 	 * @throws Exception
 	 */
-	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo, XSSFWorkbook workbook) throws Exception;
+	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo) throws Exception;
 
 	/**
 	 * This method is used to get excel sheet in byte array format.
@@ -121,6 +121,6 @@ public interface DashboardService {
 	 * @return ResponseEntity<byte[]> that contains data in byte array.
 	 * @throws Exception
 	 */
-	public ResponseEntity<byte[]> getResponseEntityForExcelDownload(XSSFWorkbook workbook) throws Exception;
+	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception;
 
 }
