@@ -1,6 +1,9 @@
 package com.polus.fibicomp.proposal.dao;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.ListUtils;
@@ -35,6 +38,8 @@ import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.vo.SponsorSearchResult;
+import com.polus.fibicomp.workflow.pojo.Workflow;
+import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
 
 @Transactional
 @Service(value = "proposalDao")
@@ -237,6 +242,24 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public List<NarrativeStatus> fetchAllNarrativeStatus() {
 		return hibernateTemplate.loadAll(NarrativeStatus.class);
+	}
+
+	@Override
+	public void prepareWorkflowDetails(Workflow workflow) {
+		Map<Integer, List<WorkflowDetail>> workflowDetailMap = new HashMap<Integer, List<WorkflowDetail>>();
+		List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
+		if (workflowDetails != null && !workflowDetails.isEmpty()) {
+			for (WorkflowDetail workflowDetail : workflowDetails) {
+				if (workflowDetailMap.get(workflowDetail.getApprovalStopNumber()) != null) {
+					workflowDetailMap.get(workflowDetail.getApprovalStopNumber()).add(workflowDetail);
+				} else {
+					List<WorkflowDetail> details = new ArrayList<>();
+					details.add(workflowDetail);
+					workflowDetailMap.put(workflowDetail.getApprovalStopNumber(), details);
+				}
+			}
+		}
+		workflow.setWorkflowDetailMap(workflowDetailMap);
 	}
 
 }

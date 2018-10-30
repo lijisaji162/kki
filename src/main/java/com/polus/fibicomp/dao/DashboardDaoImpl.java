@@ -39,6 +39,7 @@ import com.polus.fibicomp.pojo.DashBoardProfile;
 import com.polus.fibicomp.pojo.ParameterBo;
 import com.polus.fibicomp.pojo.PrincipalBo;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
+import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.view.AwardView;
 import com.polus.fibicomp.view.DisclosureView;
@@ -50,6 +51,8 @@ import com.polus.fibicomp.view.ProtocolView;
 import com.polus.fibicomp.view.ResearchSummaryPieChart;
 import com.polus.fibicomp.view.ResearchSummaryView;
 import com.polus.fibicomp.vo.CommonVO;
+import com.polus.fibicomp.workflow.dao.WorkflowDao;
+import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Transactional
 @Service(value = "dashboardDao")
@@ -63,6 +66,12 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@Autowired
 	private HibernateTemplate hibernateTemplate;
+
+	@Autowired
+	private WorkflowDao workflowDao;
+
+	@Autowired
+	private ProposalDao proposalDao;
 
 	public String getDashBoardResearchSummary(String person_id) throws Exception {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
@@ -1267,6 +1276,13 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
+					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
+					propObj.setSubmitUser(proposalObject.getSubmitUser());
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
+						proposalDao.prepareWorkflowDetails(workflow);
+						propObj.setWorkflow(workflow);
+					}
 					proposalList.add(propObj);
 				}
 			}
@@ -1357,6 +1373,13 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
+					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
+					propObj.setSubmitUser(proposalObject.getSubmitUser());
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
+						proposalDao.prepareWorkflowDetails(workflow);
+						propObj.setWorkflow(workflow);
+					}
 					proposalList.add(propObj);
 				}
 			}
@@ -1444,6 +1467,11 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
+					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
+					propObj.setSubmitUser(proposalObject.getSubmitUser());
+					Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
+					proposalDao.prepareWorkflowDetails(workflow);
+					propObj.setWorkflow(workflow);
 					proposalList.add(propObj);
 				}
 			}

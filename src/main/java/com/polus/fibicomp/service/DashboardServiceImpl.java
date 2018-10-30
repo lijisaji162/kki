@@ -395,7 +395,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Override
 	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception {
-		logger.info("---------getResponseEntityForExcelDownload---------");
+		logger.info("--------- getResponseEntityForExcelDownload ---------");
 		File excelFile = new File("ExcelFile.xlsx");
 		FileOutputStream outputStream = new FileOutputStream(excelFile);
 		workbook.write(outputStream);
@@ -522,7 +522,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Override
 	public XSSFWorkbook getXSSFWorkbookForDashboard(CommonVO vo) throws Exception {
-		logger.info("---------getXSSFWorkbookForDashboard---------");
+		logger.info("--------- getXSSFWorkbookForDashboard ---------");
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		List<Object[]> dashboardData = new ArrayList<Object[]>();
 		String requestType = vo.getTabIndex();
@@ -533,29 +533,34 @@ public class DashboardServiceImpl implements DashboardService {
 					String proposalTabName = vo.getProposalTabName();
 					logger.info("proposalTabName : " + proposalTabName);
 					if (proposalTabName.equals("MY_PROPOSAL")) {
-						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo,dashboardData);
+						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo, dashboardData);
 						XSSFSheet sheet = workbook.createSheet("My Proposals");
-						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+						Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline" };
+						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
-						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
+						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(),
+								Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
 						if (proposalIds != null && !proposalIds.isEmpty()) {
-							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,dashboardData);
+							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,
+									dashboardData);
 							XSSFSheet sheet = workbook.createSheet("Pending Review");
-							Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-							prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+							Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
+									"Sponsor Deadline" };
+							prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 						}
 					} else {
 						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 						XSSFSheet sheet = workbook.createSheet("All Proposals");
-						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+						Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
+								"Sponsor Deadline" };
+						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					}
 				} else {
 					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 					XSSFSheet sheet = workbook.createSheet("Proposals");
-					Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-					prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+					Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
+							"Sponsor Deadline" };
+					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				}
 			}
 		} catch (Exception e) {

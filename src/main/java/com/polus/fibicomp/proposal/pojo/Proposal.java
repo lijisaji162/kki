@@ -30,6 +30,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.proposal.comparator.ProposalAttachmentComparator;
+import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Entity
 @Table(name = "FIBI_PROPOSAL")
@@ -176,6 +177,9 @@ public class Proposal implements Serializable {
 
 	@Transient
 	private String applicationStatus;
+
+	@Transient
+	private Workflow workflow;
 
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
@@ -528,6 +532,14 @@ public class Proposal implements Serializable {
 
 	public void setInternalDeadLineDate(Timestamp internalDeadLineDate) {
 		this.internalDeadLineDate = internalDeadLineDate;
+	}
+
+	public Workflow getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(Workflow workflow) {
+		this.workflow = workflow;
 	}
 
 }
