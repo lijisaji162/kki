@@ -21,6 +21,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.vo.SponsorSearchResult;
+import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Service
 public interface ProposalDao {
@@ -145,5 +146,10 @@ public interface ProposalDao {
 	 * @return A list of NarrativeStatus.
 	 */
 	public List<NarrativeStatus> fetchAllNarrativeStatus();
+
+	/**
+	 * This method is used to prepare workflow.
+	 */
+	public void prepareWorkflowDetails(Workflow workflow);
 
 }

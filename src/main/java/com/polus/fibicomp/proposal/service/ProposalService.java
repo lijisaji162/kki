@@ -150,10 +150,4 @@ public interface ProposalService {
 	 */
 	public void loadInitialData(ProposalVO proposalVO);
 
-	/**
-	 * This method is used to fetch routelog of a proposal.
-	 * @param proposalId - Id of the proposal.
-	 * @return workflow data.
-	 */
-	//public List<WorkflowDetail> fetchRouteLog(Integer proposalId);
 }

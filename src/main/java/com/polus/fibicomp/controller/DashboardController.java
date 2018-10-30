@@ -66,14 +66,13 @@ public class DashboardController {
 	@RequestMapping(value = "/exportResearchSummaryDatas", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> exportResearchSummaryDatas(HttpServletRequest request, @RequestBody CommonVO vo) throws Exception {
 		XSSFWorkbook workbook = dashboardService.getXSSFWorkbookForResearchSummary(vo);
-		return dashboardService.getResponseEntityForDownload(vo,workbook);
+		return dashboardService.getResponseEntityForDownload(vo, workbook);
 	}
 
 	@RequestMapping(value = "/exportDashboardDatas", method = RequestMethod.POST)
 	public ResponseEntity<byte[]> exportDashboardData(HttpServletRequest request, @RequestBody CommonVO vo) throws Exception {
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		workbook = dashboardService.getXSSFWorkbookForDashboard(vo);
-		return dashboardService.getResponseEntityForDownload(vo,workbook);
+		XSSFWorkbook workbook = dashboardService.getXSSFWorkbookForDashboard(vo);
+		return dashboardService.getResponseEntityForDownload(vo, workbook);
 	}
 
 }

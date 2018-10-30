@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -210,7 +208,7 @@ public class ProposalServiceImpl implements ProposalService {
 				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_AWARDED)) {
 			canTakeRoutingAction(proposalVO);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
-			prepareWorkflowDetails(workflow);
+			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 		}
 
@@ -431,7 +429,7 @@ public class ProposalServiceImpl implements ProposalService {
 		String sponsorTypeCode = proposalDao.fetchSponsorTypeCodeBySponsorCode(proposal.getSponsorCode());
 		Workflow workflow = workflowService.createWorkflow(proposal.getProposalId(), proposalVO.getUserName(), proposalVO.getProposalStatusCode(), sponsorTypeCode, subject, message);
 		canTakeRoutingAction(proposalVO);
-		prepareWorkflowDetails(workflow);
+		proposalDao.prepareWorkflowDetails(workflow);
 		proposalVO.setWorkflow(workflow);
 		proposalVO.setProposal(proposal);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
@@ -553,7 +551,7 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 			proposalVO.setIsApproved(true);
 			proposalVO.setIsApprover(true);
-			prepareWorkflowDetails(workflow);
+			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 			proposalVO.setProposal(proposal);
 		} catch (Exception e) {
@@ -1089,30 +1087,5 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 		return newSpecialReviews;
 	}
-
-	public void prepareWorkflowDetails(Workflow workflow) {
-		Map<Integer, List<WorkflowDetail>> workflowDetailMap = new HashMap<Integer, List<WorkflowDetail>>();
-		List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
-		if (workflowDetails != null && !workflowDetails.isEmpty()) {
-			for (WorkflowDetail workflowDetail : workflowDetails) {
-				if (workflowDetailMap.get(workflowDetail.getApprovalStopNumber()) != null) {
-					workflowDetailMap.get(workflowDetail.getApprovalStopNumber()).add(workflowDetail);
-				} else {
-					List<WorkflowDetail> details = new ArrayList<>();
-					details.add(workflowDetail);
-					workflowDetailMap.put(workflowDetail.getApprovalStopNumber(), details);
-				}
-			}
-		}
-		workflow.setWorkflowDetailMap(workflowDetailMap);
-	}
-
-/*	@Override
-	public List<WorkflowDetail> fetchRouteLog(Integer proposalId) {
-		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposalId);
-		List<WorkflowDetail> workflowDetail = new ArrayList<WorkflowDetail>();
-		workflowDetail = workflowDao.fetchWorkflowDetailByWorkflowId(workflow.getWorkflowId());
-		return workflowDetail;
-	}*/
 
 }
