@@ -500,20 +500,12 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}			
 			if (isFinalApprover && actionType.equals("A")) {
-				/*List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
+				List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
 				for(ProposalAttachment proposalAttachment : proposalAttachments) {
 					if(proposalAttachment.getNarrativeStatusCode().equals(Constants.NARRATIVE_STATUS_CODE_INCOMPLETE)) {
-						String incompleteAttachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-								+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
-								+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
-								+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
-								+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
-								+ proposal.getProposalId() +"\">this link</a> "
-								+ "to review the application.";
-						String incompleteAttachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
-						fibiEmailService.sendEmail(toAddresses, incompleteAttachmentSubject, null, null, incompleteAttachmentMessage, true);
+						sendAttachmentNotification(proposal);
 					}
-				}*/
+				}
 				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
 				logger.info("Initial IP Number : " + ipNumber);
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
@@ -921,6 +913,7 @@ public class ProposalServiceImpl implements ProposalService {
 				copyBudgetDetail.setEndDate(budgetDetail.getEndDate());
 				copyBudgetDetail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
 				copyBudgetDetail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
+				copyBudgetDetail.setIsApplyInflationRate(budgetDetail.getIsApplyInflationRate());
 				// apply inflation here
 				CostElement costElement = budgetDetail.getCostElement();
 				costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
@@ -1086,6 +1079,31 @@ public class ProposalServiceImpl implements ProposalService {
 			newSpecialReviews.add(specialReviewDetail);
 		}
 		return newSpecialReviews;
+	}
+
+	public void sendAttachmentNotification(Proposal proposal) {
+		Set<String> toAddresses = new HashSet<String>();
+		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
+		String attachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+				+ proposal.getProposalId() +"\">this link</a> "
+				+ "to review the application.";
+		String attachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
+		toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
+	}
+
+	public String getPIEmailAddress(List<ProposalPerson> proposalPersons) {
+		String emailAddress = "";
+		for (ProposalPerson person : proposalPersons) {
+			if (person.getProposalPersonRole().getCode().equals(Constants.PRINCIPAL_INVESTIGATOR)) {
+				emailAddress = person.getEmailAddress();
+			}
+		}
+		return emailAddress;
 	}
 
 }
