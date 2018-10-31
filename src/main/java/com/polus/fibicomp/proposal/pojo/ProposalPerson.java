@@ -71,6 +71,9 @@ public class ProposalPerson implements Serializable {
 	@OneToMany(mappedBy = "proposalPerson", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<ProposalPersonUnit> units;
 
+	@Column(name = "EMAIL_ADDRESS")
+	private String emailAddress;
+
 	public ProposalPerson() {
 		units = new ArrayList<>();
 	}
@@ -165,6 +168,14 @@ public class ProposalPerson implements Serializable {
 
 	public void setUnits(List<ProposalPersonUnit> units) {
 		this.units = units;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
 	}
 
 }
