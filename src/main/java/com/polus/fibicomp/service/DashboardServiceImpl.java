@@ -318,7 +318,7 @@ public class DashboardServiceImpl implements DashboardService {
 			while (cellIterator.hasNext()) {
 				cells.add(cellIterator.next());
 			}
-			for (int cellIndex = cells.size(); cellIndex >= 0; cellIndex--) {
+			for (int cellIndex = cells.size(); cellIndex >= 1; cellIndex--) {
 				Cell cell = cells.get(cellIndex - 1);
 				if (cell.toString().trim().isEmpty()) {
 					cells.remove(cellIndex - 1);
@@ -368,6 +368,13 @@ public class DashboardServiceImpl implements DashboardService {
 								table_cell = new PdfPCell(new Phrase(cell.getStringCellValue(), tableBodyFont));
 								table.addCell(table_cell);
 							}
+							break;
+						case Cell.CELL_TYPE_NUMERIC:
+							Double cellValueInDouble = cell.getNumericCellValue();
+							Integer cellValueInInteger = cellValueInDouble.intValue();
+							String cellValueInString = Integer.toString(cellValueInInteger);
+							table_cell = new PdfPCell(new Phrase(cellValueInString, tableBodyFont));
+							table.addCell(table_cell);
 							break;
 						}
 					}
@@ -533,33 +540,28 @@ public class DashboardServiceImpl implements DashboardService {
 					String proposalTabName = vo.getProposalTabName();
 					logger.info("proposalTabName : " + proposalTabName);
 					if (proposalTabName.equals("MY_PROPOSAL")) {
-						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo, dashboardData);
+						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo,dashboardData);
 						XSSFSheet sheet = workbook.createSheet("My Proposals");
-						Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline" };
-						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
+						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
-						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(),
-								Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
+						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
 						if (proposalIds != null && !proposalIds.isEmpty()) {
-							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,
-									dashboardData);
+							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,dashboardData);
 							XSSFSheet sheet = workbook.createSheet("Pending Review");
-							Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
-									"Sponsor Deadline" };
-							prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+							Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
+							prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
 						}
 					} else {
 						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 						XSSFSheet sheet = workbook.createSheet("All Proposals");
-						Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
-								"Sponsor Deadline" };
+						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
 						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					}
 				} else {
 					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 					XSSFSheet sheet = workbook.createSheet("Proposals");
-					Object[] tableHeadingRow = { "Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor",
-							"Sponsor Deadline" };
+					Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
 					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				}
 			}
