@@ -142,27 +142,48 @@ public class ProposalServiceImpl implements ProposalService {
 			ObjectMapper mapper = new ObjectMapper();
 			proposalVO = mapper.readValue(formDataJSON, ProposalVO.class);
 			Proposal proposal = proposalVO.getProposal();
+			List<ProposalAttachment> attachments = proposal.getProposalAttachments();
 			List<ProposalAttachment> newAttachments = proposalVO.getNewAttachments();
 			List<ProposalAttachment> proposalAttachments = new ArrayList<ProposalAttachment>();
 			for (int i = 0; i < files.length; i++) {
 				for (ProposalAttachment newAttachment : newAttachments) {
-					if (newAttachment.getFileName().equals(files[i].getOriginalFilename())) {
-						ProposalAttachment proposalAttachment = new ProposalAttachment();
-						proposalAttachment.setAttachmentType(newAttachment.getAttachmentType());
-						proposalAttachment.setAttachmentTypeCode(newAttachment.getAttachmentTypeCode());
-						proposalAttachment.setDescription(newAttachment.getDescription());
-						proposalAttachment.setUpdateTimeStamp(newAttachment.getUpdateTimeStamp());
-						proposalAttachment.setUpdateUser(newAttachment.getUpdateUser());
-						proposalAttachment.setAttachment(files[i].getBytes());
-						proposalAttachment.setFileName(files[i].getOriginalFilename());
-						proposalAttachment.setNarrativeStatus(newAttachment.getNarrativeStatus());
-						proposalAttachment.setNarrativeStatusCode(newAttachment.getNarrativeStatusCode());
-						proposalAttachment.setMimeType(files[i].getContentType());
-						proposalAttachments.add(proposalAttachment);
+					if (newAttachment.getAttachmentId() != null) {
+						for(ProposalAttachment attachment : attachments) {
+							if (attachment.getAttachmentId() != null && attachment.getAttachmentId().equals(newAttachment.getAttachmentId())) {
+								attachment.setAttachmentType(newAttachment.getAttachmentType());
+								attachment.setAttachmentTypeCode(newAttachment.getAttachmentTypeCode());
+								attachment.setDescription(newAttachment.getDescription());
+								attachment.setUpdateTimeStamp(newAttachment.getUpdateTimeStamp());
+								attachment.setUpdateUser(newAttachment.getUpdateUser());
+								attachment.setAttachment(files[i].getBytes());
+								attachment.setFileName(files[i].getOriginalFilename());
+								attachment.setNarrativeStatus(newAttachment.getNarrativeStatus());
+								attachment.setNarrativeStatusCode(newAttachment.getNarrativeStatusCode());
+								attachment.setMimeType(files[i].getContentType());
+							}
+						}
+					} else {
+						if (newAttachment.getFileName().equals(files[i].getOriginalFilename())) {
+							ProposalAttachment proposalAttachment = new ProposalAttachment();
+							proposalAttachment.setAttachmentType(newAttachment.getAttachmentType());
+							proposalAttachment.setAttachmentTypeCode(newAttachment.getAttachmentTypeCode());
+							proposalAttachment.setDescription(newAttachment.getDescription());
+							proposalAttachment.setUpdateTimeStamp(newAttachment.getUpdateTimeStamp());
+							proposalAttachment.setUpdateUser(newAttachment.getUpdateUser());
+							proposalAttachment.setAttachment(files[i].getBytes());
+							proposalAttachment.setFileName(files[i].getOriginalFilename());
+							proposalAttachment.setNarrativeStatus(newAttachment.getNarrativeStatus());
+							proposalAttachment.setNarrativeStatusCode(newAttachment.getNarrativeStatusCode());
+							proposalAttachment.setMimeType(files[i].getContentType());
+							proposalAttachments.add(proposalAttachment);
+						}
 					}
 				}
 			}
-			proposal.getProposalAttachments().addAll(proposalAttachments);
+			if(newAttachments.get(0).getAttachmentId() == null) {
+				proposal.getProposalAttachments().addAll(proposalAttachments);		
+			}
+			//proposal.getProposalAttachments().addAll(proposalAttachments);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -204,6 +225,9 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		}
 
+		if (statusCode == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+		}
 		if (proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)
 				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_AWARDED)) {
 			canTakeRoutingAction(proposalVO);
@@ -430,6 +454,9 @@ public class ProposalServiceImpl implements ProposalService {
 		Workflow workflow = workflowService.createWorkflow(proposal.getProposalId(), proposalVO.getUserName(), proposalVO.getProposalStatusCode(), sponsorTypeCode, subject, message);
 		canTakeRoutingAction(proposalVO);
 		proposalDao.prepareWorkflowDetails(workflow);
+		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+		}
 		proposalVO.setWorkflow(workflow);
 		proposalVO.setProposal(proposal);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
@@ -439,6 +466,15 @@ public class ProposalServiceImpl implements ProposalService {
 	public void canTakeRoutingAction(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
 		Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
+		Integer maxApprovalStopNumber = workflowDao.getMaxStopNumber(workflow.getWorkflowId());
+		List<WorkflowDetail> finalWorkflowDetails = workflowDao.fetchFinalApprover(workflow.getWorkflowId(), maxApprovalStopNumber);
+		if(finalWorkflowDetails != null && !finalWorkflowDetails.isEmpty()) {
+			for(WorkflowDetail finalWorkflowDetail : finalWorkflowDetails) {
+				if(finalWorkflowDetail.getApproverPersonId().equals(proposalVO.getPersonId())) {
+					proposalVO.setFinalApprover(true);
+				}
+			}
+		}
 		List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
 		Collections.sort(workflowDetails, new WorkflowDetailComparator());
 		boolean currentPerson = true;
@@ -500,12 +536,6 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}			
 			if (isFinalApprover && actionType.equals("A")) {
-				List<ProposalAttachment> proposalAttachments = proposal.getProposalAttachments();
-				for(ProposalAttachment proposalAttachment : proposalAttachments) {
-					if(proposalAttachment.getNarrativeStatusCode().equals(Constants.NARRATIVE_STATUS_CODE_INCOMPLETE)) {
-						sendAttachmentNotification(proposal);
-					}
-				}
 				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
 				logger.info("Initial IP Number : " + ipNumber);
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
@@ -541,9 +571,13 @@ public class ProposalServiceImpl implements ProposalService {
 			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
 				loadInitialData(proposalVO);
 			}
+			proposalVO.setFinalApprover(isFinalApprover);
 			proposalVO.setIsApproved(true);
 			proposalVO.setIsApprover(true);
 			proposalDao.prepareWorkflowDetails(workflow);
+			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+				proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+			}
 			proposalVO.setWorkflow(workflow);
 			proposalVO.setProposal(proposal);
 		} catch (Exception e) {
@@ -786,6 +820,7 @@ public class ProposalServiceImpl implements ProposalService {
 			personDetail.setProposalPersonRole(copiedPersonDetail.getProposalPersonRole());
 			personDetail.setUpdateUser(updateUser);
 			personDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+			personDetail.setEmailAddress(copiedPersonDetail.getEmailAddress());
 			List<ProposalPersonUnit> units = copiedPersonDetail.getUnits();
 			if (units != null && !units.isEmpty()) {
 				personDetail.getUnits().addAll(copyProposalPersonUnits(copiedPersonDetail, personDetail, updateUser));
@@ -1081,7 +1116,19 @@ public class ProposalServiceImpl implements ProposalService {
 		return newSpecialReviews;
 	}
 
-	public void sendAttachmentNotification(Proposal proposal) {
+	public String getPIEmailAddress(List<ProposalPerson> proposalPersons) {
+		String emailAddress = "";
+		for (ProposalPerson person : proposalPersons) {
+			if (person.getProposalPersonRole().getCode().equals(Constants.PRINCIPAL_INVESTIGATOR)) {
+				emailAddress = person.getEmailAddress();
+			}
+		}
+		return emailAddress;
+	}
+
+	@Override
+	public String sendAttachmentNotification(ProposalVO proposalVO) {
+		Proposal proposal = proposalVO.getProposal();
 		Set<String> toAddresses = new HashSet<String>();
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		String attachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
@@ -1094,16 +1141,7 @@ public class ProposalServiceImpl implements ProposalService {
 		String attachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
 		toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
-	}
-
-	public String getPIEmailAddress(List<ProposalPerson> proposalPersons) {
-		String emailAddress = "";
-		for (ProposalPerson person : proposalPersons) {
-			if (person.getProposalPersonRole().getCode().equals(Constants.PRINCIPAL_INVESTIGATOR)) {
-				emailAddress = person.getEmailAddress();
-			}
-		}
-		return emailAddress;
+		return "SUCCESS";
 	}
 
 }

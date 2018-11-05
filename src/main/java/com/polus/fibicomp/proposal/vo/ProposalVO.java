@@ -118,7 +118,7 @@ public class ProposalVO {
 
 	private Integer proposalStatusCode;
 
-	private Boolean finalApprover;
+	private Boolean finalApprover = false;
 
 	private GrantCallType defaultGrantCallType;
 
