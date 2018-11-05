@@ -150,4 +150,6 @@ public interface ProposalService {
 	 */
 	public void loadInitialData(ProposalVO proposalVO);
 
+	public String sendAttachmentNotification(ProposalVO proposalVO);
+
 }

@@ -65,7 +65,7 @@ public class ProposalPerson implements Serializable {
 	private String updateUser;
 
 	@Column(name = "PERCENTAGE_OF_EFFORT")
-	private Integer percentageOfEffort;
+	private BigDecimal percentageOfEffort;
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "proposalPerson", orphanRemoval = true, cascade = { CascadeType.ALL })
@@ -154,11 +154,11 @@ public class ProposalPerson implements Serializable {
 		this.personRoleId = personRoleId;
 	}
 
-	public Integer getPercentageOfEffort() {
+	public BigDecimal getPercentageOfEffort() {
 		return percentageOfEffort;
 	}
 
-	public void setPercentageOfEffort(Integer percentageOfEffort) {
+	public void setPercentageOfEffort(BigDecimal percentageOfEffort) {
 		this.percentageOfEffort = percentageOfEffort;
 	}
 

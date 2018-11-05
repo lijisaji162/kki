@@ -971,6 +971,7 @@ public class BudgetServiceImpl implements BudgetService {
 				detail.setEndDate(budgetDetail.getEndDate());
 				detail.setIsSystemGeneratedCostElement(budgetDetail.getIsSystemGeneratedCostElement());
 				detail.setSystemGeneratedCEType(budgetDetail.getSystemGeneratedCEType());
+				detail.setIsApplyInflationRate(budgetDetail.getIsApplyInflationRate());
 				// apply inflation here
 				CostElement costElement = budgetDetail.getCostElement();
 				costElement = budgetDao.fetchCostElementsById(costElement.getCostElement());
@@ -995,7 +996,9 @@ public class BudgetServiceImpl implements BudgetService {
 								updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
 								budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
 								budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-								detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+								if(budgetDetail.getIsApplyInflationRate().equals(true)) {
+									detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
+								}
 							}
 						}
 					}
@@ -1017,16 +1020,6 @@ public class BudgetServiceImpl implements BudgetService {
 						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 					}
 				}
-				/*if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
-					lineItemCost = lineItemCost.add(updatedLineItemCost);
-					if (lineItemCost != null) {
-						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-					}
-				} else {
-					if (lineItemCost != null) {
-						detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-					}
-				}*/
 				detail.setLineItemDescription(budgetDetail.getLineItemDescription());
 				detail.setLineItemNumber(budgetDetail.getLineItemNumber());
 				detail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());

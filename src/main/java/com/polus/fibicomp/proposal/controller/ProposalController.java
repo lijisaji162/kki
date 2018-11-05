@@ -207,4 +207,10 @@ public class ProposalController {
 		return proposalService.copyProposal(vo);
 	}
 
+	@RequestMapping(value = "/sendAttachmentNotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String sendAttachmentNotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for sendAttachmentNotification");
+		return proposalService.sendAttachmentNotification(vo);
+	}
+
 }

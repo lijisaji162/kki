@@ -133,4 +133,6 @@ public interface WorkflowDao {
 	 */
 	public List<WorkflowMapDetail> fetchWorkflowMapDetailByRoleType(Integer roleTypeCode);
 
+	public List<WorkflowDetail> fetchFinalApprover(Integer workflowId, Integer approvalStopNumber);
+
 }
