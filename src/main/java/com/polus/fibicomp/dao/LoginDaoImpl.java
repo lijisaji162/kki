@@ -61,7 +61,12 @@ public class LoginDaoImpl implements LoginDao {
 				personDTO.setEmail(person.getEmailAddress());
 				personDTO.setUnitNumber(person.getUnitNumber());
 				personDTO.setUserName(userName);
-				personDTO.setUnitAdmin(isUnitAdmin(person.getPrncplId()));
+				personDTO.setUnitAdministrators(isUnitAdmin(person.getPrncplId()));
+				if (personDTO.getUnitAdministrators() != null && !personDTO.getUnitAdministrators().isEmpty()) {
+					personDTO.setUnitAdmin(true);
+				} else {
+					personDTO.setUnitAdmin(false);
+				}
 				personDTO.setLogin(true);
 			}
 		} catch (Exception e) {
@@ -71,20 +76,19 @@ public class LoginDaoImpl implements LoginDao {
 		return personDTO;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean isUnitAdmin(String personId) {
+	public List<UnitAdministrator> isUnitAdmin(String personId) {
 		logger.info("isUnitAdmin --- personId : " + personId);
+		List<UnitAdministrator> unitAdministrators = null;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		boolean isAdmin = false;
 		Criteria criteria = session.createCriteria(UnitAdministrator.class);
 		criteria.add(Restrictions.eq("personId", personId));
 		criteria.add(Restrictions.eq("unitAdministratorTypeCode", "3"));
-		@SuppressWarnings("unchecked")
-		List<UnitAdministrator> administrators = criteria.list();
-		if (administrators != null && !administrators.isEmpty()) {
-			isAdmin = true;
+		unitAdministrators = criteria.list();
+		if (unitAdministrators != null && !unitAdministrators.isEmpty()) {
+			return unitAdministrators;
 		}
-		logger.info("isAdmin : " + isAdmin);
-		return isAdmin;
+		return unitAdministrators;
 	}
 }
