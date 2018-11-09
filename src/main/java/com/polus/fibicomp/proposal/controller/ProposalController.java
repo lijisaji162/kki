@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.proposal.print.service.ProposalPrintService;
+import com.polus.fibicomp.proposal.service.ProposalCopyService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.vo.SponsorSearchResult;
@@ -46,6 +47,10 @@ public class ProposalController {
 	@Autowired
 	@Qualifier(value = "proposalPrintService")
 	private ProposalPrintService proposalPrintService;
+
+	@Autowired
+	@Qualifier(value = "proposalCopyService")
+	private ProposalCopyService proposalCopyService;
 
 	@RequestMapping(value = "/createProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String createProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
@@ -204,13 +209,19 @@ public class ProposalController {
 	@RequestMapping(value = "/copyProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String copyProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for copyProposal");
-		return proposalService.copyProposal(vo);
+		return proposalCopyService.copyProposal(vo);
 	}
 
-	@RequestMapping(value = "/sendAttachmentNotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String sendAttachmentNotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for sendAttachmentNotification");
-		return proposalService.sendAttachmentNotification(vo);
+	@RequestMapping(value = "/sendAttachPINotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String sendAttachPINotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for sendAttachPINotification");
+		return proposalService.sendAttachPINotification(vo);
+	}
+
+	@RequestMapping(value = "/sendAttachApproverNotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String sendAttachApproverNotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for sendAttachApproverNotification");
+		return proposalService.sendAttachApproverNotification(vo);
 	}
 
 }

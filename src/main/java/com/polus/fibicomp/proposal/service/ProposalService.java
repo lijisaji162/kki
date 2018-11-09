@@ -137,19 +137,24 @@ public interface ProposalService {
 	public List<SponsorSearchResult> findSponsor(String searchString);
 
 	/**
-	 * This method is used to make a copy of proposal.
-	 * @param vo - Object of ProposalVO class.
-	 * @return a String of details of proposal.
-	 */
-	public String copyProposal(ProposalVO vo);
-
-	/**
 	 * This method is used to load initial proposal data.
 	 * @param vo - Object of ProposalVO class.
 	 * @return a String of details of proposal.
 	 */
 	public void loadInitialData(ProposalVO proposalVO);
 
-	public String sendAttachmentNotification(ProposalVO proposalVO);
+	/**
+	 * This method is used to send attachment complete notification to PI.
+	 * @param vo - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
+	public String sendAttachPINotification(ProposalVO proposalVO);
+
+	/**
+	 * This method is used to send attachments completed notification to final approver.
+	 * @param vo - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
+	public String sendAttachApproverNotification(ProposalVO proposalVO);
 
 }
