@@ -43,6 +43,8 @@ public class PersonDTO {
 
 	private boolean isCreateProposal = false;
 
+	private List<UnitAdministrator> unitAdministrators;
+
 	public boolean isLogin() {
 		return isLogin;
 	}
@@ -169,6 +171,14 @@ public class PersonDTO {
 
 	public void setLeadUnits(List<Unit> leadUnits) {
 		this.leadUnits = leadUnits;
+	}
+
+	public List<UnitAdministrator> getUnitAdministrators() {
+		return unitAdministrators;
+	}
+
+	public void setUnitAdministrators(List<UnitAdministrator> unitAdministrators) {
+		this.unitAdministrators = unitAdministrators;
 	}
 
 }

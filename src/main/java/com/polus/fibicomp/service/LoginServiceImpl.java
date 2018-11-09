@@ -38,10 +38,10 @@ public class LoginServiceImpl implements LoginService {
 		return personDTO;
 	}
 
-	@Override
+	/*@Override
 	public boolean isUnitAdmin(String personId) {
 		return loginDao.isUnitAdmin(personId);
-	}
+	}*/
 
 	@Override
 	public String fibiMobileLogin(String login_mode, String userName, String password, HttpServletRequest request,

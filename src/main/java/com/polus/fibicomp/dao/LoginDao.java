@@ -1,9 +1,12 @@
 package com.polus.fibicomp.dao;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.polus.fibicomp.pojo.PersonDTO;
 import com.polus.fibicomp.pojo.PrincipalBo;
+import com.polus.fibicomp.pojo.UnitAdministrator;
 
 @Service
 public interface LoginDao {
@@ -28,5 +31,5 @@ public interface LoginDao {
 	 * @param personId - ID of the user.
 	 * @return A boolean value to specify the user role.
 	 */
-	public boolean isUnitAdmin(String personId);
+	public List<UnitAdministrator> isUnitAdmin(String personId);
 }

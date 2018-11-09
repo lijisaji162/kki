@@ -36,7 +36,7 @@ public interface LoginService {
 	 * @param personId - ID of the user.
 	 * @return A boolean value to indicate role of the user.
 	 */
-	public boolean isUnitAdmin(String personId);
+	//public boolean isUnitAdmin(String personId);
 
 	/**
 	 * This method is to authenticate a mobile user
