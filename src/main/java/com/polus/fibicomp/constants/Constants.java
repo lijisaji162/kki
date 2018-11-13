@@ -125,4 +125,7 @@ public interface Constants {
   	//Attachment Status
   	String NARRATIVE_STATUS_CODE_INCOMPLETE = "I";
 
+  	// Proposal Pre Review Section
+  	String PRE_REVIEW_STATUS_INPROGRESS = "1";
+
 }

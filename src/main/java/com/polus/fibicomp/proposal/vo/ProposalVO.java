@@ -27,6 +27,9 @@ import com.polus.fibicomp.proposal.pojo.ProposalAttachmentType;
 import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
+import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
+import com.polus.fibicomp.proposal.prereview.pojo.PreReviewType;
+import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
 import com.polus.fibicomp.workflow.pojo.WorkflowMapDetail;
@@ -161,6 +164,16 @@ public class ProposalVO {
 	private List<Unit> departments;
 
 	private List<NarrativeStatus> narrativeStatus;
+
+	private List<PreReviewType> preReviewTypes;
+
+	private List<PreReviewStatus> preReviewStatus;
+
+	private ProposalPreReview newProposalPreReview;
+
+	private List<ProposalPreReview> proposalPreReviews;
+
+	private boolean preReviewExist = false;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -676,6 +689,46 @@ public class ProposalVO {
 
 	public void setNewAttachments(List<ProposalAttachment> newAttachments) {
 		this.newAttachments = newAttachments;
+	}
+
+	public List<PreReviewType> getPreReviewTypes() {
+		return preReviewTypes;
+	}
+
+	public void setPreReviewTypes(List<PreReviewType> preReviewTypes) {
+		this.preReviewTypes = preReviewTypes;
+	}
+
+	public List<PreReviewStatus> getPreReviewStatus() {
+		return preReviewStatus;
+	}
+
+	public void setPreReviewStatus(List<PreReviewStatus> preReviewStatus) {
+		this.preReviewStatus = preReviewStatus;
+	}
+
+	public ProposalPreReview getNewProposalPreReview() {
+		return newProposalPreReview;
+	}
+
+	public void setNewProposalPreReview(ProposalPreReview newProposalPreReview) {
+		this.newProposalPreReview = newProposalPreReview;
+	}
+
+	public List<ProposalPreReview> getProposalPreReviews() {
+		return proposalPreReviews;
+	}
+
+	public void setProposalPreReviews(List<ProposalPreReview> proposalPreReviews) {
+		this.proposalPreReviews = proposalPreReviews;
+	}
+
+	public boolean isPreReviewExist() {
+		return preReviewExist;
+	}
+
+	public void setPreReviewExist(boolean preReviewExist) {
+		this.preReviewExist = preReviewExist;
 	}
 
 }
