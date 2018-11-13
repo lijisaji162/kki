@@ -45,6 +45,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalKeyword;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
+import com.polus.fibicomp.proposal.prereview.dao.ProposalPreReviewDao;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.role.dao.RoleDao;
 import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
@@ -103,6 +104,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Autowired
 	private FibiEmailService fibiEmailService;
+
+	@Autowired
+	private ProposalPreReviewDao proposalPreReviewDao;
 
 	@Override
 	public String createProposal(ProposalVO proposalVO) {
@@ -627,6 +631,9 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
 		proposalVO.setDepartments(proposalDao.fetchAllUnits());
 		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+		proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
+		// proposalVO.setPreReviewStatus(proposalPreReviewDao.fetchAllPreReviewStatus());
+		proposalVO.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviews());
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
@@ -744,10 +751,9 @@ public class ProposalServiceImpl implements ProposalService {
 	@Override
 	public String sendAttachApproverNotification(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
-		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		Set<String> toAddresses = new HashSet<String>();
-		Integer maxApprovalStopNumber = workflowDao.getMaxStopNumber(proposal.getWorkflow().getWorkflowId());
-		List<WorkflowDetail> finalApprovers = workflowDao.fetchFinalApprover(proposal.getWorkflow().getWorkflowId(), maxApprovalStopNumber);
+		Integer maxApprovalStopNumber = workflowDao.getMaxStopNumber(proposalVO.getWorkflow().getWorkflowId());
+		List<WorkflowDetail> finalApprovers = workflowDao.fetchFinalApprover(proposalVO.getWorkflow().getWorkflowId(), maxApprovalStopNumber);
 		for(WorkflowDetail workflowDetail : finalApprovers) {
 			toAddresses.add(workflowDetail.getEmailAddress());
 		}
