@@ -44,6 +44,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.DashboardDao;
+import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.pojo.ActionItem;
 import com.polus.fibicomp.pojo.DashBoardProfile;
 import com.polus.fibicomp.view.MobileProfile;
@@ -59,9 +60,12 @@ public class DashboardServiceImpl implements DashboardService {
 	@Autowired
 	private DashboardDao dashboardDao;
 
+	@Autowired
+	private LoginDao loginDao;
+
 	@Override
-	public String getDashBoardResearchSummary(String personId) throws Exception {
-		return dashboardDao.getDashBoardResearchSummary(personId);
+	public String getDashBoardResearchSummary(CommonVO vo) throws Exception {
+		return dashboardDao.getDashBoardResearchSummary(vo.getPersonId(), vo.getUnitNumber(), vo.getIsAdmin());
 	}
 
 	@Override
@@ -112,6 +116,7 @@ public class DashboardServiceImpl implements DashboardService {
 				dashBoardProfile = dashboardDao.getDashBoardDataForGrantCall(vo);
 			}
 			// dashBoardProfile.setPersonDTO(personDTO);
+			dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(vo.getPersonId()));
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardData", e);
 		}
@@ -423,7 +428,7 @@ public class DashboardServiceImpl implements DashboardService {
 	}
 
 	private ResponseEntity<byte[]> getResponseEntity(MultipartFile multipartFile) {
-		ResponseEntity<byte[]> dashboardData = null;
+		ResponseEntity<byte[]> attachmentData = null;
 		try {
 			byte[] bytes = multipartFile.getBytes();
 			HttpHeaders headers = new HttpHeaders();
@@ -431,11 +436,11 @@ public class DashboardServiceImpl implements DashboardService {
 			headers.setContentLength(bytes.length);
 			headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 			headers.setPragma("public");
-			dashboardData = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+			attachmentData = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
 		} catch (Exception e) {
 			logger.error("Error in method getResponseEntity", e);
 		}
-		return dashboardData;
+		return attachmentData;
 	}
 
 	private void autoSizeColumns(XSSFWorkbook workbook) {
@@ -540,28 +545,28 @@ public class DashboardServiceImpl implements DashboardService {
 					String proposalTabName = vo.getProposalTabName();
 					logger.info("proposalTabName : " + proposalTabName);
 					if (proposalTabName.equals("MY_PROPOSAL")) {
-						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo,dashboardData);
+						dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo, dashboardData);
 						XSSFSheet sheet = workbook.createSheet("My Proposals");
-						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-						prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+						Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
 						List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
 						if (proposalIds != null && !proposalIds.isEmpty()) {
-							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo,dashboardData);
+							dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo, dashboardData);
 							XSSFSheet sheet = workbook.createSheet("Pending Review");
-							Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
-							prepareExcelSheet(dashboardData,sheet,tableHeadingRow,workbook,vo);
+							Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+							prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 						}
 					} else {
 						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 						XSSFSheet sheet = workbook.createSheet("All Proposals");
-						Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
+						Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
 						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					}
 				} else {
 					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
 					XSSFSheet sheet = workbook.createSheet("Proposals");
-					Object[] tableHeadingRow = {"Id#", "Title", "PI","Category","Type","Status","Sponsor","Sponsor Deadline"};
+					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
 					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				}
 			}
@@ -587,37 +592,37 @@ public class DashboardServiceImpl implements DashboardService {
 				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
 				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARDSACTIVE")) {
 				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Active Awards");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI", "Budget"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("INPROGRESS")) {
 				dashboardData = dashboardDao.getInProgressProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Type", "Budget", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARDED")) {
 				dashboardData = dashboardDao.getAwardedProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awarded Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Award#", "Title", "Type", "Activity Type", "PI"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARD")) {
 				dashboardData = dashboardDao.getAwardBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Awards by sponsor types");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSAL")) {
 				dashboardData = dashboardDao.getProposalBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
 				XSSFSheet sheet = workbook.createSheet("Proposal by sponsor types");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Proposal Type", "PI", "Sponsor Deadline"};
-				prepareExcelSheet(dashboardData, sheet, tableHeadingRow,workbook,vo);
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			}
 		} catch (Exception e) {
 			logger.error("Error in method getXSSFWorkbookForResearchSummary", e);

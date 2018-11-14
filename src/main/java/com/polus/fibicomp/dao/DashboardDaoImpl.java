@@ -73,9 +73,12 @@ public class DashboardDaoImpl implements DashboardDao {
 	@Autowired
 	private ProposalDao proposalDao;
 
-	public String getDashBoardResearchSummary(String person_id) throws Exception {
+	@Autowired
+	private LoginDao loginDao;
+
+	public String getDashBoardResearchSummary(String person_id, String unitNumber, boolean isAdmin) throws Exception {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
-		List<ExpenditureVolume> expenditureVolumeChart = new ArrayList<ExpenditureVolume>();
+		// List<ExpenditureVolume> expenditureVolumeChart = new ArrayList<ExpenditureVolume>();
 		List<ResearchSummaryView> summaryTable = new ArrayList<ResearchSummaryView>();
 		List<ResearchSummaryPieChart> summaryAwardPiechart = new ArrayList<ResearchSummaryPieChart>();
 		List<ResearchSummaryPieChart> summaryProposalPiechart = new ArrayList<ResearchSummaryPieChart>();
@@ -83,25 +86,26 @@ public class DashboardDaoImpl implements DashboardDao {
 		List<ResearchSummaryPieChart> summaryAwardDonutChart = new ArrayList<ResearchSummaryPieChart>();
 		try {
 			logger.info("---------- getDashBoardResearchSummary -----------");
-			expenditureVolumeChart = getExpenditureVolumeChart(person_id, expenditureVolumeChart);
-			logger.info("expenditureVolumeChart : " + expenditureVolumeChart);
-			summaryTable = getSummaryTable(person_id, summaryTable);
+			// expenditureVolumeChart = getExpenditureVolumeChart(person_id, unitNumber, isAdmin, expenditureVolumeChart);
+			// logger.info("expenditureVolumeChart : " + expenditureVolumeChart);
+			summaryTable = getSummaryTable(person_id, unitNumber, isAdmin, summaryTable);
 			logger.info("summaryTable : " + summaryTable);
-			summaryAwardPiechart = getSummaryAwardPieChart(person_id, summaryAwardPiechart);
+			summaryAwardPiechart = getSummaryAwardPieChart(person_id, unitNumber, isAdmin, summaryAwardPiechart);
 			logger.info("summaryAwardPiechart : " + summaryAwardPiechart);
-			summaryProposalPiechart = getSummaryProposalPieChart(person_id, summaryProposalPiechart);
+			summaryProposalPiechart = getSummaryProposalPieChart(person_id, unitNumber, isAdmin, summaryProposalPiechart);
 			logger.info("summaryProposalPiechart : " + summaryProposalPiechart);
-			summaryProposalDonutChart = getSummaryInProgressProposalDonutChart(person_id, summaryProposalDonutChart);
+			summaryProposalDonutChart = getSummaryInProgressProposalDonutChart(person_id, unitNumber, isAdmin, summaryProposalDonutChart);
 			logger.info("summaryProposalDonutChart : " + summaryProposalDonutChart);
-			summaryAwardDonutChart = getSummaryAwardedProposalDonutChart(person_id, summaryAwardDonutChart);
+			summaryAwardDonutChart = getSummaryAwardedProposalDonutChart(person_id, unitNumber, isAdmin, summaryAwardDonutChart);
 			logger.info("summaryAwardDonutChart : " + summaryAwardDonutChart);
 
-			dashBoardProfile.setExpenditureVolumes(expenditureVolumeChart);
+			// dashBoardProfile.setExpenditureVolumes(expenditureVolumeChart);
 			dashBoardProfile.setSummaryViews(summaryTable);
 			dashBoardProfile.setSummaryAwardPieChart(summaryAwardPiechart);
 			dashBoardProfile.setSummaryProposalPieChart(summaryProposalPiechart);
 			dashBoardProfile.setSummaryProposalDonutChart(summaryProposalDonutChart);
 			dashBoardProfile.setSummaryAwardDonutChart(summaryAwardDonutChart);
+			dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(person_id));
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardResearchSummary");
 			e.printStackTrace();
@@ -111,16 +115,35 @@ public class DashboardDaoImpl implements DashboardDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ExpenditureVolume> getExpenditureVolumeChart(String person_id,
+	public List<ExpenditureVolume> getExpenditureVolumeChart(String person_id, String unitNumber, boolean isAdmin,
 			List<ExpenditureVolume> expenditureVolumeChart) {
+		isAdmin = false;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query expenditureVolume = null;
 		if (oracledb.equals("Y")) {
-			expenditureVolume = session.createSQLQuery(
+			if(isAdmin) {
+				if(unitNumber != null) {
+					
+				} else {
+					expenditureVolume = session.createSQLQuery(
+							"SELECT to_char(t4.start_date, 'yyyy') AS BUDGET_PERIOD, Sum(T4.total_direct_cost) AS Direct_Cost, Sum(T4.total_indirect_cost) AS FA FROM eps_proposal t1 INNER JOIN eps_proposal_budget_ext t2 ON t1.proposal_number = t2.proposal_number INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN budget_periods t4 ON t3.budget_id = t4.budget_id WHERE t1.owned_by_unit IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY TO_CHAR(t4.start_date, 'yyyy') ORDER BY To_Number(TO_CHAR(t4.start_date, 'yyyy'))");
+				}
+			} else {
+				expenditureVolume = session.createSQLQuery(
 					"SELECT to_char(t4.start_date, 'yyyy') AS BUDGET_PERIOD, Sum(T4.total_direct_cost) AS Direct_Cost, Sum(T4.total_indirect_cost) AS FA FROM eps_proposal t1 INNER JOIN eps_proposal_budget_ext t2 ON t1.proposal_number = t2.proposal_number INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN budget_periods t4 ON t3.budget_id = t4.budget_id WHERE t1.owned_by_unit IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY TO_CHAR(t4.start_date, 'yyyy') ORDER BY To_Number(TO_CHAR(t4.start_date, 'yyyy'))");
+			}
 		} else {
-			expenditureVolume = session.createSQLQuery(
+			if(isAdmin) {
+				if(unitNumber != null) {
+					
+				} else {
+					expenditureVolume = session.createSQLQuery(
+							"SELECT date_format(t3.start_date, '%Y') AS BUDGET_PERIOD, Sum(t3.total_direct_cost) AS Direct_Cost, Sum(t3.total_indirect_cost) AS FA FROM fibi_proposal t1 INNER JOIN fibi_budget_header t2 ON t1.budget_header_id = t2.budget_header_id INNER JOIN fibi_budget_period t3 ON t2.budget_header_id = t3.budget_header_id WHERE t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY year(t3.start_date) ORDER BY year(t3.start_date)");
+				}
+			} else {
+				expenditureVolume = session.createSQLQuery(
 					"SELECT date_format(t3.start_date, '%Y') AS BUDGET_PERIOD, Sum(t3.total_direct_cost) AS Direct_Cost, Sum(t3.total_indirect_cost) AS FA FROM fibi_proposal t1 INNER JOIN fibi_budget_header t2 ON t1.budget_header_id = t2.budget_header_id INNER JOIN fibi_budget_period t3 ON t2.budget_header_id = t3.budget_header_id WHERE t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :person_id) GROUP BY year(t3.start_date) ORDER BY year(t3.start_date)");
+			}
 		}
 		expenditureVolume.setString("person_id", person_id);
 		expenditureVolumeChart = expenditureVolume.list();
@@ -128,30 +151,65 @@ public class DashboardDaoImpl implements DashboardDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ResearchSummaryView> getSummaryTable(String person_id, List<ResearchSummaryView> summaryTable) {
+	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, List<ResearchSummaryView> summaryTable) {
 		List<ResearchSummaryView> subPropCount = null;
 		List<ResearchSummaryView> inPropCount = null;
 		List<ResearchSummaryView> activeAwardsCount = null;
-
-		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Query submittedProposal = session.createSQLQuery(
-				"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
-		submittedProposal.setString("person_id", person_id);
+		Query submittedProposal = null;
+		Query inprogressProposal = null;
+		Query activeAwards = null;
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();	
+		if(isAdmin) {
+			if(unitNumber != null) {
+				submittedProposal = session.createSQLQuery(
+						"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=2 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id and unit_number = :unitNumber) or t1.proposal_id IN (SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+				submittedProposal.setString("unitNumber", unitNumber);
+			} else {
+				submittedProposal = session.createSQLQuery(
+						"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
+			}
+		} else {
+			submittedProposal = session.createSQLQuery(
+					"select 'Submitted Proposals' as Submitted_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
+		}
+		submittedProposal.setString("person_id", person_id);	
 		subPropCount = submittedProposal.list();
 		if (subPropCount != null && !subPropCount.isEmpty()) {
 			summaryTable.addAll(subPropCount);
 		}
 
-		Query inprogressProposal = session.createSQLQuery(
-				"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
+		if(isAdmin) {
+			if(unitNumber != null) {
+				inprogressProposal = session.createSQLQuery(
+						"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code = 1 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+				inprogressProposal.setString("unitNumber", unitNumber);
+			} else {
+				inprogressProposal = session.createSQLQuery(
+						"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
+			}
+		} else {
+			inprogressProposal = session.createSQLQuery(
+					"select 'In Progress Proposals' as In_Progress_Proposal, count(t1.proposal_id) as count, sum(t2.TOTAL_COST) as total_amount from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :person_id)");
+		}
 		inprogressProposal.setString("person_id", person_id);
 		inPropCount = inprogressProposal.list();
 		if (inPropCount != null && !inPropCount.isEmpty()) {
 			summaryTable.addAll(inPropCount);
 		}
 
-		Query activeAwards = session.createSQLQuery(
-				"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id)");
+		if(isAdmin) {
+			if(unitNumber != null) {
+				activeAwards = session.createSQLQuery(
+						"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and (t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id and unit_number = :unitNumber) or T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 INNER JOIN AWARD_PERSON_UNITS T2 ON T1.AWARD_PERSON_ID = T2.AWARD_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T2.UNIT_NUMBER = :unitNumber AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+				activeAwards.setString("unitNumber", unitNumber);
+			} else {
+				activeAwards = session.createSQLQuery(
+						"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id)");
+			}
+		} else {
+			activeAwards = session.createSQLQuery(
+					"select 'Active Awards' as Active_Award, count(t1.award_id),sum(t3.TOTAL_COST) as total_amount from AWARD t1 inner join AWARD_BUDGET_EXT t2 on t1.award_id=t2.award_id inner join budget t3 on t2.budget_id=t3.budget_id and t3.final_version_flag='Y' where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Award' and person_id = :person_id)");
+		}
 		activeAwards.setString("person_id", person_id);
 		activeAwardsCount = activeAwards.list();
 		if (activeAwardsCount != null && !activeAwardsCount.isEmpty()) {
@@ -161,21 +219,45 @@ public class DashboardDaoImpl implements DashboardDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ResearchSummaryPieChart> getSummaryAwardPieChart(String person_id,
+	public List<ResearchSummaryPieChart> getSummaryAwardPieChart(String person_id, String unitNumber, boolean isAdmin,
 			List<ResearchSummaryPieChart> summaryAwardPiechart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(
-				"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from AWARD t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Award' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE,t3.DESCRIPTION");
+		Query query = null;
+		if(isAdmin) {
+			if(unitNumber != null) {
+				query = session.createSQLQuery(
+						"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from AWARD t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.award_sequence_status = 'ACTIVE' and (t1.LEAD_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Award' and person_id = :person_id and unit_number = :unitNumber) OR T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 INNER JOIN AWARD_PERSON_UNITS T2 ON T1.AWARD_PERSON_ID = T2.AWARD_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T2.UNIT_NUMBER = :unitNumber AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP'))) group by t2.SPONSOR_TYPE_CODE,t3.DESCRIPTION");
+				query.setString("unitNumber", unitNumber);
+			} else {
+				query = session.createSQLQuery(
+						"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from AWARD t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Award' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE,t3.DESCRIPTION");
+			}
+		} else {
+			query = session.createSQLQuery(
+					"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from AWARD t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.award_sequence_status = 'ACTIVE' and t1.LEAD_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Award' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE,t3.DESCRIPTION");
+		}
 		query.setString("person_id", person_id);
 		return summaryAwardPiechart = query.list();
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ResearchSummaryPieChart> getSummaryProposalPieChart(String person_id,
+	public List<ResearchSummaryPieChart> getSummaryProposalPieChart(String person_id, String unitNumber, boolean isAdmin,
 			List<ResearchSummaryPieChart> summaryProposalPiechart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(
-				"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.HOME_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
+		Query query = null;
+		if(isAdmin) {
+			if(unitNumber != null) {
+				query = session.createSQLQuery(
+						"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where (t1.HOME_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber)) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
+				query.setString("unitNumber", unitNumber);
+			} else {
+				query = session.createSQLQuery(
+						"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.HOME_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
+			}
+		} else {
+			query = session.createSQLQuery(
+					"select t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION as sponsor_type, count(1) from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code inner join sponsor_type t3 on t2.SPONSOR_TYPE_CODE=t3.SPONSOR_TYPE_CODE where t1.HOME_UNIT_NUMBER in(select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t2.SPONSOR_TYPE_CODE, t3.DESCRIPTION");
+		}
 		query.setString("person_id", person_id);
 		return summaryProposalPiechart = query.list();
 	}
@@ -681,21 +763,45 @@ public class DashboardDaoImpl implements DashboardDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ResearchSummaryPieChart> getSummaryAwardedProposalDonutChart(String person_id,
-			List<ResearchSummaryPieChart> summaryAwardDonutChart) {
+	public List<ResearchSummaryPieChart> getSummaryAwardedProposalDonutChart(String person_id, String unitNumber, boolean isAdmin,
+			List<ResearchSummaryPieChart> summaryAwardDonutChart) {	
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(
-				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id ) group by t1.sponsor_code,t2.SPONSOR_NAME");
+		Query query = null;
+		if(isAdmin) {
+			if(unitNumber != null) {
+				query = session.createSQLQuery(
+						"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and (t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id and unit_number = :unitNumber) or t1.proposal_number IN( SELECT T1.PROPOSAL_NUMBER FROM PROPOSAL_PERSONS T1 INNER JOIN PROPOSAL_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP') AND T2.UNIT_NUMBER = :unitNumber)) group by t1.sponsor_code,t2.SPONSOR_NAME");
+				query.setString("unitNumber", unitNumber);
+			}else {
+				query = session.createSQLQuery(
+						"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id ) group by t1.sponsor_code,t2.SPONSOR_NAME");
+			}
+		} else {
+			query = session.createSQLQuery(
+					"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from proposal t1 inner join SPONSOR t2 on t1.sponsor_code = t2.sponsor_code where t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id ) group by t1.sponsor_code,t2.SPONSOR_NAME");
+		}
 		query.setString("person_id", person_id);
 		return summaryAwardDonutChart = query.list();
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ResearchSummaryPieChart> getSummaryInProgressProposalDonutChart(String person_id,
+	public List<ResearchSummaryPieChart> getSummaryInProgressProposalDonutChart(String person_id, String unitNumber, boolean isAdmin,
 			List<ResearchSummaryPieChart> summaryProposalDonutChart) {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-		Query query = session.createSQLQuery(
-				"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t1.sponsor_code,t2.SPONSOR_NAME");
+		Query query = null;
+		if(isAdmin) {
+			if(unitNumber != null) {
+				query = session.createSQLQuery(
+						"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :person_id AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber)) group by t1.sponsor_code,t2.SPONSOR_NAME");
+				query.setString("unitNumber", unitNumber);
+			}else {
+				query = session.createSQLQuery(
+						"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t1.sponsor_code,t2.SPONSOR_NAME");
+			}
+		} else {
+			query = session.createSQLQuery(
+					"select t1.sponsor_code,t2.SPONSOR_NAME as sponsor,count(1) as count from fibi_proposal t1 inner join SPONSOR t2 on t1.sponsor_code=t2.sponsor_code where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :person_id) group by t1.sponsor_code,t2.SPONSOR_NAME");
+		}
 		query.setString("person_id", person_id);
 		return summaryProposalDonutChart = query.list();
 	}

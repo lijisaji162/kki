@@ -18,10 +18,10 @@ public interface DashboardService {
 
 	/**
 	 * This method is used to get dashboard research summary data for piechart and table. 
-	 * @param personId - ID of the logged in person.
+	 * @param vo - Object of CommonVO.
 	 * @return Set of values used to figure out piechart and research summary table.
 	 */
-	public String getDashBoardResearchSummary(String personId) throws Exception;
+	public String getDashBoardResearchSummary(CommonVO vo) throws Exception;
 
 	/**
 	 * This method is used to retrieve dashboard data based on tabIndex.

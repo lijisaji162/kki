@@ -111,8 +111,6 @@ public class ProposalVO {
 
 	private Boolean isApproved = false;
 
-	private Boolean isReviewer = false;
-
 	private Boolean isReviewed = false;
 
 	private Boolean isGrantAdmin = false;
@@ -173,7 +171,11 @@ public class ProposalVO {
 
 	private List<ProposalPreReview> proposalPreReviews;
 
-	private boolean preReviewExist = false;
+	private Boolean preReviewExist = false;	
+
+	private Boolean isPreReviewer = false;
+
+	private List<ProposalPreReview> reviewerReviews;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -441,14 +443,6 @@ public class ProposalVO {
 
 	public void setIsApproved(Boolean isApproved) {
 		this.isApproved = isApproved;
-	}
-
-	public Boolean getIsReviewer() {
-		return isReviewer;
-	}
-
-	public void setIsReviewer(Boolean isReviewer) {
-		this.isReviewer = isReviewer;
 	}
 
 	public Boolean getIsReviewed() {
@@ -723,12 +717,28 @@ public class ProposalVO {
 		this.proposalPreReviews = proposalPreReviews;
 	}
 
-	public boolean isPreReviewExist() {
+	public Boolean getPreReviewExist() {
 		return preReviewExist;
 	}
 
-	public void setPreReviewExist(boolean preReviewExist) {
+	public void setPreReviewExist(Boolean preReviewExist) {
 		this.preReviewExist = preReviewExist;
+	}
+
+	public Boolean getIsPreReviewer() {
+		return isPreReviewer;
+	}
+
+	public void setIsPreReviewer(Boolean isPreReviewer) {
+		this.isPreReviewer = isPreReviewer;
+	}
+
+	public List<ProposalPreReview> getReviewerReviews() {
+		return reviewerReviews;
+	}
+
+	public void setReviewerReviews(List<ProposalPreReview> reviewerReviews) {
+		this.reviewerReviews = reviewerReviews;
 	}
 
 }

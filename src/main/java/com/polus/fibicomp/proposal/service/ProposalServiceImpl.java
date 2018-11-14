@@ -46,6 +46,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
 import com.polus.fibicomp.proposal.prereview.dao.ProposalPreReviewDao;
+import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.role.dao.RoleDao;
 import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
@@ -126,7 +127,6 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 
 		getHomeUnits(proposalVO);
-
 		loadInitialData(proposalVO);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -225,7 +225,6 @@ public class ProposalServiceImpl implements ProposalService {
 					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
 			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		}
-
 		if (statusCode == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
 			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
 		}
@@ -236,9 +235,12 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 		}
-
 		getHomeUnits(proposalVO);
-
+		List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, personId, Constants.PRE_REVIEW_STATUS_INPROGRESS);
+		if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
+			proposalVO.setIsPreReviewer(true);
+			proposalVO.setReviewerReviews(reviewerReviews);
+		}
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
 	}

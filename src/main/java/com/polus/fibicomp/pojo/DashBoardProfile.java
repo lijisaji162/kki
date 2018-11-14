@@ -63,6 +63,8 @@ public class DashBoardProfile {
 
 	private List<Proposal> proposal;
 
+	private List<UnitAdministrator> unitAdministrators;
+
 	public ArrayList<HashMap<String, Object>> getDashBoardDetailMap() {
 		return dashBoardDetailMap;
 	}
@@ -237,5 +239,13 @@ public class DashBoardProfile {
 
 	public void setProposal(List<Proposal> proposal) {
 		this.proposal = proposal;
+	}
+
+	public List<UnitAdministrator> getUnitAdministrators() {
+		return unitAdministrators;
+	}
+
+	public void setUnitAdministrators(List<UnitAdministrator> unitAdministrators) {
+		this.unitAdministrators = unitAdministrators;
 	}
 }
