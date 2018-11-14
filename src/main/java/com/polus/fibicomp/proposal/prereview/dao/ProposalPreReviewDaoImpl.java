@@ -45,9 +45,14 @@ public class ProposalPreReviewDaoImpl implements ProposalPreReviewDao {
 		return preReview;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<ProposalPreReview> loadAllProposalPreReviews() {
-		return hibernateTemplate.loadAll(ProposalPreReview.class);
+	public List<ProposalPreReview> loadAllProposalPreReviewsByProposalId(Integer proposalId) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(ProposalPreReview.class);
+		criteria.add(Restrictions.eq("proposalId", proposalId));
+		List<ProposalPreReview> preReviews = criteria.list();
+		return preReviews;
 	}
 
 	@SuppressWarnings("unchecked")

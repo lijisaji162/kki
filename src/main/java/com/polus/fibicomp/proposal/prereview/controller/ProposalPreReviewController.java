@@ -10,7 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.polus.fibicomp.proposal.prereview.service.ProposalPreReviewService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
@@ -28,6 +30,12 @@ public class ProposalPreReviewController {
 	public String createProposalPreReview(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for createProposalPreReview");
 		return proposalPreReviewService.createProposalPreReview(vo);
+	}
+
+	@RequestMapping(value = "/addPreReviewComment", method = RequestMethod.POST)
+	public String addPreReviewComment(@RequestParam(value = "files", required = false) MultipartFile[] files, @RequestParam("formDataJson") String formDataJson) {
+		logger.info("Requesting for addPreReviewComment");
+		return proposalPreReviewService.addPreReviewComment(files, formDataJson);
 	}
 
 }

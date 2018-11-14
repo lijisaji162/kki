@@ -27,7 +27,7 @@ public interface ProposalPreReviewDao {
 
 	public ProposalPreReview saveOrUpdatePreReview(ProposalPreReview preReview);
 
-	public List<ProposalPreReview> loadAllProposalPreReviews();
+	public List<ProposalPreReview> loadAllProposalPreReviewsByProposalId(Integer proposalId);
 
 	public List<ProposalPreReview> fetchPreReviewsByCriteria(Integer proposalId, String personId, String preReviewStatus);
 
