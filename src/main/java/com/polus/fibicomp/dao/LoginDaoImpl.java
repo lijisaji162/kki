@@ -86,9 +86,6 @@ public class LoginDaoImpl implements LoginDao {
 		criteria.add(Restrictions.eq("personId", personId));
 		criteria.add(Restrictions.eq("unitAdministratorTypeCode", "3"));
 		unitAdministrators = criteria.list();
-		if (unitAdministrators != null && !unitAdministrators.isEmpty()) {
-			return unitAdministrators;
-		}
 		return unitAdministrators;
 	}
 }

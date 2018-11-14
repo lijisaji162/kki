@@ -23,11 +23,13 @@ public interface DashboardDao {
 	 * 
 	 * @param personId
 	 *            - ID of the logged in person.
+	 * @param unitNumber - department Id selected by the user.
+	 * @param isAdmin - flag that tells whether logged in user is admin or PI.
 	 * @return Set of values used to figure out piechart and research summary
 	 *         table.
 	 * @throws Exception
 	 */
-	public String getDashBoardResearchSummary(String personId) throws Exception;
+	public String getDashBoardResearchSummary(String personId, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of awards.
@@ -152,7 +154,7 @@ public interface DashboardDao {
 	 * @param summaryTable
 	 * @return List of Research Summary View
 	 */
-	public List<ResearchSummaryView> getSummaryTable(String person_id, List<ResearchSummaryView> summaryTable);
+	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, List<ResearchSummaryView> summaryTable);
 
 	/**
 	 * @param personId

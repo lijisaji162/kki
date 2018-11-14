@@ -112,6 +112,8 @@ public class CommonVO {
 	
 	private String documentHeading;
 
+	private boolean isAdmin;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -510,6 +512,14 @@ public class CommonVO {
 
 	public void setDocumentHeading(String documentHeading) {
 		this.documentHeading = documentHeading;
-	}	
+	}
+
+	public boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 
 }

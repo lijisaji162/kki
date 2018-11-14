@@ -35,7 +35,7 @@ public class DashboardController {
 
 	@RequestMapping(value = "/getResearchSummaryData", method = RequestMethod.POST)
 	public String requestResearchSummaryData(@RequestBody CommonVO vo, HttpServletRequest request) throws Exception {
-		return dashboardService.getDashBoardResearchSummary(vo.getPersonId());
+		return dashboardService.getDashBoardResearchSummary(vo);
 	}
 
 	@RequestMapping(value = "/fibiDashBoard", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
