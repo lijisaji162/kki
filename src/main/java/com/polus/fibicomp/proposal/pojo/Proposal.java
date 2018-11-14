@@ -30,6 +30,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.proposal.comparator.ProposalAttachmentComparator;
+import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Entity
@@ -180,6 +181,18 @@ public class Proposal implements Serializable {
 
 	@Transient
 	private Workflow workflow;
+
+	@Transient
+	private List<ProposalPreReview> proposalPreReviews;
+
+	@Transient
+	private ProposalPreReview reviewerReview;
+
+	@Transient
+	private Boolean preReviewExist = false;	
+
+	@Transient
+	private Boolean isPreReviewer = false;
 
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
@@ -540,6 +553,38 @@ public class Proposal implements Serializable {
 
 	public void setWorkflow(Workflow workflow) {
 		this.workflow = workflow;
+	}
+
+	public List<ProposalPreReview> getProposalPreReviews() {
+		return proposalPreReviews;
+	}
+
+	public void setProposalPreReviews(List<ProposalPreReview> proposalPreReviews) {
+		this.proposalPreReviews = proposalPreReviews;
+	}
+
+	public ProposalPreReview getReviewerReview() {
+		return reviewerReview;
+	}
+
+	public void setReviewerReview(ProposalPreReview reviewerReview) {
+		this.reviewerReview = reviewerReview;
+	}
+
+	public Boolean getPreReviewExist() {
+		return preReviewExist;
+	}
+
+	public void setPreReviewExist(Boolean preReviewExist) {
+		this.preReviewExist = preReviewExist;
+	}
+
+	public Boolean getIsPreReviewer() {
+		return isPreReviewer;
+	}
+
+	public void setIsPreReviewer(Boolean isPreReviewer) {
+		this.isPreReviewer = isPreReviewer;
 	}
 
 }

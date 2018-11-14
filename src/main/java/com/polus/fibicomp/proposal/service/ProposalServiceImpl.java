@@ -236,10 +236,11 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setWorkflow(workflow);
 		}
 		getHomeUnits(proposalVO);
+		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposalId));
 		List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, personId, Constants.PRE_REVIEW_STATUS_INPROGRESS);
 		if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
-			proposalVO.setIsPreReviewer(true);
-			proposalVO.setReviewerReviews(reviewerReviews);
+			proposal.setIsPreReviewer(true);
+			proposal.setReviewerReview(reviewerReviews.get(0));
 		}
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -634,8 +635,6 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setDepartments(proposalDao.fetchAllUnits());
 		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
 		proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
-		// proposalVO.setPreReviewStatus(proposalPreReviewDao.fetchAllPreReviewStatus());
-		proposalVO.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviews());
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {

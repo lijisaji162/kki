@@ -169,14 +169,6 @@ public class ProposalVO {
 
 	private ProposalPreReview newProposalPreReview;
 
-	private List<ProposalPreReview> proposalPreReviews;
-
-	private Boolean preReviewExist = false;	
-
-	private Boolean isPreReviewer = false;
-
-	private List<ProposalPreReview> reviewerReviews;
-
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -707,38 +699,6 @@ public class ProposalVO {
 
 	public void setNewProposalPreReview(ProposalPreReview newProposalPreReview) {
 		this.newProposalPreReview = newProposalPreReview;
-	}
-
-	public List<ProposalPreReview> getProposalPreReviews() {
-		return proposalPreReviews;
-	}
-
-	public void setProposalPreReviews(List<ProposalPreReview> proposalPreReviews) {
-		this.proposalPreReviews = proposalPreReviews;
-	}
-
-	public Boolean getPreReviewExist() {
-		return preReviewExist;
-	}
-
-	public void setPreReviewExist(Boolean preReviewExist) {
-		this.preReviewExist = preReviewExist;
-	}
-
-	public Boolean getIsPreReviewer() {
-		return isPreReviewer;
-	}
-
-	public void setIsPreReviewer(Boolean isPreReviewer) {
-		this.isPreReviewer = isPreReviewer;
-	}
-
-	public List<ProposalPreReview> getReviewerReviews() {
-		return reviewerReviews;
-	}
-
-	public void setReviewerReviews(List<ProposalPreReview> reviewerReviews) {
-		this.reviewerReviews = reviewerReviews;
 	}
 
 }
