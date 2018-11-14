@@ -41,6 +41,9 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		if (preReviewExists != null && !preReviewExists.isEmpty()) {
 			proposal.setPreReviewExist(true);
 		} else {
+			if (proposalVO.getPersonId().equals(preReview.getReviewerPersonId())) {
+				proposal.setIsPreReviewer(true);
+			}
 			PreReviewStatus reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_INPROGRESS);
 			preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_INPROGRESS);
 			preReview.setPreReviewStatus(reviewStatus);
@@ -70,7 +73,6 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 							proposalPreReviewAttachment.setPreReviewId(preReview.getPreReviewId());
 							proposalPreReviewAttachment.setProposalId(preReview.getProposalId());
 							proposalPreReviewAttachment.setFileName(fileName);
-							// proposalPreReviewAttachment.setDescription("");
 							proposalPreReviewAttachment.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 							proposalPreReviewAttachment.setUpdateUser(proposalVO.getUserName());
 							proposalPreReviewAttachment.setAttachment(files[i].getBytes());
@@ -87,6 +89,20 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		String response = committeeDao.convertObjectToJSON(proposalVO);
+		return response;
+	}
+
+	@Override
+	public String completePreReview(ProposalVO proposalVO) {
+		Proposal proposal = proposalVO.getProposal();
+		ProposalPreReview preReview = proposal.getReviewerReview();
+		PreReviewStatus reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
+		preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
+		preReview.setPreReviewStatus(reviewStatus);
+		preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
+		proposal.setReviewerReview(preReview);
+		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
 	}

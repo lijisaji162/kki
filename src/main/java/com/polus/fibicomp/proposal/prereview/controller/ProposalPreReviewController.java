@@ -38,4 +38,10 @@ public class ProposalPreReviewController {
 		return proposalPreReviewService.addPreReviewComment(files, formDataJson);
 	}
 
+	@RequestMapping(value = "/completePreReview", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String completePreReviewComment(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for completePreReview");
+		return proposalPreReviewService.completePreReview(vo);
+	}
+
 }
