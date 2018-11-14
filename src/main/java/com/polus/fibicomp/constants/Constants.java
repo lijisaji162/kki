@@ -127,5 +127,6 @@ public interface Constants {
 
   	// Proposal Pre Review Section
   	String PRE_REVIEW_STATUS_INPROGRESS = "1";
+  	String PRE_REVIEW_STATUS_COMPLETE = "2";
 
 }
