@@ -46,6 +46,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			proposal.setPreReviewExist(true);
 		} else {
 			if (proposalVO.getPersonId().equals(preReview.getReviewerPersonId())) {
+				proposal.setReviewerReview(preReview);
 				proposal.setIsPreReviewer(true);
 			}
 			PreReviewStatus reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_INPROGRESS);
@@ -53,7 +54,6 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			preReview.setPreReviewStatus(reviewStatus);
 			preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
 		}
-		proposal.setReviewerReview(preReview);
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
 		return committeeDao.convertObjectToJSON(proposalVO);
 	}
@@ -108,7 +108,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		preReview.setPreReviewStatus(reviewStatus);
 		preReview.setCompletionDate(committeeDao.getCurrentTimestamp());
 		preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
-		proposal.setReviewerReview(preReview);
+		// proposal.setReviewerReview(preReview);
 		if (proposalVO.getPersonId().equals(preReview.getReviewerPersonId())) {
 			proposal.setIsPreReviewer(false);
 		}

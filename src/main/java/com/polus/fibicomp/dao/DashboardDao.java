@@ -85,20 +85,24 @@ public interface DashboardDao {
 	/**
 	 * This method is used to retrieve award data in piechart based on sponsor type.
 	 * @param personId - Logged User ID
-	 * @param sponsorCode - sponsor_type_code clicked by user in piechart 
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of award data based on award type.
 	 * @throws Exception
 	 */
-	public String getAwardBySponsorTypes(String personId, String sponsorCode) throws Exception;
+	public String getAwardBySponsorTypes(String personId, String sponsorCode, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve proposal data in piechart based on sponsor type.
 	 * @param personId - Logged User ID
-	 * @param sponsorCode - sponsor_type_code clicked by user in piechart 
+	 * @param sponsorCode - sponsor_type_code clicked by user in piechart
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of award data based on award type.
 	 * @throws Exception
 	 */
-	public String getProposalBySponsorTypes(String personId, String sponsorCode) throws Exception;
+	public String getProposalBySponsorTypes(String personId, String sponsorCode, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of pending action.
@@ -110,44 +114,54 @@ public interface DashboardDao {
 	/**
 	 * This method is used to retrieve list of in_progress proposals.
 	 * @param personId - ID of the user.
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of Proposals in progress.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getProposalsInProgress(String personId) throws Exception;
+	public DashBoardProfile getProposalsInProgress(String personId, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of submitted proposals.
 	 * @param personId - ID of the user.
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of Submitted proposals.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getSubmittedProposals(String personId) throws Exception;
+	public DashBoardProfile getSubmittedProposals(String personId, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of active awards.
 	 * @param personId - ID of the user.
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of active awards
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getActiveAwards(String personId) throws Exception;
+	public DashBoardProfile getActiveAwards(String personId, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve inProgress proposal data by sponsor in donutChart.
 	 * @param personId - Logged User ID
-	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart 
+	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user. 
 	 * @return A list of proposal data based on status = inProgress.
 	 * @throws Exception
 	 */
-	public String getInProgressProposalsBySponsorExpanded(String personId, String sponsorCode) throws Exception;
+	public String getInProgressProposalsBySponsorExpanded(String personId, String sponsorCode, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * This method is used to retrieve awarded proposal data by sponsor in donutChart.
 	 * @param personId - Logged User ID
-	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart 
+	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
+	 * @param isAdmin - flag that tells logged user is admin or PI.
+	 * @param unitNumber - unit selected by the user.
 	 * @return A list of proposal data based on status = Awarded.
 	 * @throws Exception
 	 */
-	public String getAwardedProposalsBySponsorExpanded(String personId, String sponsorCode) throws Exception;
+	public String getAwardedProposalsBySponsorExpanded(String personId, String sponsorCode, boolean isAdmin, String unitNumber) throws Exception;
 
 	/**
 	 * @param person_id - Logged User ID
