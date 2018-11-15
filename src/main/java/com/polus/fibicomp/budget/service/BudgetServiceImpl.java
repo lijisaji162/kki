@@ -198,6 +198,7 @@ public class BudgetServiceImpl implements BudgetService {
 		BigDecimal totalDirectCost = BigDecimal.ZERO;
 		BigDecimal totalIndirectCost = BigDecimal.ZERO;
 		BigDecimal totalCost = BigDecimal.ZERO;
+		BigDecimal totalSubcontractCost = BigDecimal.ZERO;
 		if (budgetPeriodList != null && !budgetPeriodList.isEmpty()) {
 			for (BudgetPeriod period : budgetPeriodList) {
 				if (period.getTotalDirectCost() != null) {
@@ -209,11 +210,15 @@ public class BudgetServiceImpl implements BudgetService {
 				if (period.getTotalCost() != null) {
 					totalCost = totalCost.add(period.getTotalCost());
 				}
+				if (period.getSubcontractCost() != null) {
+					totalSubcontractCost = totalSubcontractCost.add(period.getSubcontractCost());
+				}
 			}
 		}
 		budget.setTotalDirectCost(totalDirectCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 		budget.setTotalIndirectCost(totalIndirectCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 		budget.setTotalCost(totalCost.setScale(2, BigDecimal.ROUND_HALF_UP));
+		budget.setTotalSubcontractCost(totalSubcontractCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 	}
 
 	private BigDecimal calculateFringeCostForCE(Integer budgetId, BudgetPeriod budgetPeriod, BudgetDetail budgetDetail,

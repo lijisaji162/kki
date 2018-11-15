@@ -138,6 +138,9 @@ public class BudgetHeader implements Serializable {
 	@OneToMany(mappedBy = "budgetHeader", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<FibiProposalRate> proposalRates;
 
+	@Column(name = "TOTAL_SUBCONTRACT_COST", precision = 10, scale = 2)
+	private BigDecimal totalSubcontractCost;
+
 	public BudgetHeader() {
 		budgetPeriods = new ArrayList<>();
 		proposalRates = new ArrayList<>();
@@ -393,6 +396,14 @@ public class BudgetHeader implements Serializable {
 
 	public void setBudgetId(Integer budgetId) {
 		this.budgetId = budgetId;
+	}
+
+	public BigDecimal getTotalSubcontractCost() {
+		return totalSubcontractCost;
+	}
+
+	public void setTotalSubcontractCost(BigDecimal totalSubcontractCost) {
+		this.totalSubcontractCost = totalSubcontractCost;
 	}
 
 	/*public BudgetPeriod getNewBudgetPeriod() {

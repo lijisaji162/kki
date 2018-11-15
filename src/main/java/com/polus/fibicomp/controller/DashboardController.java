@@ -50,7 +50,7 @@ public class DashboardController {
 
 	@RequestMapping(value = "/getDetailedResearchSummary", method = RequestMethod.POST)
 	public String requestDetailedResearchSummary(@RequestBody CommonVO vo, HttpServletRequest request) throws Exception {
-		return dashboardService.getDetailedSummaryData(vo.getPersonId(), vo.getResearchSummaryIndex());
+		return dashboardService.getDetailedSummaryData(vo);
 	}
 
 	@RequestMapping(value = "/getUserNotification", method = RequestMethod.POST)

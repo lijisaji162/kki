@@ -136,15 +136,19 @@ public class DashboardServiceImpl implements DashboardService {
 		String personId = vo.getPersonId();
 		String sponsorCode = vo.getSponsorCode();
 		String pieChartIndex = vo.getPieChartIndex();
+		boolean isAdmin = vo.getIsAdmin();
+		String unitNumber = vo.getUnitNumber();		
 		logger.info("personId :"+ personId);
 		logger.info("sponsorCode :"+ sponsorCode);
 		logger.info("pieChartIndex :"+ pieChartIndex);
+		logger.info("isAdmin :"+ isAdmin);
+		logger.info("unitNumber :"+ unitNumber);
 		try {
 			if (pieChartIndex.equals("AWARD")) {
-				pieChartDataByType = dashboardDao.getAwardBySponsorTypes(personId, sponsorCode);
+				pieChartDataByType = dashboardDao.getAwardBySponsorTypes(personId, sponsorCode, isAdmin, unitNumber);
 			}
 			if (pieChartIndex.equals("PROPOSAL")) {
-				pieChartDataByType = dashboardDao.getProposalBySponsorTypes(personId, sponsorCode);
+				pieChartDataByType = dashboardDao.getProposalBySponsorTypes(personId, sponsorCode, isAdmin, unitNumber);
 			}
 		} catch (Exception e) {
 			logger.error("Error in method getPieChartDataByType", e);
@@ -153,18 +157,26 @@ public class DashboardServiceImpl implements DashboardService {
 	}
 
 	@Override
-	public String getDetailedSummaryData(String personId, String researchSummaryIndex) throws Exception {
+	public String getDetailedSummaryData(CommonVO vo) throws Exception {
 		logger.info("---------getDetailedSummaryData---------");
+		String personId = vo.getPersonId();
+		String researchSummaryIndex = vo.getResearchSummaryIndex();
+		boolean isAdmin = vo.getIsAdmin();
+		String unitNumber = vo.getUnitNumber();
+		logger.info("personId :"+ personId);
+		logger.info("researchSummaryIndex :"+ researchSummaryIndex);
+		logger.info("isAdmin :"+ isAdmin);
+		logger.info("unitNumber :"+ unitNumber);
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber);
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber);
 			}
 			if (researchSummaryIndex.equals("AWARDSACTIVE")) {
-				dashBoardProfile = dashboardDao.getActiveAwards(personId);
+				dashBoardProfile = dashboardDao.getActiveAwards(personId, isAdmin, unitNumber);
 			}
 		} catch (Exception e) {
 			logger.error("Error in method getDetailedSummaryData", e);
@@ -181,15 +193,19 @@ public class DashboardServiceImpl implements DashboardService {
 		String personId = vo.getPersonId();
 		String sponsorCode = vo.getSponsorCode();
 		String donutChartIndex = vo.getDonutChartIndex();
+		boolean isAdmin = vo.getIsAdmin();
+		String unitNumber = vo.getUnitNumber();
 		logger.info("personId :"+ personId);
 		logger.info("sponsorCode :"+ sponsorCode);
 		logger.info("donutChartIndex :"+ donutChartIndex);
+		logger.info("isAdmin :"+ isAdmin);
+		logger.info("unitNumber :"+ unitNumber);
 		try {
 			if (donutChartIndex.equals("INPROGRESS")) {
-				donutChartData = dashboardDao.getInProgressProposalsBySponsorExpanded(personId, sponsorCode);
+				donutChartData = dashboardDao.getInProgressProposalsBySponsorExpanded(personId, sponsorCode, isAdmin, unitNumber);
 			}
 			if (donutChartIndex.equals("AWARDED")) {
-				donutChartData = dashboardDao.getAwardedProposalsBySponsorExpanded(personId, sponsorCode);
+				donutChartData = dashboardDao.getAwardedProposalsBySponsorExpanded(personId, sponsorCode, isAdmin, unitNumber);
 			}
 		} catch (Exception e) {
 			logger.error("Error in method getPieChartDataByType", e);
@@ -269,18 +285,20 @@ public class DashboardServiceImpl implements DashboardService {
 	@Override
 	public String getFibiResearchSummary(String personId, String researchSummaryIndex) throws Exception {
 		logger.info("---------getFibiResearchSummary---------");
+		boolean isAdmin = false;
+		String unitNumber = "";
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		MobileProfile mobileProfile = new MobileProfile();
 		mobileProfile.setStatus(false);
 		mobileProfile.setMessage("Error fetching research summary");
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}
