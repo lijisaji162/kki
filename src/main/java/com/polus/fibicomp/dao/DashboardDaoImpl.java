@@ -1631,9 +1631,12 @@ public class DashboardDaoImpl implements DashboardDao {
 			if (property4 != null && !property4.isEmpty()) {
 				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
 			}
-			searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)));
+			List<Integer> proposalStatusCodes = new ArrayList<>();
+			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
+			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS);
+			searchCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCodes)));
 			searchCriteria.add(Restrictions.in("proposalId", proposalIds));
-			countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)));
+			countCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCodes)));
 			countCriteria.add(Restrictions.in("proposalId", proposalIds));
 			searchCriteria.add(and);
 			countCriteria.add(and);
@@ -1662,9 +1665,11 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
 					propObj.setSubmitUser(proposalObject.getSubmitUser());
-					Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
-					proposalDao.prepareWorkflowDetails(workflow);
-					propObj.setWorkflow(workflow);
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
+						proposalDao.prepareWorkflowDetails(workflow);
+						propObj.setWorkflow(workflow);
+					}
 					proposalList.add(propObj);
 				}
 			}
@@ -1682,7 +1687,7 @@ public class DashboardDaoImpl implements DashboardDao {
 		List<Integer> proposalIds = new ArrayList<Integer>();
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query query = session.createSQLQuery(
-				"SELECT PROPOSAL_ID FROM eps_prop_pre_review where PRE_REVIEW_STATUS_CODE=:pre_review_status_code and REVIEWER_PERSON_ID=:reviewer_person_id union select t1.MODULE_ITEM_ID from fibi_workflow t1 inner join fibi_workflow_detail t2 on t1.WORKFLOW_ID = t2.workflow_id where t1.MODULE_CODE = :module_code and t1.IS_WORKFLOW_ACTIVE='Y' and t2.approver_person_id = :person_id and t2.APPROVAL_STATUS_CODE = :approval_status_code");
+				"SELECT PROPOSAL_ID FROM eps_prop_pre_review where PRE_REVIEW_STATUS_CODE=:pre_review_status_code and REVIEWER_PERSON_ID=:reviewer_person_id union select t1.MODULE_ITEM_ID as PROPOSAL_ID from fibi_workflow t1 inner join fibi_workflow_detail t2 on t1.WORKFLOW_ID = t2.workflow_id where t1.MODULE_CODE = :module_code and t1.IS_WORKFLOW_ACTIVE='Y' and t2.approver_person_id = :person_id and t2.APPROVAL_STATUS_CODE = :approval_status_code");
 		query.setString("pre_review_status_code", Constants.PRE_REVIEW_STATUS_INPROGRESS);
 		query.setString("reviewer_person_id", personId);
 		query.setString("person_id", personId);
