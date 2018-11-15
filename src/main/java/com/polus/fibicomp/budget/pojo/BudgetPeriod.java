@@ -90,6 +90,9 @@ public class BudgetPeriod implements Serializable {
 	@OneToMany(mappedBy = "period", orphanRemoval = true, cascade = { CascadeType.ALL })
 	private List<BudgetDetail> budgetDetails;
 
+	@Column(name = "SUBCONTRACT_COST", precision = 10, scale = 2)
+	private BigDecimal subcontractCost;
+
 	public BudgetPeriod() {
 		budgetDetails = new ArrayList<>();
 	}
@@ -228,5 +231,13 @@ public class BudgetPeriod implements Serializable {
 
 	public void setBudgetDetails(List<BudgetDetail> budgetDetails) {
 		this.budgetDetails = budgetDetails;
+	}
+
+	public BigDecimal getSubcontractCost() {
+		return subcontractCost;
+	}
+
+	public void setSubcontractCost(BigDecimal subcontractCost) {
+		this.subcontractCost = subcontractCost;
 	}
 }
