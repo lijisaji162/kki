@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewType;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
+import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReviewAttachment;
 
 @Transactional
 @Service(value = "proposalPreReviewDao")
@@ -65,6 +66,11 @@ public class ProposalPreReviewDaoImpl implements ProposalPreReviewDao {
 		criteria.add(Restrictions.eq("reviewStatusCode", preReviewStatus));
 		List<ProposalPreReview> preReviews = criteria.list();
 		return preReviews;
+	}
+
+	@Override
+	public ProposalPreReviewAttachment fetchAttachmentById(Integer attachmentId) {
+		return hibernateTemplate.get(ProposalPreReviewAttachment.class, attachmentId);
 	}
 
 }

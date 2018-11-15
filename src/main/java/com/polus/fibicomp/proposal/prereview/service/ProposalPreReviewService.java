@@ -1,5 +1,6 @@
 package com.polus.fibicomp.proposal.prereview.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,5 +30,12 @@ public interface ProposalPreReviewService {
 	 * @return A String of details of proposal data with pre review data.
 	 */
 	public String completePreReview(ProposalVO proposalVO);
+
+	/**
+	 * This method is used to download proposal pre review attachment.
+	 * @param attachmentId - Id of the attachment to download.
+	 * @return attachmentData.
+	 */
+	public ResponseEntity<byte[]> downloadPreReviewAttachment(Integer attachmentId);
 
 }

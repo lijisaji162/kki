@@ -168,6 +168,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setApplicationStatus(originalProposal.getApplicationStatus());
 		copyProposal.setCreateTimeStamp(committeeDao.getCurrentTimestamp());
 		copyProposal.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
+		copyProposal.setIsSubcontract(originalProposal.getIsSubcontract());
 		if (originalProposal.getProposalAttachments() != null && !originalProposal.getProposalAttachments().isEmpty()) {
 			copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, originalProposal, updateUser));
 		}
@@ -368,6 +369,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 			}
 			copyPeriod.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			copyPeriod.setUpdateUser(copyBudget.getUpdateUser());
+			copyPeriod.setSubcontractCost(originalPeriod.getSubcontractCost());
 			copyPeriod = budgetDao.saveBudgetPeriod(copyPeriod);
 			newPeriods.add(copyPeriod);
 		}

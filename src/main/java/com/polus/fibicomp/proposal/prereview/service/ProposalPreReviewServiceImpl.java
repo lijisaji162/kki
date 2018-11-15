@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +53,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			preReview.setPreReviewStatus(reviewStatus);
 			preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
 		}
+		proposal.setReviewerReview(preReview);
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
 		return committeeDao.convertObjectToJSON(proposalVO);
 	}
@@ -70,6 +75,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 							File file = new File(files[i].getOriginalFilename());
 							String fileName = file.getName();
 							ProposalPreReviewAttachment proposalPreReviewAttachment = new ProposalPreReviewAttachment();
+							proposalPreReviewAttachment.setProposalPreReviewComment(reviewComment);
 							proposalPreReviewAttachment.setPreReviewId(preReview.getPreReviewId());
 							proposalPreReviewAttachment.setProposalId(preReview.getProposalId());
 							proposalPreReviewAttachment.setFileName(fileName);
@@ -100,11 +106,35 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		PreReviewStatus reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
 		preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
 		preReview.setPreReviewStatus(reviewStatus);
+		preReview.setCompletionDate(committeeDao.getCurrentTimestamp());
 		preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
 		proposal.setReviewerReview(preReview);
+		if (proposalVO.getPersonId().equals(preReview.getReviewerPersonId())) {
+			proposal.setIsPreReviewer(false);
+		}
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
+	}
+
+	@Override
+	public ResponseEntity<byte[]> downloadPreReviewAttachment(Integer attachmentId) {
+		ProposalPreReviewAttachment attachment = proposalPreReviewDao.fetchAttachmentById(attachmentId);
+		ResponseEntity<byte[]> attachmentData = null;
+		try {
+			byte[] data = attachment.getAttachment();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.parseMediaType(attachment.getMimeType()));
+			String filename = attachment.getFileName();
+			headers.setContentDispositionFormData(filename, filename);
+			headers.setContentLength(data.length);
+			headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+			headers.setPragma("public");
+			attachmentData = new ResponseEntity<byte[]>(data, headers, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachmentData;
 	}
 
 }

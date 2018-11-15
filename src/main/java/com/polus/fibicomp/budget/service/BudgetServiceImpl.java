@@ -900,13 +900,13 @@ public class BudgetServiceImpl implements BudgetService {
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
 						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							totalFringeCost = totalFringeCost.add(totalFringeCost);
+							totalFringeCost = totalFringeCost.add(budgetItemDetail.getLineItemCost());
 						}
 						if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_OH_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							totalFandACost = totalFandACost.add(totalFandACost);
+							totalFandACost = totalFandACost.add(budgetItemDetail.getLineItemCost());
 						}
 						if (Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())) {
-							totalFandACost = totalFandACost.add(totalFandACost);
+							totalFandACost = totalFandACost.add(budgetItemDetail.getLineItemCost());
 						}
 					}
 				}

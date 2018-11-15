@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
@@ -31,6 +32,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCallType;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.proposal.comparator.ProposalAttachmentComparator;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
+import com.polus.fibicomp.util.JpaCharBooleanConversion;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Entity
@@ -166,6 +168,10 @@ public class Proposal implements Serializable {
 
 	@Column(name = "SPONSOR_PROPOSAL_NUMBER")
     private String sponsorProposalNumber;
+
+	@Column(name = "IS_SUBCONTRACT")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isSubcontract = false;
 
 	@Transient
 	private String principalInvestigator;
@@ -585,6 +591,14 @@ public class Proposal implements Serializable {
 
 	public void setIsPreReviewer(Boolean isPreReviewer) {
 		this.isPreReviewer = isPreReviewer;
+	}
+
+	public Boolean getIsSubcontract() {
+		return isSubcontract;
+	}
+
+	public void setIsSubcontract(Boolean isSubcontract) {
+		this.isSubcontract = isSubcontract;
 	}
 
 }
