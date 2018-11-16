@@ -545,7 +545,7 @@ public class ProposalServiceImpl implements ProposalService {
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
 				logger.info("isIPCreated : " + isIPCreated);
 				if (isIPCreated) {
-					String fyiMessage = "The following proposal is successfully routed and awarded: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+					String fyiMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
@@ -571,6 +571,16 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
 					proposal = proposalDao.saveOrUpdateProposal(proposal);
+					String rejectMessage = "The following proposal is rejected  :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+							+ proposal.getProposalId() +"\">this link</a> "
+							+ "to review the application.";
+					String rejectSubject = "Action Required: Rejected for "+ proposal.getTitle();
+					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
 			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
 				loadInitialData(proposalVO);
