@@ -915,10 +915,10 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 					}
 				}
+				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 			}
-			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
-			budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
-			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
 		return proposal;
