@@ -816,6 +816,7 @@ public class BudgetServiceImpl implements BudgetService {
 		Proposal proposal = proposalVO.getProposal();
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		List<BudgetPeriod> budgetPeriods = proposal.getBudgetHeader().getBudgetPeriods();
+		Integer deletedPeriodId = 0;
 		for (BudgetPeriod budgetPeriod : budgetPeriods) {
 			if (budgetPeriod.getBudgetPeriodId().equals(proposalVO.getBudgetPeriodId())) {
 				List<BudgetDetail> budgetDetails = budgetPeriod.getBudgetDetails();
@@ -823,14 +824,15 @@ public class BudgetServiceImpl implements BudgetService {
 				Collections.copy(updatedlist, budgetDetails);
 				for (BudgetDetail budgetDetail : budgetDetails) {
 					if (budgetDetail.getBudgetDetailId() != null && budgetDetail.getBudgetDetailId().equals(proposalVO.getBudgetDetailId())) {
-						//budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
+						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
 					}
 					if (updatedlist.size() <= 2) {
-						//budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
+						budgetDetail = deleteBudgetDetailCalcAmount(budgetDetail);
 						budgetDetail = budgetDao.deleteBudgetDetail(budgetDetail);
 						updatedlist.remove(budgetDetail);
+						deletedPeriodId = budgetPeriod.getBudgetPeriodId();
 					}
 				}
 				budgetPeriod.getBudgetDetails().clear();
@@ -839,13 +841,53 @@ public class BudgetServiceImpl implements BudgetService {
 		}
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		if (proposal.getBudgetHeader().getIsAutoCalc() != null && !proposal.getBudgetHeader().getIsAutoCalc()) {
-			proposal = calculateCost(proposal);			
+			proposal = updateDeletedCost(proposal, deletedPeriodId);			
 		}
 		proposal = saveOrUpdateProposalBudget(proposalVO);
 		proposalVO.setProposal(proposal);
 		proposalVO.setStatus(true);
 		proposalVO.setMessage("Budget detail deleted successfully");
 		return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	public Proposal updateDeletedCost(Proposal proposal, Integer deletedPeriodId) {
+		List<BudgetPeriod> budgetPeriodsList = proposal.getBudgetHeader().getBudgetPeriods();
+		for (BudgetPeriod budgetPeriod : budgetPeriodsList) {
+			BigDecimal totalFringeCost = BigDecimal.ZERO;
+			BigDecimal totalFandACost = BigDecimal.ZERO;
+			BigDecimal totalLineItemCost = BigDecimal.ZERO;
+			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails();
+			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
+				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
+					if (!budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						totalLineItemCost = totalLineItemCost.add(budgetItemDetail.getLineItemCost());
+					}
+				}
+				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
+					if (budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						if (Constants.BUDGET_FRINGE_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_FRINGE_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFringeCost = totalFringeCost.add(budgetItemDetail.getLineItemCost());
+						}
+						if (Constants.BUDGET_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_OH_OFF.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFandACost = totalFandACost.add(budgetItemDetail.getLineItemCost());
+						}
+						if (Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType()) || Constants.BUDGET_RESEARCH_OH_ON.equals(budgetItemDetail.getSystemGeneratedCEType())) {
+							totalFandACost = totalFandACost.add(budgetItemDetail.getLineItemCost());
+						}
+					}
+				}
+				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+			if (deletedPeriodId == budgetPeriod.getBudgetPeriodId()) {
+				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
+			}
+		}
+		updateBudgetHeader(proposal.getBudgetHeader());
+		return proposal;
 	}
 
 	protected void updateBudgetPeriods(List<BudgetPeriod> budgetPeriods, int checkPeriod, boolean deletePeriod) {
