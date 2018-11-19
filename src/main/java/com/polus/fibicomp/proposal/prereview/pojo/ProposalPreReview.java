@@ -57,11 +57,17 @@ public class ProposalPreReview implements Serializable {
 	@Column(name = "REVIEWER_FULLNAME")
 	private String reviewerFullName;
 
+	@Column(name = "REVIEWER_EMAIL")
+	private String reviewerEmailAddress;
+
 	@Column(name = "REQUESTOR_PERSON_ID")
 	private String requestorPersonId;
 
 	@Column(name = "REQUESTOR_FULLNAME")
 	private String requestorFullName;
+
+	@Column(name = "REQUESTOR_EMAIL")
+	private String requestorEmailAddress;
 
 	@Column(name = "REQUESTOR_COMMENT")
 	private String requestorComment;
@@ -217,4 +223,21 @@ public class ProposalPreReview implements Serializable {
 	public void setProposalPreReviewComments(List<ProposalPreReviewComment> proposalPreReviewComments) {
 		this.proposalPreReviewComments = proposalPreReviewComments;
 	}
+
+	public String getReviewerEmailAddress() {
+		return reviewerEmailAddress;
+	}
+
+	public void setReviewerEmailAddress(String reviewerEmailAddress) {
+		this.reviewerEmailAddress = reviewerEmailAddress;
+	}
+
+	public String getRequestorEmailAddress() {
+		return requestorEmailAddress;
+	}
+
+	public void setRequestorEmailAddress(String requestorEmailAddress) {
+		this.requestorEmailAddress = requestorEmailAddress;
+	}
+
 }

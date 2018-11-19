@@ -97,6 +97,8 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setSponsorName(originalProposal.getSponsorName());
 		copyProposal.setStartDate(originalProposal.getStartDate());
 		copyProposal.setEndDate(originalProposal.getEndDate());
+		copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
+		copyProposal.setInternalDeadLineDate(originalProposal.getInternalDeadLineDate());
 		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
 		copyProposal.setProposalPersons(copyProposalPersons(copyProposal, originalProposal, updateUser));
 	}
@@ -152,7 +154,6 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
 		// copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
 		// copyProposal.setIsSmu(originalProposal.getIsSmu());
-		// copyProposal.setInternalDeadLineDate(originalProposal.getInternalDeadLineDate());
 		copyProposal.setAbstractDescription(originalProposal.getAbstractDescription());
 		copyProposal.setResearchDescription(originalProposal.getResearchDescription());
 		copyProposal.setCreateUser(updateUser);

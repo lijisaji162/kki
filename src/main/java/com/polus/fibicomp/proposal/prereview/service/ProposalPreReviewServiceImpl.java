@@ -2,10 +2,13 @@ package com.polus.fibicomp.proposal.prereview.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
 import com.polus.fibicomp.constants.Constants;
+import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.proposal.pojo.Proposal;
+import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.prereview.dao.ProposalPreReviewDao;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
@@ -37,6 +42,12 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 	@Autowired
 	private CommitteeDao committeeDao;
 
+	@Autowired
+	private FibiEmailService fibiEmailService;
+
+	@Value("${application.context.name}")
+	private String context;
+
 	@Override
 	public String createProposalPreReview(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
@@ -53,9 +64,31 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_INPROGRESS);
 			preReview.setPreReviewStatus(reviewStatus);
 			preReview = proposalPreReviewDao.saveOrUpdatePreReview(preReview);
+			Set<String> toAddresses = new HashSet<String>();
+			toAddresses.add(preReview.getReviewerEmailAddress());
+			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
+			String createPreReviewMessage = "The following application has assigned a pre review: <br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+					+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+					+ proposal.getProposalId() +"\">this link</a> "
+					+ "to review the application.";
+			String createPreReviewSubject = "Action Required: Pre Review for "+ proposal.getTitle();
+			fibiEmailService.sendEmail(toAddresses, createPreReviewSubject, null, null, createPreReviewMessage, true);
 		}
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
 		return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
+	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
+		String piName = "";
+		for (ProposalPerson person : proposalPersons) {
+			if (person.getProposalPersonRole().getCode().equals(Constants.PRINCIPAL_INVESTIGATOR)) {
+				piName = person.getFullName();
+			}
+		}
+		return piName;
 	}
 
 	@Override
@@ -113,6 +146,18 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			proposal.setIsPreReviewer(false);
 		}
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposal.getProposalId()));
+		Set<String> toAddresses = new HashSet<String>();
+		toAddresses.add(preReview.getReviewerEmailAddress());
+		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
+		String completePreReviewMessage = "The following application has completed a pre review: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+				+ proposal.getProposalId() +"\">this link</a> "
+				+ "to review the application.";
+		String completePreReviewSubject = "Action Required: Pre Review Completed for "+ proposal.getTitle();
+		fibiEmailService.sendEmail(toAddresses, completePreReviewSubject, null, null, completePreReviewMessage, true);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
 	}
