@@ -80,7 +80,7 @@ public class DashboardServiceImpl implements DashboardService {
 			}
 			if (requestType.equals("PROPOSAL")) {
 				//dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
-				if (vo.getIsUnitAdmin()) {
+				/*if (vo.getIsUnitAdmin()) {
 					String proposalTabName = vo.getProposalTabName();
 					logger.info("proposalTabName : " + proposalTabName);
 					if (proposalTabName.equals("MY_PROPOSAL")) {
@@ -94,6 +94,18 @@ public class DashboardServiceImpl implements DashboardService {
 						dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
 					}
 				} else {
+					dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
+				}*/
+				String proposalTabName = vo.getProposalTabName();
+				logger.info("proposalTabName : " + proposalTabName);
+				if (proposalTabName.equals("MY_PROPOSAL")) {
+					dashBoardProfile = dashboardDao.getDashBoardDataForMyProposal(vo);
+				} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
+					List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
+					if (proposalIds != null && !proposalIds.isEmpty()) {
+						dashBoardProfile = dashboardDao.getDashBoardDataForReviewPendingProposal(vo, proposalIds);							
+					}
+				} else if (vo.getIsUnitAdmin() && proposalTabName.equals("PROPOSAL")) {
 					dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
 				}
 			}

@@ -218,24 +218,25 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalDao.fetchProposalById(proposalId);
 		proposalVO.setProposal(proposal);
 		int statusCode = proposal.getStatusCode();
-		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
+		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 			loadInitialData(proposalVO);
 		} else {
 			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
 					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
 			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		}
-		if (statusCode == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
-			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-		}
 		if (proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS)
-				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_AWARDED)) {
+				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_AWARDED)
+				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_RETURNED)) {
 			canTakeRoutingAction(proposalVO);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
 			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 		}
 		getHomeUnits(proposalVO);
+		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+		proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
+		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
 		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposalId));
 		List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, personId, Constants.PRE_REVIEW_STATUS_INPROGRESS);
 		if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
@@ -568,8 +569,8 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {
-					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
-					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
+					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED);
+					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED));
 					proposal = proposalDao.saveOrUpdateProposal(proposal);
 					String rejectMessage = "The following proposal is rejected  :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
@@ -582,7 +583,7 @@ public class ProposalServiceImpl implements ProposalService {
 					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
-			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS) {
+			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 				loadInitialData(proposalVO);
 			}
 			proposalVO.setFinalApprover(isFinalApprover);
@@ -617,7 +618,6 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 		proposalVO.setProtocols(proposalDao.fetchAllProtocols());
 		proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
-		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
 		proposalVO.setProposalExcellenceAreas(proposalDao.fetchAllAreaOfExcellence());
 		proposalVO.setSponsorTypes(grantCallDao.fetchAllSponsorTypes());
 		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
@@ -643,8 +643,6 @@ public class ProposalServiceImpl implements ProposalService {
 		approvalTypeCodes.add("6");
 		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
 		proposalVO.setDepartments(proposalDao.fetchAllUnits());
-		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-		proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
