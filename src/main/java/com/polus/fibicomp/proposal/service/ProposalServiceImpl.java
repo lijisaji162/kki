@@ -128,6 +128,8 @@ public class ProposalServiceImpl implements ProposalService {
 
 		getHomeUnits(proposalVO);
 		loadInitialData(proposalVO);
+		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
 	}
