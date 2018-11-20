@@ -593,8 +593,10 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setIsApproved(true);
 			proposalVO.setIsApprover(true);
 			proposalDao.prepareWorkflowDetails(workflow);
-			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 				proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+				proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
+				proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
 			}
 			proposalVO.setWorkflow(workflow);
 			proposalVO.setProposal(proposal);
