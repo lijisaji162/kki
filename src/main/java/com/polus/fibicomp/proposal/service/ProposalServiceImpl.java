@@ -209,6 +209,7 @@ public class ProposalServiceImpl implements ProposalService {
 			vo.setMessage("Proposal updated successfully");
 		}
 		vo.setProposal(proposal);
+		vo.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
 		String response = committeeDao.convertObjectToJSON(vo);
 		return response;
 	}
