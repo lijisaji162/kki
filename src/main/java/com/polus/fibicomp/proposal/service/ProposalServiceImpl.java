@@ -464,6 +464,8 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalDao.prepareWorkflowDetails(workflow);
 		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
 			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+			proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
+			proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
 		}
 		proposalVO.setWorkflow(workflow);
 		proposalVO.setProposal(proposal);
