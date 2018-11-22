@@ -111,6 +111,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		for (ProposalPerson copiedPersonDetail : copiedProposalPersons) {
 			ProposalPerson personDetail = new ProposalPerson();
 			personDetail.setProposal(copyProposal);
+			personDetail.setPercentageOfEffort(copiedPersonDetail.getPercentageOfEffort());
 			personDetail.setPersonId(copiedPersonDetail.getPersonId());
 			personDetail.setRolodexId(copiedPersonDetail.getRolodexId());
 			personDetail.setFullName(copiedPersonDetail.getFullName());

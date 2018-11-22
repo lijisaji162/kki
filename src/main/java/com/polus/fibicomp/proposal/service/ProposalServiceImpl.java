@@ -582,7 +582,7 @@ public class ProposalServiceImpl implements ProposalService {
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
 			proposalVO.setProposal(proposal);
-			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
+			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED || proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
 				loadInitialData(proposalVO);
 			}
 			proposalVO.setFinalApprover(isFinalApprover);
