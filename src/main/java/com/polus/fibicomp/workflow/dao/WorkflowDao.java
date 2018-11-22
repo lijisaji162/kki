@@ -135,4 +135,11 @@ public interface WorkflowDao {
 
 	public List<WorkflowDetail> fetchFinalApprover(Integer workflowId, Integer approvalStopNumber);
 
+	/**
+	 * This method is used to fetch all workflows based on module item Id.
+	 * @param moduleItemId - Id of the module.
+	 * @return an object of workflow.
+	 */
+	public List<Workflow> fetchWorkflowsByModuleItemId(Integer moduleItemId);
+
 }

@@ -52,6 +52,7 @@ import com.polus.fibicomp.role.dao.RoleDao;
 import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
 import com.polus.fibicomp.role.pojo.RoleMemberBo;
 import com.polus.fibicomp.vo.SponsorSearchResult;
+import com.polus.fibicomp.workflow.comparator.WorkflowComparator;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -125,11 +126,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposal.setGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 			proposal.setGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS);
 		}
-
-		getHomeUnits(proposalVO);
 		loadInitialData(proposalVO);
-		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
 	}
@@ -209,7 +206,7 @@ public class ProposalServiceImpl implements ProposalService {
 			vo.setMessage("Proposal updated successfully");
 		}
 		vo.setProposal(proposal);
-		vo.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
+		loadInitialData(vo);
 		String response = committeeDao.convertObjectToJSON(vo);
 		return response;
 	}
@@ -235,16 +232,11 @@ public class ProposalServiceImpl implements ProposalService {
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
 			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
-		}
-		getHomeUnits(proposalVO);
-		proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-		proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
-		proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
-		proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposalId));
-		List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, personId, Constants.PRE_REVIEW_STATUS_INPROGRESS);
-		if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
-			proposal.setIsPreReviewer(true);
-			proposal.setReviewerReview(reviewerReviews.get(0));
+			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+			if(WorkflowList != null) {
+				Collections.sort(WorkflowList, new WorkflowComparator());
+				proposalVO.setWorkflowList(WorkflowList);
+			}
 		}
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -462,12 +454,13 @@ public class ProposalServiceImpl implements ProposalService {
 		Workflow workflow = workflowService.createWorkflow(proposal.getProposalId(), proposalVO.getUserName(), proposalVO.getProposalStatusCode(), sponsorTypeCode, subject, message);
 		canTakeRoutingAction(proposalVO);
 		proposalDao.prepareWorkflowDetails(workflow);
-		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
-			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-			proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
-			proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
-		}
+		loadInitialData(proposalVO);
 		proposalVO.setWorkflow(workflow);
+		List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+		if(WorkflowList != null) {
+			Collections.sort(WorkflowList, new WorkflowComparator());
+			proposalVO.setWorkflowList(WorkflowList);
+		}
 		proposalVO.setProposal(proposal);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
 		return response;
@@ -595,12 +588,12 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setIsApproved(true);
 			proposalVO.setIsApprover(true);
 			proposalDao.prepareWorkflowDetails(workflow);
-			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
-				proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
-				proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
-				proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
-			}
 			proposalVO.setWorkflow(workflow);
+			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+			if(WorkflowList != null) {
+				Collections.sort(WorkflowList, new WorkflowComparator());
+				proposalVO.setWorkflowList(WorkflowList);
+			}
 			proposalVO.setProposal(proposal);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -611,45 +604,71 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public void loadInitialData(ProposalVO proposalVO) {
-		Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
-				Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
-		proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
 		Proposal proposal = proposalVO.getProposal();
-		proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
-		proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
-		proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
-		proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
-		proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
-		if (isDeclarationSectionRequired) {
-			proposalVO.setFundingSourceTypes(grantCallDao.fetchAllFundingSourceTypes());
-		}
-		proposalVO.setProtocols(proposalDao.fetchAllProtocols());
-		proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
-		proposalVO.setProposalExcellenceAreas(proposalDao.fetchAllAreaOfExcellence());
-		proposalVO.setSponsorTypes(grantCallDao.fetchAllSponsorTypes());
-		proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
-		proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
-		if (proposal.getBudgetHeader() != null) {
-			proposalVO.setCostElements(budgetDao.getAllCostElements());
-			proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
-			Set<String> rateClassTypes = new HashSet<>();
-			List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
-			if (proposalRates != null && !proposalRates.isEmpty()) {
-				for (FibiProposalRate proposalRate : proposalRates) {
-					rateClassTypes.add(proposalRate.getRateClass().getDescription());
-					proposalVO.setRateClassTypes(rateClassTypes);
-				}
+		Integer proposalId = proposal.getProposalId();
+		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
+			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
+					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
+			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
+			proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
+			proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
+			proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
+			if (isDeclarationSectionRequired) {
+				proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
+				proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
+				proposalVO.setFundingSourceTypes(grantCallDao.fetchAllFundingSourceTypes());
+				proposalVO.setProtocols(proposalDao.fetchAllProtocols());
+				proposalVO.setProposalExcellenceAreas(proposalDao.fetchAllAreaOfExcellence());
+				proposalVO.setSponsorTypes(grantCallDao.fetchAllSponsorTypes());
 			}
-			proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
-			proposalVO.setTbnPersons(budgetDao.fetchAllTbnPerson());
+			proposalVO.setProposalPersonRoles(proposalDao.fetchAllProposalPersonRoles());
+			proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
+			proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
+			if (proposal.getBudgetHeader() != null) {
+				proposalVO.setCostElements(budgetDao.getAllCostElements());
+				proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
+				Set<String> rateClassTypes = new HashSet<>();
+				List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
+				if (proposalRates != null && !proposalRates.isEmpty()) {
+					for (FibiProposalRate proposalRate : proposalRates) {
+						rateClassTypes.add(proposalRate.getRateClass().getDescription());
+						proposalVO.setRateClassTypes(rateClassTypes);
+					}
+				}
+				proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
+				proposalVO.setTbnPersons(budgetDao.fetchAllTbnPerson());
+			}
+			// proposalVO.setSponsors(proposalDao.fetchAllSponsors());
+			proposalVO.setReviewTypes(getSpecialReviewTypes());
+			List<String> approvalTypeCodes = new ArrayList<>();
+			approvalTypeCodes.add(Constants.SP_REV_APPROVAL_TYPE_LINK_TO_IRB);
+			approvalTypeCodes.add(Constants.SP_REV_APPROVAL_TYPE_LINK_TO_IACUC);
+			proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
+			proposalVO.setDepartments(proposalDao.fetchAllUnits());
+			getHomeUnits(proposalVO);
+			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+			proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
+			proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
+			if (proposalId != null) { // not required for create proposal state
+				proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposalId));
+				List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, proposalVO.getPersonId(), Constants.PRE_REVIEW_STATUS_INPROGRESS);
+				if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
+					proposal.setIsPreReviewer(true);
+					proposal.setReviewerReview(reviewerReviews.get(0));
+				}				
+			}
 		}
-		// proposalVO.setSponsors(proposalDao.fetchAllSponsors());
-		proposalVO.setReviewTypes(getSpecialReviewTypes());
-		List<String> approvalTypeCodes = new ArrayList<>();
-		approvalTypeCodes.add("5");
-		approvalTypeCodes.add("6");
-		proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
-		proposalVO.setDepartments(proposalDao.fetchAllUnits());
+		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
+			proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
+			proposalVO.setPreReviewTypes(proposalPreReviewDao.fetchAllPreReviewTypes());
+			proposal.setProposalPreReviews(proposalPreReviewDao.loadAllProposalPreReviewsByProposalId(proposalId));
+			List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, proposalVO.getPersonId(), Constants.PRE_REVIEW_STATUS_INPROGRESS);
+			if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
+				proposal.setIsPreReviewer(true);
+				proposal.setReviewerReview(reviewerReviews.get(0));
+			}
+		}
 	}
 
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {

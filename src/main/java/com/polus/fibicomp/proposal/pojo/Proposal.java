@@ -200,6 +200,9 @@ public class Proposal implements Serializable {
 	@Transient
 	private Boolean isPreReviewer = false;
 
+	@Transient
+	private List<Workflow> workflowList;
+
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
 		proposalKeywords = new ArrayList<ProposalKeyword>();
@@ -599,6 +602,14 @@ public class Proposal implements Serializable {
 
 	public void setIsSubcontract(Boolean isSubcontract) {
 		this.isSubcontract = isSubcontract;
+	}
+
+	public List<Workflow> getWorkflowList() {
+		return workflowList;
+	}
+
+	public void setWorkflowList(List<Workflow> workflowList) {
+		this.workflowList = workflowList;
 	}
 
 }

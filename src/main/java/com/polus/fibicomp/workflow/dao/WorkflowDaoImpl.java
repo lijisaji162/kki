@@ -130,8 +130,8 @@ public class WorkflowDaoImpl implements WorkflowDao {
 
 	@Override
 	public Long activeWorkflowCountByModuleItemId(Integer moduleItemId) {
-		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(WorkflowDetail.class);
-		criteria.add(Restrictions.eq("workflow.workflowId", moduleItemId));
+		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(Workflow.class);
+		criteria.add(Restrictions.eq("moduleItemId", moduleItemId));
 		Long workflowCount = (Long) criteria.setProjection(Projections.rowCount()).uniqueResult();
 		return workflowCount;
 	}
@@ -199,6 +199,15 @@ public class WorkflowDaoImpl implements WorkflowDao {
 		@SuppressWarnings("unchecked")
 		List<WorkflowDetail> workflowDetails = criteria.list();
 		return workflowDetails;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Workflow> fetchWorkflowsByModuleItemId(Integer moduleItemId) {
+		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(Workflow.class);
+		criteria.add(Restrictions.eq("moduleItemId", moduleItemId));		
+		List<Workflow> workflowList =  criteria.list();
+		return workflowList;
 	}
 
 }

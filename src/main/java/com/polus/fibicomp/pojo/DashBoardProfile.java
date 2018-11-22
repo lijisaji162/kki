@@ -16,6 +16,7 @@ import com.polus.fibicomp.view.ProposalView;
 import com.polus.fibicomp.view.ProtocolView;
 import com.polus.fibicomp.view.ResearchSummaryPieChart;
 import com.polus.fibicomp.view.ResearchSummaryView;
+import com.polus.fibicomp.workflow.pojo.Workflow;
 
 public class DashBoardProfile {
 
@@ -64,6 +65,8 @@ public class DashBoardProfile {
 	private List<Proposal> proposal;
 
 	private List<UnitAdministrator> unitAdministrators;
+
+	private List<Workflow> workflowList;
 
 	public ArrayList<HashMap<String, Object>> getDashBoardDetailMap() {
 		return dashBoardDetailMap;
@@ -247,5 +250,13 @@ public class DashBoardProfile {
 
 	public void setUnitAdministrators(List<UnitAdministrator> unitAdministrators) {
 		this.unitAdministrators = unitAdministrators;
+	}
+
+	public List<Workflow> getWorkflowList() {
+		return workflowList;
+	}
+
+	public void setWorkflowList(List<Workflow> workflowList) {
+		this.workflowList = workflowList;
 	}
 }
