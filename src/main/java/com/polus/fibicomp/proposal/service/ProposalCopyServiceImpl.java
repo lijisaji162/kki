@@ -423,7 +423,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 						}
 					}
 				}
-				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
+				/*if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
 					if (budgetDetail.getIsApplyInflationRate().equals(true)) {
 						lineItemCost = lineItemCost.add(updatedLineItemCost);
 						copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
@@ -431,15 +431,9 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 						// lineItemCost = lineItemCost.subtract(updatedLineItemCost);
 						copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 					}
-				} else {
+				} else {*/
 					copyBudgetDetail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-				}
-				/*
-				 * if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
-				 * lineItemCost = lineItemCost.add(updatedLineItemCost);
-				 * copyBudgetDetail.setLineItemCost(lineItemCost); } else {
-				 * copyBudgetDetail.setLineItemCost(lineItemCost); }
-				 */
+				/*}*/
 				copyBudgetDetail.setLineItemDescription(budgetDetail.getLineItemDescription());
 				copyBudgetDetail.setLineItemNumber(budgetDetail.getLineItemNumber());
 				copyBudgetDetail.setOnOffCampusFlag(budgetDetail.getOnOffCampusFlag());
