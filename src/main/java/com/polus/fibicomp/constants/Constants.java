@@ -130,4 +130,8 @@ public interface Constants {
   	String PRE_REVIEW_STATUS_INPROGRESS = "1";
   	String PRE_REVIEW_STATUS_COMPLETE = "2";
 
+  	// Proposal Special Review Section
+  	String SP_REV_APPROVAL_TYPE_LINK_TO_IRB = "5";
+  	String SP_REV_APPROVAL_TYPE_LINK_TO_IACUC = "6";
+
 }

@@ -169,6 +169,8 @@ public class ProposalVO {
 
 	private ProposalPreReview newProposalPreReview;
 
+	private List<Workflow> workflowList;
+
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -699,6 +701,14 @@ public class ProposalVO {
 
 	public void setNewProposalPreReview(ProposalPreReview newProposalPreReview) {
 		this.newProposalPreReview = newProposalPreReview;
+	}
+
+	public List<Workflow> getWorkflowList() {
+		return workflowList;
+	}
+
+	public void setWorkflowList(List<Workflow> workflowList) {
+		this.workflowList = workflowList;
 	}
 
 }

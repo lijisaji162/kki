@@ -51,6 +51,7 @@ import com.polus.fibicomp.view.ProtocolView;
 import com.polus.fibicomp.view.ResearchSummaryPieChart;
 import com.polus.fibicomp.view.ResearchSummaryView;
 import com.polus.fibicomp.vo.CommonVO;
+import com.polus.fibicomp.workflow.comparator.WorkflowComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 
@@ -1471,10 +1472,15 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
 					propObj.setSubmitUser(proposalObject.getSubmitUser());
-					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
 						proposalDao.prepareWorkflowDetails(workflow);
 						propObj.setWorkflow(workflow);
+						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
+						if(WorkflowList != null) {
+							Collections.sort(WorkflowList, new WorkflowComparator());
+							propObj.setWorkflowList(WorkflowList);
+						}
 					}
 					proposalList.add(propObj);
 				}
@@ -1568,10 +1574,15 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
 					propObj.setSubmitUser(proposalObject.getSubmitUser());
-					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
-						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
+						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());						
 						proposalDao.prepareWorkflowDetails(workflow);
 						propObj.setWorkflow(workflow);
+						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
+						if(WorkflowList != null) {
+							Collections.sort(WorkflowList, new WorkflowComparator());
+							propObj.setWorkflowList(WorkflowList);
+						}
 					}
 					proposalList.add(propObj);
 				}
@@ -1665,10 +1676,15 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
 					propObj.setSubmitUser(proposalObject.getSubmitUser());
-					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
+					if (proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposalObject.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 						Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(propObj.getProposalId());
 						proposalDao.prepareWorkflowDetails(workflow);
 						propObj.setWorkflow(workflow);
+						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
+						if(WorkflowList != null) {
+							Collections.sort(WorkflowList, new WorkflowComparator());
+							propObj.setWorkflowList(WorkflowList);
+						}
 					}
 					proposalList.add(propObj);
 				}
