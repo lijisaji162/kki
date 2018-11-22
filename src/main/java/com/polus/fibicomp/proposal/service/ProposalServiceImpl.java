@@ -218,7 +218,7 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalDao.fetchProposalById(proposalId);
 		proposalVO.setProposal(proposal);
 		int statusCode = proposal.getStatusCode();
-		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
+		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 			loadInitialData(proposalVO);
 		} else {
 			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
@@ -581,6 +581,7 @@ public class ProposalServiceImpl implements ProposalService {
 					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
+			proposalVO.setProposal(proposal);
 			if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 				loadInitialData(proposalVO);
 			}
