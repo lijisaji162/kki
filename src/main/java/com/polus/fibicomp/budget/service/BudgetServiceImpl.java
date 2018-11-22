@@ -1043,7 +1043,7 @@ public class BudgetServiceImpl implements BudgetService {
 								updatedLineItemCost = updatedLineItemCost.add(calculatedCost);
 								budgetCalculatedAmount = getNewBudgetCalculatedAmount(currentPeriod, budgetDetail, applicableRate);
 								budgetCalculatedAmount.setCalculatedCost(calculatedCost.setScale(2, BigDecimal.ROUND_HALF_UP));
-								if(budgetDetail.getIsApplyInflationRate().equals(true)) {
+								if(budgetDetail.getIsApplyInflationRate().equals(true) && proposal.getBudgetHeader().getIsAutoCalc() != null && proposal.getBudgetHeader().getIsAutoCalc()) {
 									detail.getBudgetDetailCalcAmounts().add(budgetCalculatedAmount);
 								}
 							}
@@ -1051,7 +1051,7 @@ public class BudgetServiceImpl implements BudgetService {
 					}
 				}
 				if (updatedLineItemCost.compareTo(BigDecimal.ZERO) > 0) {
-					if(budgetDetail.getIsApplyInflationRate().equals(true)) {
+					if(budgetDetail.getIsApplyInflationRate().equals(true) && proposal.getBudgetHeader().getIsAutoCalc() != null && proposal.getBudgetHeader().getIsAutoCalc()) {
 						lineItemCost = lineItemCost.add(updatedLineItemCost);
 						if (lineItemCost != null) {
 							detail.setLineItemCost(lineItemCost.setScale(2, BigDecimal.ROUND_HALF_UP));
