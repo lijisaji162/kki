@@ -262,4 +262,24 @@ public class ProposalDaoImpl implements ProposalDao {
 		workflow.setWorkflowDetailMap(workflowDetailMap);
 	}
 
+	@Override
+	public void prepareWorkflowDetailsList(List<Workflow> workflowList) {
+		for (Workflow workflow : workflowList) {
+			Map<Integer, List<WorkflowDetail>> workflowDetailMap = new HashMap<Integer, List<WorkflowDetail>>();
+			List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
+			if (workflowDetails != null && !workflowDetails.isEmpty()) {
+				for (WorkflowDetail workflowDetail : workflowDetails) {
+					if (workflowDetailMap.get(workflowDetail.getApprovalStopNumber()) != null) {
+						workflowDetailMap.get(workflowDetail.getApprovalStopNumber()).add(workflowDetail);
+					} else {
+						List<WorkflowDetail> details = new ArrayList<>();
+						details.add(workflowDetail);
+						workflowDetailMap.put(workflowDetail.getApprovalStopNumber(), details);
+					}
+				}
+			}
+			workflow.setWorkflowDetailMap(workflowDetailMap);
+		}
+	}
+
 }

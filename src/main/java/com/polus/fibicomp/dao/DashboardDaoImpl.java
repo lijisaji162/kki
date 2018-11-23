@@ -1478,6 +1478,7 @@ public class DashboardDaoImpl implements DashboardDao {
 						propObj.setWorkflow(workflow);
 						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
 						if(WorkflowList != null) {
+							proposalDao.prepareWorkflowDetailsList(WorkflowList);
 							Collections.sort(WorkflowList, new WorkflowComparator());
 							propObj.setWorkflowList(WorkflowList);
 						}
@@ -1580,6 +1581,7 @@ public class DashboardDaoImpl implements DashboardDao {
 						propObj.setWorkflow(workflow);
 						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
 						if(WorkflowList != null) {
+							proposalDao.prepareWorkflowDetailsList(WorkflowList);
 							Collections.sort(WorkflowList, new WorkflowComparator());
 							propObj.setWorkflowList(WorkflowList);
 						}
@@ -1682,6 +1684,7 @@ public class DashboardDaoImpl implements DashboardDao {
 						propObj.setWorkflow(workflow);
 						List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(propObj.getProposalId());
 						if(WorkflowList != null) {
+							proposalDao.prepareWorkflowDetailsList(WorkflowList);
 							Collections.sort(WorkflowList, new WorkflowComparator());
 							propObj.setWorkflowList(WorkflowList);
 						}
