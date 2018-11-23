@@ -152,4 +152,9 @@ public interface ProposalDao {
 	 */
 	public void prepareWorkflowDetails(Workflow workflow);
 
+	/**
+	 * This method is used to prepare workflow list.
+	 */
+	public void prepareWorkflowDetailsList(List<Workflow> workflowList);
+
 }

@@ -234,6 +234,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setWorkflow(workflow);
 			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
 			if(WorkflowList != null) {
+				proposalDao.prepareWorkflowDetailsList(WorkflowList);
 				Collections.sort(WorkflowList, new WorkflowComparator());
 				proposalVO.setWorkflowList(WorkflowList);
 			}
