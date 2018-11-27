@@ -217,6 +217,10 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalVO.setPersonId(personId);
 		Proposal proposal = proposalDao.fetchProposalById(proposalId);
 		proposalVO.setProposal(proposal);
+		List<ProposalPerson> proposalPersons = proposal.getProposalPersons();
+		if (proposalPersons != null && !proposalPersons.isEmpty()) {
+			proposalVO.setIsProposalPerson(isProposalEmployee(proposalPersons, personId));
+		}
 		int statusCode = proposal.getStatusCode();
 		if (statusCode == Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || statusCode == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
 			loadInitialData(proposalVO);
@@ -812,6 +816,17 @@ public class ProposalServiceImpl implements ProposalService {
 		String attachmentSubject = "Action Required: Completed Attachments for "+ proposal.getTitle();
 		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
 		return "SUCCESS";
+	}
+
+	public Boolean isProposalEmployee(List<ProposalPerson> proposalPersons, String personId) {
+		Boolean isProposalPerson = false;
+		for (ProposalPerson person : proposalPersons) {
+			if (person.getPersonId() != null && personId.equals(person.getPersonId())) {
+				isProposalPerson = true;
+				break;
+			}
+		}
+		return isProposalPerson;
 	}
 
 }

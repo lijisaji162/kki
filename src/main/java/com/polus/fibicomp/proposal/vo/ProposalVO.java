@@ -173,6 +173,8 @@ public class ProposalVO {
 
 	private List<Workflow> workflowList;
 
+	private Boolean isProposalPerson = false;
+
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -719,6 +721,14 @@ public class ProposalVO {
 
 	public void setIsPreReviewCompletionRequired(Boolean isPreReviewCompletionRequired) {
 		this.isPreReviewCompletionRequired = isPreReviewCompletionRequired;
+	}
+
+	public Boolean getIsProposalPerson() {
+		return isProposalPerson;
+	}
+
+	public void setIsProposalPerson(Boolean isProposalPerson) {
+		this.isProposalPerson = isProposalPerson;
 	}
 
 }
