@@ -237,6 +237,13 @@ public class ProposalServiceImpl implements ProposalService {
 				proposalDao.prepareWorkflowDetailsList(WorkflowList);
 				Collections.sort(WorkflowList, new WorkflowComparator());
 				proposalVO.setWorkflowList(WorkflowList);
+				if (proposalVO.getFinalApprover()) {
+					List<ProposalPreReview> reviewerReviews = proposalPreReviewDao.fetchPreReviewsByCriteria(proposalId, null, Constants.PRE_REVIEW_STATUS_INPROGRESS);
+					if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
+						proposalVO.setIsPreReviewCompletionRequired(commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
+								Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.PREREVIEW_COMPLETION_REQUIRED));
+					}
+				}
 			}
 		}
 		String response = committeeDao.convertObjectToJSON(proposalVO);

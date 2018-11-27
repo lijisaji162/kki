@@ -159,6 +159,8 @@ public class ProposalVO {
 
 	private Boolean isDeclarationSectionRequired = false;
 
+	private Boolean isPreReviewCompletionRequired = false;
+
 	private List<Unit> departments;
 
 	private List<NarrativeStatus> narrativeStatus;
@@ -709,6 +711,14 @@ public class ProposalVO {
 
 	public void setWorkflowList(List<Workflow> workflowList) {
 		this.workflowList = workflowList;
+	}
+
+	public Boolean getIsPreReviewCompletionRequired() {
+		return isPreReviewCompletionRequired;
+	}
+
+	public void setIsPreReviewCompletionRequired(Boolean isPreReviewCompletionRequired) {
+		this.isPreReviewCompletionRequired = isPreReviewCompletionRequired;
 	}
 
 }

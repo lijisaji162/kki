@@ -62,7 +62,9 @@ public class ProposalPreReviewDaoImpl implements ProposalPreReviewDao {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(ProposalPreReview.class);
 		criteria.add(Restrictions.eq("proposalId", proposalId));
-		criteria.add(Restrictions.eq("reviewerPersonId", personId));
+		if (personId != null) {
+			criteria.add(Restrictions.eq("reviewerPersonId", personId));
+		}
 		criteria.add(Restrictions.eq("reviewStatusCode", preReviewStatus));
 		List<ProposalPreReview> preReviews = criteria.list();
 		return preReviews;

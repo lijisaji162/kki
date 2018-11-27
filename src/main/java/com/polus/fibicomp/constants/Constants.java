@@ -117,6 +117,7 @@ public interface Constants {
 
   	// Enable Required Section
   	public static final String  IS_REQUIRED_DECLARATION_SECTION = "IS_REQUIRED_DECLARATION_SECTION";
+  	public static final String  PREREVIEW_COMPLETION_REQUIRED = "PREREVIEW_COMPLETION_REQUIRED";
   	
   	//Sponsor Type
   	String SPONSOR_TYPE_CODE_FEDERAL = "0";
