@@ -468,10 +468,11 @@ public class ProposalServiceImpl implements ProposalService {
 		proposalDao.prepareWorkflowDetails(workflow);
 		loadInitialData(proposalVO);
 		proposalVO.setWorkflow(workflow);
-		List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
-		if(WorkflowList != null) {
-			Collections.sort(WorkflowList, new WorkflowComparator());
-			proposalVO.setWorkflowList(WorkflowList);
+		List<Workflow> workflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+		if(workflowList != null) {
+			proposalDao.prepareWorkflowDetailsList(workflowList);
+			Collections.sort(workflowList, new WorkflowComparator());
+			proposalVO.setWorkflowList(workflowList);
 		}
 		proposalVO.setProposal(proposal);
 		String response = committeeDao.convertObjectToJSON(proposalVO);
@@ -602,10 +603,11 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setIsApprover(true);
 			proposalDao.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
-			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
-			if(WorkflowList != null) {
-				Collections.sort(WorkflowList, new WorkflowComparator());
-				proposalVO.setWorkflowList(WorkflowList);
+			List<Workflow> workflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+			if(workflowList != null) {
+				proposalDao.prepareWorkflowDetailsList(workflowList);
+				Collections.sort(workflowList, new WorkflowComparator());
+				proposalVO.setWorkflowList(workflowList);
 			}
 			proposalVO.setProposal(proposal);
 		} catch (Exception e) {

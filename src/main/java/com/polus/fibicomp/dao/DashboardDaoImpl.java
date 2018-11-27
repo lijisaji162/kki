@@ -1718,12 +1718,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getInprogressProposalsForDownload(String personId,List<Object[]> inprogressProposals) throws Exception {
+	public List<Object[]> getInprogressProposalsForDownload(String personId,List<Object[]> inprogressProposals, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getInprogressProposalsForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query progressProposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI,  t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			Query progressProposalList = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					progressProposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+					progressProposalList.setString("unitNumber", unitNumber);
+				} else {
+					progressProposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3)))");
+				}
+			} else {
+				progressProposalList = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=1 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			}
 			progressProposalList.setString("personId", personId);
 			inprogressProposals = progressProposalList.list();
 			logger.info("Inprogress Proposals : " + inprogressProposals);
@@ -1736,12 +1748,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getSubmittedProposalsForDownload(String personId,List<Object[]> submittedProposals) throws Exception {
+	public List<Object[]> getSubmittedProposalsForDownload(String personId,List<Object[]> submittedProposals, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getSubmittedProposalsForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query subproposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			Query subproposalList = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					subproposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+					subproposalList.setString("unitNumber", unitNumber);
+				} else {
+					subproposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3)))");
+				}
+			} else {
+				subproposalList = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t5.sponsor_name, t2.TOTAL_COST, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 inner join fibi_budget_header t2 on t1.budget_header_id=t2.budget_header_id LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN sponsor t5 ON t1.sponsor_code = t5.sponsor_code inner join unit t6 on  t1.HOME_UNIT_NUMBER= t6.UNIT_NUMBER where t1.status_code=2 and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM ='View Proposal' and person_id = :personId)");
+			}
 			subproposalList.setString("personId", personId);
 			submittedProposals = subproposalList.list();
 			logger.info("Submitted Proposals : " + submittedProposals);
@@ -1754,12 +1778,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getActiveAwardsForDownload(String personId,List<Object[]> activeAwards) throws Exception {
+	public List<Object[]> getActiveAwardsForDownload(String personId,List<Object[]> activeAwards, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getActiveAwardsForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query activeAwardList = session.createSQLQuery(
-					"SELECT t1.award_number, t1.account_number, t1.title, t4.sponsor_name, t5.full_name  AS PI, t3.total_cost AS total_amount FROM award t1 INNER JOIN award_budget_ext t2 ON t1.award_id = t2.award_id INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN sponsor t4 ON t1.sponsor_code = t4.sponsor_code LEFT OUTER JOIN award_persons t5 ON t1.award_id = t5.award_id AND t5.contact_role_code = 'PI' WHERE t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Award' AND person_id = :personId)");
+			Query activeAwardList = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					activeAwardList = session.createSQLQuery(
+							"SELECT t1.award_number, t1.account_number, t1.title, t4.sponsor_name, t5.full_name  AS PI, t3.total_cost AS total_amount FROM award t1 INNER JOIN award_budget_ext t2 ON t1.award_id = t2.award_id INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN sponsor t4 ON t1.sponsor_code = t4.sponsor_code LEFT OUTER JOIN award_persons t5 ON t1.award_id = t5.award_id AND t5.contact_role_code = 'PI' WHERE t1.award_sequence_status = 'ACTIVE' AND( t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Award' AND person_id = :personId and unit_number = :unitNumber) OR T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 INNER JOIN AWARD_PERSON_UNITS T2 ON T1.AWARD_PERSON_ID = T2.AWARD_PERSON_ID WHERE T1.PERSON_ID = :personId AND T2.UNIT_NUMBER = :unitNumber AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+					activeAwardList.setString("unitNumber", unitNumber);
+				} else {
+					activeAwardList = session.createSQLQuery(
+							"SELECT t1.award_number, t1.account_number, t1.title, t4.sponsor_name, t5.full_name  AS PI, t3.total_cost AS total_amount FROM award t1 INNER JOIN award_budget_ext t2 ON t1.award_id = t2.award_id INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN sponsor t4 ON t1.sponsor_code = t4.sponsor_code LEFT OUTER JOIN award_persons t5 ON t1.award_id = t5.award_id AND t5.contact_role_code = 'PI' WHERE t1.award_sequence_status = 'ACTIVE' AND( t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Award' AND person_id = :personId) OR T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 WHERE T1.PERSON_ID = :personId AND AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+				}
+			} else {
+				activeAwardList = session.createSQLQuery(
+						"SELECT t1.award_number, t1.account_number, t1.title, t4.sponsor_name, t5.full_name  AS PI, t3.total_cost AS total_amount FROM award t1 INNER JOIN award_budget_ext t2 ON t1.award_id = t2.award_id INNER JOIN budget t3 ON t2.budget_id = t3.budget_id AND t3.final_version_flag = 'Y' INNER JOIN sponsor t4 ON t1.sponsor_code = t4.sponsor_code LEFT OUTER JOIN award_persons t5 ON t1.award_id = t5.award_id AND t5.contact_role_code = 'PI' WHERE t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE  perm_nm = 'View Award' AND person_id = :personId)");
+			}
 			activeAwardList.setString("personId", personId);
 			activeAwards = activeAwardList.list();
 			logger.info("Active Awards : " + activeAwards);
@@ -1772,12 +1808,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> inProgressProposalsBySponsor) throws Exception {
+	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode, List<Object[]> inProgressProposalsBySponsor, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getInProgressProposalsBySponsorForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query proposalQuery = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
+			Query proposalQuery = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					proposalQuery = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+					proposalQuery.setString("unitNumber", unitNumber);
+				} else {
+					proposalQuery = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and (t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3)))");
+				}
+			} else {
+				proposalQuery = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t5.DESCRIPTION as Proposal_Type, t6.TOTAL_COST as BUDGET, t4.full_name AS PI, t1.SUBMISSION_DATE from fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t4 ON t1.proposal_id = t4.proposal_id AND t4.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t5 ON t1.TYPE_CODE=t5.TYPE_CODE LEFT OUTER JOIN fibi_budget_header t6 ON t1.budget_header_id = t6.budget_header_id where t1.status_code=1 and t1.sponsor_code = :sponsorCode and t1.HOME_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId)");
+			}
 			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			inProgressProposalsBySponsor = proposalQuery.list();
 			logger.info("inProgressProposalsBySponsor : " + inProgressProposalsBySponsor);	
@@ -1790,12 +1838,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> awardedProposalsBySponsor) throws Exception {
+	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode, List<Object[]> awardedProposalsBySponsor, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getAwardedProposalsBySponsorForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query proposalQuery = session.createSQLQuery(
-					"select t1.proposal_number, t1.title, T6.description as PROPOSAL_TYPE, t5.DESCRIPTION as ACTIVITY_TYPE, t4.full_name AS PI from proposal t1 INNER JOIN SPONSOR t2 on t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN PROPOSAL_PERSONS t4 ON t1.proposal_id = t4.proposal_id AND t4.CONTACT_ROLE_CODE = 'PI' INNER JOIN ACTIVITY_TYPE t5 on t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN PROPOSAL_TYPE t6 on T1.PROPOSAL_TYPE_CODE = T6.PROPOSAL_TYPE_CODE where  t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.sponsor_code = :sponsorCode and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId )");
+			Query proposalQuery = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					proposalQuery = session.createSQLQuery(
+							"select t1.proposal_number, t1.title, T6.description as PROPOSAL_TYPE, t5.DESCRIPTION as ACTIVITY_TYPE, t4.full_name AS PI from proposal t1 INNER JOIN SPONSOR t2 on t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN PROPOSAL_PERSONS t4 ON t1.proposal_id = t4.proposal_id AND t4.CONTACT_ROLE_CODE = 'PI' INNER JOIN ACTIVITY_TYPE t5 on t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN PROPOSAL_TYPE t6 on T1.PROPOSAL_TYPE_CODE = T6.PROPOSAL_TYPE_CODE where  t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.sponsor_code = :sponsorCode and (t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId and unit_number = :unitNumber) or t1.proposal_number IN( SELECT T1.PROPOSAL_NUMBER FROM PROPOSAL_PERSONS T1 INNER JOIN PROPOSAL_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :personId AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP') AND T2.UNIT_NUMBER = :unitNumber))");
+					proposalQuery.setString("unitNumber", unitNumber);
+				} else {
+					proposalQuery = session.createSQLQuery(
+							"select t1.proposal_number, t1.title, T6.description as PROPOSAL_TYPE, t5.DESCRIPTION as ACTIVITY_TYPE, t4.full_name AS PI from proposal t1 INNER JOIN SPONSOR t2 on t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN PROPOSAL_PERSONS t4 ON t1.proposal_id = t4.proposal_id AND t4.CONTACT_ROLE_CODE = 'PI' INNER JOIN ACTIVITY_TYPE t5 on t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN PROPOSAL_TYPE t6 on T1.PROPOSAL_TYPE_CODE = T6.PROPOSAL_TYPE_CODE where  t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.sponsor_code = :sponsorCode and (t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId) or t1.proposal_number IN( SELECT T1.PROPOSAL_NUMBER FROM PROPOSAL_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+				}
+			} else {
+				proposalQuery = session.createSQLQuery(
+						"select t1.proposal_number, t1.title, T6.description as PROPOSAL_TYPE, t5.DESCRIPTION as ACTIVITY_TYPE, t4.full_name AS PI from proposal t1 INNER JOIN SPONSOR t2 on t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN PROPOSAL_PERSONS t4 ON t1.proposal_id = t4.proposal_id AND t4.CONTACT_ROLE_CODE = 'PI' INNER JOIN ACTIVITY_TYPE t5 on t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN PROPOSAL_TYPE t6 on T1.PROPOSAL_TYPE_CODE = T6.PROPOSAL_TYPE_CODE where  t1.status_code = 2 and t1.PROPOSAL_SEQUENCE_STATUS='ACTIVE' and t1.sponsor_code = :sponsorCode and t1.LEAD_UNIT_NUMBER in( select distinct UNIT_NUMBER from MITKC_USER_RIGHT_MV where PERM_NM = 'View Proposal' and person_id = :personId ) ");
+			}
 			proposalQuery.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			awardedProposalsBySponsor = proposalQuery.list();
 			logger.info("awardedProposalsBySponsor : " + awardedProposalsBySponsor);
@@ -1808,12 +1868,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> awardBySponsorTypes) throws Exception {
+	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode, List<Object[]> awardBySponsorTypes, String unitNumber, boolean isAdmin) throws Exception {
 		try {
 			logger.info("----------- getAwardBySponsorTypesForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query awardList = session.createSQLQuery(
-					"SELECT t1.award_number, t1.account_number, t1.title, t2.sponsor_name, t3.full_name AS PI FROM award t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN award_persons t3 ON t1.award_id = t3.award_id AND t3.contact_role_code = 'PI' WHERE t2.sponsor_type_code = :sponsorCode and t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Award' AND person_id = :personId)");
+			Query awardList = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					awardList = session.createSQLQuery(
+							"SELECT t1.award_number, t1.account_number, t1.title, t2.sponsor_name, t3.full_name AS PI FROM award t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN award_persons t3 ON t1.award_id = t3.award_id AND t3.contact_role_code = 'PI' WHERE t2.sponsor_type_code = :sponsorCode and t1.award_sequence_status = 'ACTIVE' AND (t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Award' AND person_id = :personId and unit_number = :unitNumber) OR T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 INNER JOIN AWARD_PERSON_UNITS T2 ON T1.AWARD_PERSON_ID = T2.AWARD_PERSON_ID WHERE T1.PERSON_ID = :personId AND T2.UNIT_NUMBER = :unitNumber AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+					awardList.setString("unitNumber", unitNumber);
+				} else {
+					awardList = session.createSQLQuery(
+							"SELECT t1.award_number, t1.account_number, t1.title, t2.sponsor_name, t3.full_name AS PI FROM award t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN award_persons t3 ON t1.award_id = t3.award_id AND t3.contact_role_code = 'PI' WHERE t2.sponsor_type_code = :sponsorCode and t1.award_sequence_status = 'ACTIVE' AND (t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Award' AND person_id = :personId) OR T1.AWARD_ID IN ( SELECT T1.AWARD_ID FROM AWARD_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.CONTACT_ROLE_CODE IN ('COI','PI','KP')))");
+				}
+			} else {
+				awardList = session.createSQLQuery(
+						"SELECT t1.award_number, t1.account_number, t1.title, t2.sponsor_name, t3.full_name AS PI FROM award t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN award_persons t3 ON t1.award_id = t3.award_id AND t3.contact_role_code = 'PI' WHERE t2.sponsor_type_code = :sponsorCode and t1.award_sequence_status = 'ACTIVE' AND t1.lead_unit_number IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Award' AND person_id = :personId)");
+			}
 			awardList.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			awardBySponsorTypes = awardList.list();
 			logger.info("awardsBySponsorTypes : " + awardBySponsorTypes);
@@ -1826,12 +1898,24 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> proposalBySponsorTypes) throws Exception {	
+	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode, List<Object[]> proposalBySponsorTypes, String unitNumber, boolean isAdmin) throws Exception {	
 		try {
 			logger.info("----------- getProposalBySponsorTypesForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
-			Query proposalList = session.createSQLQuery(
-					"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+			Query proposalList = null;
+			if(isAdmin) {
+				if(unitNumber != null) {
+					proposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND (t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId and unit_number = :unitNumber) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 INNER JOIN FIBI_PROP_PERSON_UNITS T2 ON T1.PROPOSAL_PERSON_ID = T2.PROPOSAL_PERSON_ID WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3) AND T2.UNIT_NUMBER = :unitNumber))");
+					proposalList.setString("unitNumber", unitNumber);
+				} else {
+					proposalList = session.createSQLQuery(
+							"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND (t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId) or t1.proposal_id IN ( SELECT T1.proposal_id FROM FIBI_PROPOSAL_PERSONS T1 WHERE T1.PERSON_ID = :personId AND T1.PROP_PERSON_ROLE_ID IN (1,2,3)))");
+				}
+			} else {
+				proposalList = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SUBMISSION_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE WHERE t2.sponsor_type_code = :sponsorCode AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId)");
+			}
 			proposalList.setString("personId", personId).setString("sponsorCode", sponsorCode);
 			proposalBySponsorTypes = proposalList.list();
 			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);

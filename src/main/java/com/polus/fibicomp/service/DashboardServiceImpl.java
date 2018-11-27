@@ -613,43 +613,47 @@ public class DashboardServiceImpl implements DashboardService {
 		String personId = vo.getPersonId();
 		String dashboardIndex = vo.getResearchSummaryIndex();
 		String sponsorCode = vo.getSponsorCode();
+		boolean isAdmin = vo.getIsAdmin();
+		String unitNumber = vo.getUnitNumber();
 		logger.info("personId : " + personId);
 		logger.info("dashboardIndex : " + dashboardIndex);
 		logger.info("sponsorCode : " + sponsorCode);
+		logger.info("isAdmin : " + isAdmin);
+		logger.info("unitNumber : " + unitNumber);
 		List<Object[]> dashboardData = new ArrayList<Object[]>();
 		try {
 			if (dashboardIndex.equals("PROPOSALSINPROGRESS")) {
-				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData);
+				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
-				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData);
+				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARDSACTIVE")) {
-				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData);
+				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Active Awards");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI", "Budget"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("INPROGRESS")) {
-				dashboardData = dashboardDao.getInProgressProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
+				dashboardData = dashboardDao.getInProgressProposalsBySponsorForDownload(personId, sponsorCode, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Type", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARDED")) {
-				dashboardData = dashboardDao.getAwardedProposalsBySponsorForDownload(personId, sponsorCode, dashboardData);
+				dashboardData = dashboardDao.getAwardedProposalsBySponsorForDownload(personId, sponsorCode, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Awarded Proposals By Sponsor");
 				Object[] tableHeadingRow = {"Award#", "Title", "Type", "Activity Type", "PI"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("AWARD")) {
-				dashboardData = dashboardDao.getAwardBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
+				dashboardData = dashboardDao.getAwardBySponsorTypesForDownload(personId, sponsorCode, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Awards by sponsor types");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSAL")) {
-				dashboardData = dashboardDao.getProposalBySponsorTypesForDownload(personId, sponsorCode, dashboardData);
+				dashboardData = dashboardDao.getProposalBySponsorTypesForDownload(personId, sponsorCode, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Proposal by sponsor types");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Proposal Type", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
