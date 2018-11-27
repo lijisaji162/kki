@@ -205,78 +205,109 @@ public interface DashboardDao {
 	 */
 	public DashBoardProfile getDashBoardDataForProposal(CommonVO vo);
 
+	/**
+	 * This method is used to get list of my proposals.
+	 * @param vo - Object of CommonVO class.
+	 * @return A list of proposals.
+	 */
 	public DashBoardProfile getDashBoardDataForMyProposal(CommonVO vo);
 
+	/**
+	 * This method is used to get list of pending review proposals.
+	 * @param vo - Object of CommonVO class.
+	 * @param proposalIds - A list of proposal id's.
+	 * @return A list of proposals.
+	 */
 	public DashBoardProfile getDashBoardDataForReviewPendingProposal(CommonVO vo, List<Integer> proposalIds);
 
+	/**
+	 * This method is used to get list of pending review proposals.
+	 * @param vo - Object of CommonVO class.
+	 * @param proposalIds - A list of proposal id's.
+	 * @return A list of proposals.
+	 */
 	public List<Integer> getApprovalInprogressProposalIds(String personId, String approvalStatusCode, Integer moduleCode);
 
 	/**
 	 * This method is used to get list of inprogress proposals.
 	 * @param personId - Logged in person Id.
 	 * @param proposals - for inprogress proposals data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of inprogress proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getInprogressProposalsForDownload(String personId,List<Object[]> proposals) throws Exception;
+	public List<Object[]> getInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of submitted proposals.
 	 * @param personId - Logged in person Id.
 	 * @param proposals - for submitted proposals data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getSubmittedProposalsForDownload(String personId,List<Object[]> proposals) throws Exception;
+	public List<Object[]> getSubmittedProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of active awards.
 	 * @param personId - Logged in person Id.
 	 * @param awards - for active awards data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getActiveAwardsForDownload(String personId,List<Object[]> awards) throws Exception;
+	public List<Object[]> getActiveAwardsForDownload(String personId, List<Object[]> awards, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of inprogress proposals by sponsor.
 	 * @param personId - Logged in person Id.
 	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart
 	 * @param proposals - for inprogress proposals by sponsor data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of inprogress proposals by sponsor.
 	 * @throws Exception
 	 */
-	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+	public List<Object[]> getInProgressProposalsBySponsorForDownload(String personId, String sponsorCode, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of awarded proposals by sponsor.
 	 * @param personId - Logged in person Id.
 	 * @param sponsorCode - sponsor_type_code clicked by user in donutChart.
 	 * @param proposals - for awarded proposals by sponsor data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of awarded proposals by sponsor.
 	 * @throws Exception
 	 */
-	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+	public List<Object[]> getAwardedProposalsBySponsorForDownload(String personId, String sponsorCode, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of awards by sponsor types.
 	 * @param personId - Logged in person Id.
 	 * @param sponsorCode - sponsor_type_code clicked by user in piechart.
 	 * @param awards for award by sponsor types data.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @return A list of awards by sponsor types.
 	 * @throws Exception
 	 */
-	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> awards) throws Exception;
+	public List<Object[]> getAwardBySponsorTypesForDownload(String personId, String sponsorCode, List<Object[]> awards, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of proposals by sponsor types.
 	 * @param personId - Logged in person Id.
 	 * @param sponsorCode - sponsor_type_code clicked by user in piechart.
+	 * @param unitNumber - Unit number.
+	 * @param isAdmin - Flag that determines logged user is admin or not.
 	 * @param proposals - for proposal by sponsor types data.
 	 * @return A list of proposals by sponsor types.
 	 * @throws Exception
 	 */
-	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode,List<Object[]> proposals) throws Exception;
+	public List<Object[]> getProposalBySponsorTypesForDownload(String personId, String sponsorCode, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
 
 	/**
 	 * This method is used to get list of proposals.
