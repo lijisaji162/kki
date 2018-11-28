@@ -1647,6 +1647,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			List<Integer> proposalStatusCodes = new ArrayList<>();
 			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS);
+			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_RETURNED);
 			searchCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCodes)));
 			searchCriteria.add(Restrictions.in("proposalId", proposalIds));
 			countCriteria.add(Restrictions.disjunction().add(Restrictions.in("statusCode", proposalStatusCodes)));
