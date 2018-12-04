@@ -109,7 +109,7 @@ public class BudgetServiceImpl implements BudgetService {
 		vo.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 		vo.setCostElements(budgetDao.getAllCostElements());
 		vo.setTbnPersons(budgetDao.fetchAllTbnPerson());
-		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements(vo.getProposal().getActivityTypeCode()));
+		vo.setSysGeneratedCostElements(fetchSysGeneratedCostElements());
 	}
 
 	@Override
@@ -630,52 +630,18 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
 	@Override
-	public List<CostElement> fetchSysGeneratedCostElements(String activityTypeCode) {
-		/*List<String> costElements = new ArrayList<>();
-		if (activityTypeCode != null && activityTypeCode.equals("1")) {
-			costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_RESEARCH_OH_ON));
-			costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_RESEARCH_OH_OFF));
-		} else {
-			costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_OH_ON));
-			costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_OH_OFF));
-		}
-		costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_FRINGE_ON));
-		costElements.add(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_FRINGE_OFF));
-		return budgetDao.fetchCostElementsByIds(costElements);*/
+	public List<CostElement> fetchSysGeneratedCostElements() {
 		List<CostElement> systemGeneratedCE = new ArrayList<>();
-		if (activityTypeCode != null && activityTypeCode.equals("1")) {
 			CostElement BUDGET_RESEARCH_OH_ON = budgetDao
 					.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
 							Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_RESEARCH_OH_ON));
 			BUDGET_RESEARCH_OH_ON.setSystemGeneratedCEType(Constants.BUDGET_RESEARCH_OH_ON);
-			/*CostElement BUDGET_RESEARCH_OH_OFF = budgetDao
-					.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
-							Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_RESEARCH_OH_OFF));
-			BUDGET_RESEARCH_OH_OFF.setSystemGeneratedCEType(Constants.BUDGET_RESEARCH_OH_OFF);*/
 			systemGeneratedCE.add(BUDGET_RESEARCH_OH_ON);
-			//systemGeneratedCE.add(BUDGET_RESEARCH_OH_OFF);
-		} else {
-			CostElement BUDGET_OH_ON = budgetDao
-					.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
-							Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_OH_ON));
-			BUDGET_OH_ON.setSystemGeneratedCEType(Constants.BUDGET_OH_ON);
-			/*CostElement BUDGET_OH_OFF = budgetDao
-					.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
-							Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_OH_OFF));
-			BUDGET_OH_OFF.setSystemGeneratedCEType(Constants.BUDGET_OH_OFF);*/
-			systemGeneratedCE.add(BUDGET_OH_ON);
-			//systemGeneratedCE.add(BUDGET_OH_OFF);
-		}
 		CostElement BUDGET_FRINGE_ON = budgetDao
 				.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
 						Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_FRINGE_ON));
 		BUDGET_FRINGE_ON.setSystemGeneratedCEType(Constants.BUDGET_FRINGE_ON);
-		/*CostElement BUDGET_FRINGE_OFF = budgetDao
-				.fetchCostElementsById(commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
-						Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.BUDGET_FRINGE_OFF));
-		BUDGET_FRINGE_OFF.setSystemGeneratedCEType(Constants.BUDGET_FRINGE_OFF);*/
 		systemGeneratedCE.add(BUDGET_FRINGE_ON);
-		//systemGeneratedCE.add(BUDGET_FRINGE_OFF);
 		return systemGeneratedCE;
 	}
 

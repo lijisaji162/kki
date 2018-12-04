@@ -653,7 +653,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 			if (proposal.getBudgetHeader() != null) {
 				proposalVO.setCostElements(budgetDao.getAllCostElements());
-				proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements(proposalVO.getProposal().getActivityTypeCode()));
+				proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements());
 				Set<String> rateClassTypes = new HashSet<>();
 				List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
 				if (proposalRates != null && !proposalRates.isEmpty()) {
