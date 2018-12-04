@@ -125,10 +125,9 @@ public interface BudgetService {
 
     /**
 	 * This method is to system generated cost elements.
-	 * @param activityTypeCode - Activity type code.
 	 * @return list of cost elements.
 	 */
-    public List<CostElement> fetchSysGeneratedCostElements(String activityTypeCode);
+    public List<CostElement> fetchSysGeneratedCostElements();
 
     /**
 	 * This method is to reset proposal rates.
