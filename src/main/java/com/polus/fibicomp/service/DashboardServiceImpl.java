@@ -104,6 +104,8 @@ public class DashboardServiceImpl implements DashboardService {
 					List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
 					if (proposalIds != null && !proposalIds.isEmpty()) {
 						dashBoardProfile = dashboardDao.getDashBoardDataForReviewPendingProposal(vo, proposalIds);							
+					} else {
+						dashBoardProfile.setProposal(new ArrayList<>());
 					}
 				} else if (vo.getIsUnitAdmin() && proposalTabName.equals("PROPOSAL")) {
 					dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);

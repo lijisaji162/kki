@@ -1404,13 +1404,16 @@ public class DashboardDaoImpl implements DashboardDao {
 			countCriteria.createAlias("proposalType", "proposalType");
 			if (sortBy.isEmpty() || reverse.isEmpty()) {
 				if (!isProvost) {
-					searchCriteria.addOrder(Order.desc("updateTimeStamp"));
+					searchCriteria.addOrder(Order.desc("updateTimeStamp"))
+					.addOrder(Order.desc("proposalId"));
 				}
 			} else {
 				if (reverse.equals("DESC")) {
-					searchCriteria.addOrder(Order.desc(sortBy));
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				} else {
-					searchCriteria.addOrder(Order.asc(sortBy));
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				}
 			}
 			if (property1 != null && !property1.isEmpty()) {
@@ -1521,12 +1524,15 @@ public class DashboardDaoImpl implements DashboardDao {
 			countCriteria.createAlias("activityType", "activityType");
 			countCriteria.createAlias("proposalType", "proposalType");
 			if (sortBy.isEmpty() || reverse.isEmpty()) {
-				searchCriteria.addOrder(Order.desc("updateTimeStamp"));
+				searchCriteria.addOrder(Order.desc("updateTimeStamp"))
+				.addOrder(Order.desc("proposalId"));
 			} else {
 				if (reverse.equals("DESC")) {
-					searchCriteria.addOrder(Order.desc(sortBy));
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				} else {
-					searchCriteria.addOrder(Order.asc(sortBy));
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				}
 			}
 			if (property1 != null && !property1.isEmpty()) {
@@ -1623,12 +1629,15 @@ public class DashboardDaoImpl implements DashboardDao {
 			countCriteria.createAlias("activityType", "activityType");
 			countCriteria.createAlias("proposalType", "proposalType");
 			if (sortBy.isEmpty() || reverse.isEmpty()) {
-				searchCriteria.addOrder(Order.desc("updateTimeStamp"));
+				searchCriteria.addOrder(Order.desc("updateTimeStamp"))
+				.addOrder(Order.desc("proposalId"));
 			} else {
 				if (reverse.equals("DESC")) {
-					searchCriteria.addOrder(Order.desc(sortBy));
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				} else {
-					searchCriteria.addOrder(Order.asc(sortBy));
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId"));
 				}
 			}
 			if (property1 != null && !property1.isEmpty()) {
