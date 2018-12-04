@@ -46,13 +46,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private AuthenticationManager authenticationManager;
 	private LoginDao loginDao;
 	private RoleDao roleDao;
-	private ProposalDao proposalDao;
 
 	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao) throws Exception {
 		this.authenticationManager = authenticationManager;
 		this.loginDao = loginDao;
 		this.roleDao = roleDao;
-		this.proposalDao = proposalDao;
 	}
 
 	@Override
@@ -98,7 +96,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 			logger.info("create proposal unitNumbers : " + unitNumbers);
 			if (!unitNumbers.isEmpty()) {
-				personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
+				// personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 				personDTO.setCreateProposal(true);
 			}
 		}

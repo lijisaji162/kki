@@ -61,8 +61,9 @@ public class LoginDaoImpl implements LoginDao {
 				personDTO.setEmail(person.getEmailAddress());
 				personDTO.setUnitNumber(person.getUnitNumber());
 				personDTO.setUserName(userName);
-				personDTO.setUnitAdministrators(isUnitAdmin(person.getPrncplId()));
-				if (personDTO.getUnitAdministrators() != null && !personDTO.getUnitAdministrators().isEmpty()) {
+				// personDTO.setUnitAdministrators(isUnitAdmin(person.getPrncplId()));
+				List<UnitAdministrator> unitAdministrators = isUnitAdmin(person.getPrncplId());
+				if (unitAdministrators != null && !unitAdministrators.isEmpty()) {
 					personDTO.setUnitAdmin(true);
 				} else {
 					personDTO.setUnitAdmin(false);

@@ -2,7 +2,6 @@ package com.polus.fibicomp.proposal.service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -546,17 +545,12 @@ public class ProposalServiceImpl implements ProposalService {
 			workflowService.approveOrRejectWorkflowDetail(actionType, proposal.getProposalId(), proposalVO.getPersonId(), approverComment, files, null, subject, message);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
 			List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
+			//String stopNumber = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.WORKFLOW_STOP_NUMBER);
 			for (WorkflowDetail workflowDetail1 : workflowDetails) {
 				if (!workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
 					isFinalApprover = false;
 				}
-			}			
-			if (isFinalApprover && actionType.equals("A")) {
-				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
-				logger.info("Initial IP Number : " + ipNumber);
-				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
-				logger.info("isIPCreated : " + isIPCreated);
-				if (isIPCreated) {
+				/*if(workflowDetail1.getApprovalStopNumber().equals(stopNumber) && workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
 					String fyiMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
@@ -564,12 +558,8 @@ public class ProposalServiceImpl implements ProposalService {
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 							+ proposal.getProposalId() +"\">this link</a> "
 							+ "to review the application.";
-					String fyiSubject = "Action Required: Review for "+ proposal.getTitle();		
-					logger.info("Generated IP Number : " + ipNumber);
-					proposal.setIpNumber(ipNumber);
-					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
-					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
-					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FYI_EMAIL_RECIPIENTS);
+					String fyiSubject = "Action Required: Review for "+ proposal.getTitle();
+					String fyiRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.KKI_FYI_EMAIL_RECIPIENT);
 					if (fyiRecipients != null && !fyiRecipients.isEmpty()) {
 						List<String> recipients = Arrays.asList(fyiRecipients.split(","));
 						for (String recipient : recipients) {
@@ -577,6 +567,28 @@ public class ProposalServiceImpl implements ProposalService {
 						}
 						fibiEmailService.sendEmail(toAddresses, fyiSubject, null, null, fyiMessage, true);						
 					}
+				}*/
+			}			
+			if (isFinalApprover && actionType.equals("A")) {
+				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
+				logger.info("Initial IP Number : " + ipNumber);
+				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
+				logger.info("isIPCreated : " + isIPCreated);
+				if (isIPCreated) {
+					String awardedMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
+							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
+							+ proposal.getProposalId() +"\">this link</a> "
+							+ "to review the application.";
+					String awardedSubject = "Action Required: Review for "+ proposal.getTitle();
+					logger.info("Generated IP Number : " + ipNumber);
+					proposal.setIpNumber(ipNumber);
+					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
+					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
+					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					fibiEmailService.sendEmail(toAddresses, awardedSubject, null, null, awardedMessage, true);	
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {
