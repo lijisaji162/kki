@@ -173,6 +173,14 @@ public class Proposal implements Serializable {
 	@Convert(converter = JpaCharBooleanConversion.class)
 	private Boolean isSubcontract = false;
 
+	@Column(name = "IS_MULTISITE_STUDY")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isMultisiteStudy = false;
+
+	@Column(name = "IS_DOMESTIC_SITE")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isDomesticSite = false;
+
 	@Transient
 	private String principalInvestigator;
 
@@ -610,6 +618,22 @@ public class Proposal implements Serializable {
 
 	public void setWorkflowList(List<Workflow> workflowList) {
 		this.workflowList = workflowList;
+	}
+
+	public Boolean getIsMultisiteStudy() {
+		return isMultisiteStudy;
+	}
+
+	public void setIsMultisiteStudy(Boolean isMultisiteStudy) {
+		this.isMultisiteStudy = isMultisiteStudy;
+	}
+
+	public Boolean getIsDomesticSite() {
+		return isDomesticSite;
+	}
+
+	public void setIsDomesticSite(Boolean isDomesticSite) {
+		this.isDomesticSite = isDomesticSite;
 	}
 
 }

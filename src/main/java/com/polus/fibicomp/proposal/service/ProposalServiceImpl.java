@@ -588,6 +588,7 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
 					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					toAddresses.add(proposalDao.getCreateUserEmailAddress(proposal.getCreateUser()));
 					fibiEmailService.sendEmail(toAddresses, awardedSubject, null, null, awardedMessage, true);	
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);

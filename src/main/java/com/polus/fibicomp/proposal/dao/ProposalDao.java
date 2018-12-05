@@ -34,6 +34,13 @@ public interface ProposalDao {
 	public ProposalStatus fetchStatusByStatusCode(Integer statusCode);
 
 	/**
+	 * This method is used to fetch email address of create user.
+	 * @param createUser - name of the proposal creator.
+	 * @return A string that contains email id.
+	 */
+	public String getCreateUserEmailAddress(String createUser);
+
+	/**
 	 * This method is used to fetch all protocols.
 	 * @return A list of protocols.
 	 */
