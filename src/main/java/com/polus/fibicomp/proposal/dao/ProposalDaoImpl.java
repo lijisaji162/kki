@@ -37,6 +37,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalExcellenceArea;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
+import com.polus.fibicomp.view.PersonDetailsView;
 import com.polus.fibicomp.vo.SponsorSearchResult;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
@@ -53,6 +54,20 @@ public class ProposalDaoImpl implements ProposalDao {
 	@Override
 	public ProposalStatus fetchStatusByStatusCode(Integer statusCode) {
 		return hibernateTemplate.get(ProposalStatus.class, statusCode);
+	}
+	
+	@Override
+	public String getCreateUserEmailAddress(String createUser) {
+		PersonDetailsView personDetailsView = null;
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(PersonDetailsView.class);
+		criteria.add(Restrictions.eq("prncplName", createUser));
+		@SuppressWarnings("unchecked")
+		List<PersonDetailsView> personDetailsViewList = criteria.list();
+		if(personDetailsViewList != null && !personDetailsViewList.isEmpty()) {
+			personDetailsView = personDetailsViewList.get(0);
+		}
+		return personDetailsView.getEmailAddress();
 	}
 
 	@Override
