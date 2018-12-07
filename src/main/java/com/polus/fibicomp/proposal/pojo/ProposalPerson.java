@@ -74,6 +74,9 @@ public class ProposalPerson implements Serializable {
 	@Column(name = "EMAIL_ADDRESS")
 	private String emailAddress;
 
+	@Column(name = "ORGANISATION")
+	private String organisation;
+
 	public ProposalPerson() {
 		units = new ArrayList<>();
 	}
@@ -176,6 +179,14 @@ public class ProposalPerson implements Serializable {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public String getOrganisation() {
+		return organisation;
+	}
+
+	public void setOrganisation(String organisation) {
+		this.organisation = organisation;
 	}
 
 }

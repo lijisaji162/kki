@@ -40,6 +40,8 @@ public interface Constants {
 	String DEFAULT_HOME_UNIT_NUMBER = "000001";
 	String DEFAULT_HOME_UNIT_NAME = "University";
 	String KKI_FYI_EMAIL_RECIPIENT = "KKI_FYI_EMAIL_RECIPIENT";
+	String FINAL_NOTIFICATION_RECIPIENT = "FINAL_NOTIFICATION_RECIPIENT";
+	String SUB_CONTRACT_CATEGORY_CODE = "22";
 
 	// Security constants
 	String SECRET = "SecretKeyToGenJWTs";
