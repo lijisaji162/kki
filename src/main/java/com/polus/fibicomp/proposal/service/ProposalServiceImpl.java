@@ -1,8 +1,12 @@
 package com.polus.fibicomp.proposal.service;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.polus.fibicomp.budget.dao.BudgetDao;
+import com.polus.fibicomp.budget.pojo.BudgetPeriod;
 import com.polus.fibicomp.budget.pojo.FibiProposalRate;
 import com.polus.fibicomp.budget.service.BudgetService;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
@@ -196,6 +201,10 @@ public class ProposalServiceImpl implements ProposalService {
 		if (proposal.getBudgetHeader() != null) {
 			proposal = budgetService.saveOrUpdateProposalBudget(vo);
 		}
+		/*if(proposal.getEndDate().after(proposal.getBudgetHeader().getEndDate()) && proposal.getBudgetHeader().getBudgetPeriods().size() == 0) {
+			List<BudgetPeriod> budgetPeriods = generateBudgetPeriods(proposal);
+			proposal.getBudgetHeader().getBudgetPeriods().addAll(budgetPeriods);
+		}*/
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		vo.setStatus(true);
 		String updateType = vo.getUpdateType();
@@ -208,6 +217,46 @@ public class ProposalServiceImpl implements ProposalService {
 		loadInitialData(vo);
 		String response = committeeDao.convertObjectToJSON(vo);
 		return response;
+	}
+	
+	public List<BudgetPeriod> generateBudgetPeriods(Proposal proposal) {		
+		List<BudgetPeriod> budgetPeriods = new ArrayList<BudgetPeriod>();
+		Date projectStartDate = proposal.getBudgetHeader().getEndDate();
+		Date projectEndDate = proposal.getEndDate();
+		boolean budgetPeriodExists = true;
+
+		Calendar cl = Calendar.getInstance();
+
+		Date periodStartDate = projectStartDate;
+		int budgetPeriodNum = 1;
+		while (budgetPeriodExists) {
+			cl.setTime(periodStartDate);
+			cl.add(Calendar.YEAR, 1);
+			Date nextPeriodStartDate = new Date(cl.getTime().getTime());
+			cl.add(Calendar.DATE, -1);
+			Date periodEndDate = new Date(cl.getTime().getTime());
+			/* check period end date gt project end date */
+			switch (periodEndDate.compareTo(projectEndDate)) {
+			case 1:
+				periodEndDate = projectEndDate;
+				// the break statement is purposefully missing.
+			case 0:
+				budgetPeriodExists = false;
+				break;
+			}
+			BudgetPeriod budgetPeriod = new BudgetPeriod();
+			budgetPeriod.setBudgetPeriod(budgetPeriodNum);
+			Timestamp periodStartDateTimeStamp =new Timestamp(periodStartDate.getTime());
+			Timestamp periodEndDateTimeStamp = new Timestamp(periodEndDate.getTime());
+			budgetPeriod.setStartDate(periodStartDateTimeStamp);
+			budgetPeriod.setEndDate(periodEndDateTimeStamp);
+			budgetPeriod.setBudget(proposal.getBudgetHeader());
+
+			budgetPeriods.add(budgetPeriod);
+			periodStartDate = nextPeriodStartDate;
+			budgetPeriodNum++;
+		}
+		return budgetPeriods;
 	}
 
 	@Override
@@ -453,7 +502,7 @@ public class ProposalServiceImpl implements ProposalService {
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		//String sponsorDueDate = proposal.getSubmissionDate() != null ? proposal.getSubmissionDate().toString() : "";
 		String message = "The following proposal is successfully submitted for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -534,7 +583,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 			String message = "The following application has routed for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-					+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -552,7 +601,7 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 				/*if(workflowDetail1.getApprovalStopNumber().equals(stopNumber) && workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
 					String fyiMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -576,20 +625,27 @@ public class ProposalServiceImpl implements ProposalService {
 				logger.info("isIPCreated : " + isIPCreated);
 				if (isIPCreated) {
 					String awardedMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 							+ proposal.getProposalId() +"\">this link</a> "
 							+ "to review the application.";
-					String awardedSubject = "Action Required: Review for "+ proposal.getTitle();
+					String awardedSubject = "The proposal "+ proposal.getProposalId() + " is approved";
 					logger.info("Generated IP Number : " + ipNumber);
 					proposal.setIpNumber(ipNumber);
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_AWARDED));
-					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					// toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 					toAddresses.add(proposalDao.getCreateUserEmailAddress(proposal.getCreateUser()));
-					fibiEmailService.sendEmail(toAddresses, awardedSubject, null, null, awardedMessage, true);	
+					String awardRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FINAL_NOTIFICATION_RECIPIENT);
+					if (awardRecipients != null && !awardRecipients.isEmpty()) {
+						List<String> recipients = Arrays.asList(awardRecipients.split(","));
+						for (String recipient : recipients) {
+							toAddresses.add(recipient);
+						}
+					}
+					fibiEmailService.sendEmail(toAddresses, awardedSubject, null, null, awardedMessage, true);
 				}
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {
@@ -597,7 +653,7 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED));
 					proposal = proposalDao.saveOrUpdateProposal(proposal);
 					String rejectMessage = "The following proposal is rejected  :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-							+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -799,7 +855,7 @@ public class ProposalServiceImpl implements ProposalService {
 		Set<String> toAddresses = new HashSet<String>();
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		String attachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -822,7 +878,7 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		String attachmentMessage = "The following proposal contains attachments are completed: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="

@@ -68,7 +68,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			toAddresses.add(preReview.getReviewerEmailAddress());
 			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 			String createPreReviewMessage = "The following application has assigned a pre review: <br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-					+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
@@ -150,7 +150,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		toAddresses.add(preReview.getReviewerEmailAddress());
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		String completePreReviewMessage = "The following application has completed a pre review: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
-				+ "Application Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
+				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="

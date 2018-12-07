@@ -120,6 +120,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 			personDetail.setUpdateUser(updateUser);
 			personDetail.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 			personDetail.setEmailAddress(copiedPersonDetail.getEmailAddress());
+			personDetail.setOrganisation(copiedPersonDetail.getOrganisation());
 			List<ProposalPersonUnit> units = copiedPersonDetail.getUnits();
 			if (units != null && !units.isEmpty()) {
 				personDetail.getUnits().addAll(copyProposalPersonUnits(copiedPersonDetail, personDetail, updateUser));
@@ -171,6 +172,8 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setCreateTimeStamp(committeeDao.getCurrentTimestamp());
 		copyProposal.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 		copyProposal.setIsSubcontract(originalProposal.getIsSubcontract());
+		copyProposal.setIsDomesticSite(originalProposal.getIsDomesticSite());
+		copyProposal.setIsMultisiteStudy(originalProposal.getIsMultisiteStudy());
 		if (originalProposal.getProposalAttachments() != null && !originalProposal.getProposalAttachments().isEmpty()) {
 			copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, originalProposal, updateUser));
 		}

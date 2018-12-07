@@ -133,6 +133,8 @@ public class BudgetServiceImpl implements BudgetService {
 			BigDecimal totalFringeCost = BigDecimal.ZERO;
 			BigDecimal totalFandACost = BigDecimal.ZERO;
 			BigDecimal totalLineItemCost = BigDecimal.ZERO;
+			BigDecimal totalSubContractCost = BigDecimal.ZERO;
+			BigDecimal totalDirectCost = BigDecimal.ZERO;
 			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails();
 			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
@@ -151,6 +153,11 @@ public class BudgetServiceImpl implements BudgetService {
 						BigDecimal fringeCostForCE = BigDecimal.ZERO;
 						BigDecimal fandACostForCE = BigDecimal.ZERO;
 						BigDecimal lineItemCost = budgetItemDetail.getLineItemCost();
+						if(budgetItemDetail.getBudgetCategoryCode().equals(Constants.SUB_CONTRACT_CATEGORY_CODE)) {
+							totalSubContractCost = totalSubContractCost.add(budgetItemDetail.getLineItemCost());
+						} else {
+							totalDirectCost = totalDirectCost.add(budgetItemDetail.getLineItemCost());
+						}
 						totalLineItemCost = totalLineItemCost.add(lineItemCost);
 						fringeCostForCE = calculateFringeCostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, budgetItemDetail, lineItemCost, proposal.getActivityTypeCode());
 						fandACostForCE = calculateFandACostForCE(proposal.getBudgetHeader().getBudgetId(), budgetPeriod, budgetItemDetail, fringeCostForCE.add(lineItemCost), proposal.getActivityTypeCode());
@@ -186,8 +193,9 @@ public class BudgetServiceImpl implements BudgetService {
 					}
 				}
 			}
-			budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setTotalDirectCost(totalDirectCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
 			budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
+			budgetPeriod.setSubcontractCost(totalSubContractCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 			budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 		}
 		updateBudgetHeader(proposal.getBudgetHeader());
@@ -822,10 +830,17 @@ public class BudgetServiceImpl implements BudgetService {
 			BigDecimal totalFringeCost = BigDecimal.ZERO;
 			BigDecimal totalFandACost = BigDecimal.ZERO;
 			BigDecimal totalLineItemCost = BigDecimal.ZERO;
+			BigDecimal totalSubContractCost = BigDecimal.ZERO;
+			BigDecimal totalDirectCost = BigDecimal.ZERO;
 			List<BudgetDetail> budgetDetailsList = budgetPeriod.getBudgetDetails();
 			if (budgetDetailsList != null && !budgetDetailsList.isEmpty()) {
 				for (BudgetDetail budgetItemDetail : budgetDetailsList) {
 					if (!budgetItemDetail.getIsSystemGeneratedCostElement()) {
+						if(budgetItemDetail.getBudgetCategoryCode().equals(Constants.SUB_CONTRACT_CATEGORY_CODE)) {
+							totalSubContractCost = totalSubContractCost.add(budgetItemDetail.getLineItemCost());
+						} else {
+							totalDirectCost = totalDirectCost.add(budgetItemDetail.getLineItemCost());
+						}
 						totalLineItemCost = totalLineItemCost.add(budgetItemDetail.getLineItemCost());
 					}
 				}
@@ -842,12 +857,14 @@ public class BudgetServiceImpl implements BudgetService {
 						}
 					}
 				}
-				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalDirectCost(totalDirectCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setSubcontractCost(totalSubContractCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 				budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
 				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 			}
 			if (deletedPeriodId == budgetPeriod.getBudgetPeriodId()) {
-				budgetPeriod.setTotalDirectCost(totalLineItemCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setTotalDirectCost(totalDirectCost.add(totalFringeCost).setScale(2, BigDecimal.ROUND_HALF_UP));
+				budgetPeriod.setSubcontractCost(totalSubContractCost.setScale(2, BigDecimal.ROUND_HALF_UP));
 				budgetPeriod.setTotalIndirectCost(totalFandACost.setScale(2, BigDecimal.ROUND_HALF_UP));
 				budgetPeriod.setTotalCost(totalLineItemCost.add(totalFringeCost).add(totalFandACost).setScale(2, BigDecimal.ROUND_HALF_UP));
 			}
