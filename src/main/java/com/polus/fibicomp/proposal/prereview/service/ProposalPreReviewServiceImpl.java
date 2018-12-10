@@ -67,7 +67,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			Set<String> toAddresses = new HashSet<String>();
 			toAddresses.add(preReview.getReviewerEmailAddress());
 			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
-			String createPreReviewMessage = "The following application has assigned a pre review: <br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+			String createPreReviewMessage = "The following application has assigned a pre review: <br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
@@ -149,7 +149,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 		Set<String> toAddresses = new HashSet<String>();
 		toAddresses.add(preReview.getReviewerEmailAddress());
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
-		String completePreReviewMessage = "The following application has completed a pre review: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+		String completePreReviewMessage = "The following application has completed a pre review: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
