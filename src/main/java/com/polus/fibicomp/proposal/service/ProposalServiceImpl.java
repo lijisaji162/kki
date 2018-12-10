@@ -501,13 +501,13 @@ public class ProposalServiceImpl implements ProposalService {
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
 		//String sponsorDueDate = proposal.getSubmissionDate() != null ? proposal.getSubmissionDate().toString() : "";
-		String message = "The following proposal is successfully submitted for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+		String message = "The following proposal is successfully submitted for approval:<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 				+ proposal.getProposalId() +"\">this link</a> "
-				+ "to review the application and provide your response by clicking on the Approve or Reject buttons.";
+				+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
 		String subject = "Action Required: Approval for "+ proposal.getTitle();
 
 		String sponsorTypeCode = proposalDao.fetchSponsorTypeCodeBySponsorCode(proposal.getSponsorCode());
@@ -582,13 +582,13 @@ public class ProposalServiceImpl implements ProposalService {
 			logger.info("approverComment : " + approverComment);
 
 			String piName = getPrincipalInvestigator(proposal.getProposalPersons());
-			String message = "The following application has routed for approval:<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+			String message = "The following proposal has routed for approval:<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 					+ proposal.getProposalId() +"\">this link</a> "
-					+ "to review the application and provide your response by clicking on the Approve or Reject buttons.";
+					+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
 			String subject = "Action Required: Review for "+ proposal.getTitle();
 
 			workflowService.approveOrRejectWorkflowDetail(actionType, proposal.getProposalId(), proposalVO.getPersonId(), approverComment, files, null, subject, message);
@@ -600,7 +600,7 @@ public class ProposalServiceImpl implements ProposalService {
 					isFinalApprover = false;
 				}
 				/*if(workflowDetail1.getApprovalStopNumber().equals(stopNumber) && workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
-					String fyiMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+					String fyiMessage = "The following proposal is successfully routed and awarded :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
@@ -624,13 +624,13 @@ public class ProposalServiceImpl implements ProposalService {
 				boolean isIPCreated = institutionalProposalService.createInstitutionalProposal(proposal.getProposalId(), ipNumber, proposal.getUpdateUser());
 				logger.info("isIPCreated : " + isIPCreated);
 				if (isIPCreated) {
-					String awardedMessage = "The following proposal is successfully routed and awarded :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+					String awardedMessage = "The following proposal is successfully routed and awarded :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 							+ proposal.getProposalId() +"\">this link</a> "
-							+ "to review the application.";
+							+ "to review the proposal.";
 					String awardedSubject = "The proposal "+ proposal.getProposalId() + " is approved";
 					logger.info("Generated IP Number : " + ipNumber);
 					proposal.setIpNumber(ipNumber);
@@ -652,13 +652,13 @@ public class ProposalServiceImpl implements ProposalService {
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED);
 					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED));
 					proposal = proposalDao.saveOrUpdateProposal(proposal);
-					String rejectMessage = "The following proposal is rejected  :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+					String rejectMessage = "The following proposal is rejected  :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 							+ proposal.getProposalId() +"\">this link</a> "
-							+ "to review the application.";
+							+ "to review the proposal.";
 					String rejectSubject = "Action Required: Rejected for "+ proposal.getTitle();
 					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
@@ -854,13 +854,13 @@ public class ProposalServiceImpl implements ProposalService {
 		Proposal proposal = proposalVO.getProposal();
 		Set<String> toAddresses = new HashSet<String>();
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
-		String attachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+		String attachmentMessage = "The following proposal contains incomplete attachment: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 				+ proposal.getProposalId() +"\">this link</a> "
-				+ "to review the application.";
+				+ "to review the proposal.";
 		String attachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
 		toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
@@ -877,13 +877,13 @@ public class ProposalServiceImpl implements ProposalService {
 			toAddresses.add(workflowDetail.getEmailAddress());
 		}
 		String piName = getPrincipalInvestigator(proposal.getProposalPersons());
-		String attachmentMessage = "The following proposal contains attachments are completed: :<br/><br/>Application Number: "+ proposal.getProposalId() +"<br/>"
+		String attachmentMessage = "The following proposal contains attachments are completed: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 				+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 				+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 				+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
 				+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 				+ proposal.getProposalId() +"\">this link</a> "
-				+ "to review the application.";
+				+ "to review the proposal.";
 		String attachmentSubject = "Action Required: Completed Attachments for "+ proposal.getTitle();
 		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
 		return "SUCCESS";
