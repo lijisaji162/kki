@@ -81,6 +81,9 @@ public class Proposal implements Serializable {
 	@Column(name = "SUBMISSION_DATE")
 	private Timestamp submissionDate;
 
+	@Column(name = "SPONSOR_DEADLINE_DATE")
+	private Timestamp sponsorDeadlineDate;
+
 	@Column(name = "INTERNAL_DEADLINE_DATE")
 	private Timestamp internalDeadLineDate;
 
@@ -634,6 +637,14 @@ public class Proposal implements Serializable {
 
 	public void setIsDomesticSite(Boolean isDomesticSite) {
 		this.isDomesticSite = isDomesticSite;
+	}
+
+	public Timestamp getSponsorDeadlineDate() {
+		return sponsorDeadlineDate;
+	}
+
+	public void setSponsorDeadlineDate(Timestamp sponsorDeadlineDate) {
+		this.sponsorDeadlineDate = sponsorDeadlineDate;
 	}
 
 }

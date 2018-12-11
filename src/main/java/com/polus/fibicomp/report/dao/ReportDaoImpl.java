@@ -90,7 +90,7 @@ public class ReportDaoImpl implements ReportDao {
 		projList.add(Projections.property("activityType.description"), "applicationCategory");
 		projList.add(Projections.property("proposalType.description"), "applicationType");
 		projList.add(Projections.property("proposalStatus.description"), "applicationStatus");
-		projList.add(Projections.property("submissionDate"), "submissionDate");
+		projList.add(Projections.property("sponsorDeadlineDate"), "sponsorDeadlineDate");
 		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Proposal.class));*/
 		//Long applicationsCount = (Long) criteria.setProjection(Projections.rowCount()).uniqueResult();
 		@SuppressWarnings("unchecked")

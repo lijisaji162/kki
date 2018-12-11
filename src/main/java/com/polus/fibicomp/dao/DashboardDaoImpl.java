@@ -1450,7 +1450,7 @@ public class DashboardDaoImpl implements DashboardDao {
 			projList.add(Projections.property("activityType.description"), "applicationActivityType");
 			projList.add(Projections.property("proposalType.description"), "applicationType");
 			projList.add(Projections.property("proposalStatus.description"), "applicationStatus");
-			projList.add(Projections.property("submissionDate"), "submissionDate");
+			projList.add(Projections.property("sponsorDeadlineDate"), "sponsorDeadlineDate");
 			projList.add(Projections.property("sponsorName"), "sponsorName");
 			searchCriteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Proposal.class));*/
 			countCriteria.add(and);
@@ -1474,7 +1474,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
-					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setSponsorDeadlineDate(proposalObject.getSponsorDeadlineDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
@@ -1580,7 +1580,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
-					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setSponsorDeadlineDate(proposalObject.getSponsorDeadlineDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
@@ -1687,7 +1687,7 @@ public class DashboardDaoImpl implements DashboardDao {
 					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
 					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
 					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
-					propObj.setSubmissionDate(proposalObject.getSubmissionDate());
+					propObj.setSponsorDeadlineDate(proposalObject.getSponsorDeadlineDate());
 					propObj.setProposalPersons(proposalObject.getProposalPersons());
 					propObj.setSponsorName(proposalObject.getSponsorName());
 					propObj.setHomeUnitName(proposalObject.getHomeUnitName());

@@ -70,7 +70,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			String createPreReviewMessage = "The following application has assigned a pre review: <br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
-					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+					+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 					+ proposal.getProposalId() +"\">this link</a> "
 					+ "to review the application.";
@@ -150,7 +150,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			preReviewMessage = "The following application has completed a pre review: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
-					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+					+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 					+ proposal.getProposalId() +"\">this link</a> "
 					+ "to review the application.";
@@ -162,7 +162,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			preReviewMessage = "The following application has completed a pre review: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
-					+ "Deadline Date: "+ proposal.getSubmissionDate() +"<br/><br/>Please go to "
+					+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
 					+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 					+ proposal.getProposalId() +"\">this link</a> "
 					+ "to review the application.";
