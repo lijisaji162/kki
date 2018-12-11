@@ -98,6 +98,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setStartDate(originalProposal.getStartDate());
 		copyProposal.setEndDate(originalProposal.getEndDate());
 		copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
+		copyProposal.setSponsorDeadlineDate(originalProposal.getSponsorDeadlineDate());
 		copyProposal.setInternalDeadLineDate(originalProposal.getInternalDeadLineDate());
 		copyProposal = proposalDao.saveOrUpdateProposal(copyProposal);
 		copyProposal.setProposalPersons(copyProposalPersons(copyProposal, originalProposal, updateUser));
@@ -154,16 +155,12 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setGrantCall(originalProposal.getGrantCall());
 		copyProposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
 		copyProposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS));
-		// copyProposal.setSubmissionDate(originalProposal.getSubmissionDate());
-		// copyProposal.setIsSmu(originalProposal.getIsSmu());
 		copyProposal.setAbstractDescription(originalProposal.getAbstractDescription());
 		copyProposal.setResearchDescription(originalProposal.getResearchDescription());
 		copyProposal.setCreateUser(updateUser);
 		copyProposal.setUpdateUser(updateUser);
-		// copyProposal.setIpNumber(originalProposal.getIpNumber());
 		copyProposal.setGrantTypeCode(originalProposal.getGrantTypeCode());
 		copyProposal.setGrantCallType(originalProposal.getGrantCallType());
-		// copyProposal.setSubmitUser(originalProposal.getSubmitUser());
 		copyProposal.setSponsorProposalNumber(originalProposal.getSponsorProposalNumber());
 		copyProposal.setPrincipalInvestigator(originalProposal.getPrincipalInvestigator());
 		copyProposal.setApplicationActivityType(originalProposal.getApplicationActivityType());
