@@ -65,7 +65,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Override
 	public String getDashBoardResearchSummary(CommonVO vo) throws Exception {
-		return dashboardDao.getDashBoardResearchSummary(vo.getPersonId(), vo.getUnitNumber(), vo.getIsAdmin());
+		return dashboardDao.getDashBoardResearchSummary(vo.getPersonId(), vo.getUnitNumber(), vo.getIsAdmin(), vo.getUserName());
 	}
 
 	@Override
@@ -177,6 +177,7 @@ public class DashboardServiceImpl implements DashboardService {
 		String researchSummaryIndex = vo.getResearchSummaryIndex();
 		boolean isAdmin = vo.getIsAdmin();
 		String unitNumber = vo.getUnitNumber();
+		String userName = vo.getUserName();
 		logger.info("personId :"+ personId);
 		logger.info("researchSummaryIndex :"+ researchSummaryIndex);
 		logger.info("isAdmin :"+ isAdmin);
@@ -184,10 +185,10 @@ public class DashboardServiceImpl implements DashboardService {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName);
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName);
 			}
 			if (researchSummaryIndex.equals("AWARDSACTIVE")) {
 				dashBoardProfile = dashboardDao.getActiveAwards(personId, isAdmin, unitNumber);
@@ -301,18 +302,19 @@ public class DashboardServiceImpl implements DashboardService {
 		logger.info("---------getFibiResearchSummary---------");
 		boolean isAdmin = false;
 		String unitNumber = "";
+		String userName = "";
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		MobileProfile mobileProfile = new MobileProfile();
 		mobileProfile.setStatus(false);
 		mobileProfile.setMessage("Error fetching research summary");
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}

@@ -29,7 +29,7 @@ public interface DashboardDao {
 	 *         table.
 	 * @throws Exception
 	 */
-	public String getDashBoardResearchSummary(String personId, String unitNumber, boolean isAdmin) throws Exception;
+	public String getDashBoardResearchSummary(String personId, String unitNumber, boolean isAdmin, String userName) throws Exception;
 
 	/**
 	 * This method is used to get list of awards.
@@ -119,7 +119,7 @@ public interface DashboardDao {
 	 * @return A list of Proposals in progress.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getProposalsInProgress(String personId, boolean isAdmin, String unitNumber) throws Exception;
+	public DashBoardProfile getProposalsInProgress(String personId, boolean isAdmin, String unitNumber, String userName) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of submitted proposals.
@@ -129,7 +129,7 @@ public interface DashboardDao {
 	 * @return A list of Submitted proposals.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getSubmittedProposals(String personId, boolean isAdmin, String unitNumber) throws Exception;
+	public DashBoardProfile getSubmittedProposals(String personId, boolean isAdmin, String unitNumber, String userName) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of active awards.
@@ -168,7 +168,7 @@ public interface DashboardDao {
 	 * @param summaryTable
 	 * @return List of Research Summary View
 	 */
-	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, List<ResearchSummaryView> summaryTable);
+	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, String userName, List<ResearchSummaryView> summaryTable);
 
 	/**
 	 * @param personId
