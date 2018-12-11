@@ -25,11 +25,11 @@ public interface ProposalPreReviewService {
 	public String addPreReviewComment(MultipartFile[] files, String formDataJSON);
 
 	/**
-	 * This method is used to complete pre review by the reviewer for a proposal.
+	 * This method is used to approve or disapprove pre review by the reviewer for a proposal.
 	 * @param proposalVO - Object of ProposalVO class.
 	 * @return A String of details of proposal data with pre review data.
 	 */
-	public String completePreReview(ProposalVO proposalVO);
+	public String approveOrDisapprovePreReview(ProposalVO proposalVO);
 
 	/**
 	 * This method is used to download proposal pre review attachment.

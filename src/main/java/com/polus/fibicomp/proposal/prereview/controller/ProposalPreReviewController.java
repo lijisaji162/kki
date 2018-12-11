@@ -40,10 +40,11 @@ public class ProposalPreReviewController {
 		return proposalPreReviewService.addPreReviewComment(files, formDataJson);
 	}
 
-	@RequestMapping(value = "/completePreReview", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public String completePreReviewComment(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for completePreReview");
-		return proposalPreReviewService.completePreReview(vo);
+	@RequestMapping(value = "/approveOrDisapprovePreReview", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String approveOrDiapprovePreReview(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Requesting for approveOrDisapprovePreReview");
+		logger.info("actionType : " + vo.getActionType());
+		return proposalPreReviewService.approveOrDisapprovePreReview(vo);
 	}
 
 	@RequestMapping(value = "/downloadPreReviewAttachment", method = RequestMethod.GET)
