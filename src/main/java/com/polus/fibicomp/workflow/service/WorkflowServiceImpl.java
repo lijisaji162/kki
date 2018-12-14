@@ -118,12 +118,12 @@ public class WorkflowServiceImpl implements WorkflowService {
 		} else {
 			if(isSuperUser) {
 				if(workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
-					workflowDetail = approveOrReject(actionType, moduleItemId, personId, approverComment, files, subject, message, workflow);					
+					workflowDetail = approveOrReject(actionType, moduleItemId, personId, approverComment, files, subject, message, workflow, workflowDetail);					
 				} else {
 					workflowDetail = superUserApproveOrReject(actionType, moduleItemId, personId, approverComment, files, subject, message, workflow);									
 				}
 			} else {
-				workflowDetail = approveOrReject(actionType, moduleItemId, personId, approverComment, files, subject, message, workflow);				
+				workflowDetail = approveOrReject(actionType, moduleItemId, personId, approverComment, files, subject, message, workflow, workflowDetail);				
 			}
 		}
 		return workflowDetail;
@@ -192,9 +192,8 @@ public class WorkflowServiceImpl implements WorkflowService {
 		return superUserWorkflowDetail;
 	}
 	
-	public WorkflowDetail approveOrReject(String actionType, Integer moduleItemId, String personId, String approverComment, MultipartFile[] files, String subject, String message, Workflow workflow) throws IOException {
+	public WorkflowDetail approveOrReject(String actionType, Integer moduleItemId, String personId, String approverComment, MultipartFile[] files, String subject, String message, Workflow workflow, WorkflowDetail workflowDetail) throws IOException {
 		Set<String> toAddresses = new HashSet<String>();
-		WorkflowDetail workflowDetail = workflowDao.findUniqueWorkflowDetailByCriteria(workflow.getWorkflowId(), personId, false, null);
 		if (workflowDetail.getApprovalStopNumber() == Constants.WORKFLOW_FIRST_STOP_NUMBER) {
 			workflow.setWorkflowStartDate(new Date(committeeDao.getCurrentDate().getTime()));
 			workflow.setWorkflowStartPerson(personId);
