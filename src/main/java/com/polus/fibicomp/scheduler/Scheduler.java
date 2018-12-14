@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.proposal.pojo.Proposal;
-import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -72,7 +71,7 @@ public class Scheduler {
 								if (workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
 									if (workflowDetail.getFirstCronEmailFlag() != null) {
 										if (!workflowDetail.getFirstCronEmailFlag()) {
-											String piName = getPrincipalInvestigator(proposalObject.getProposalPersons());
+											String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
 											String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
 													+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
 													+ proposalObject.getTitle() + "<br/>Principal Investigator: "
@@ -106,8 +105,7 @@ public class Scheduler {
 									if (workflowDetail.getApprovalStopNumber() > 1) {
 										if (workflowDetail.getFirstCronEmailFlag() != null) {
 											if (!workflowDetail.getFirstCronEmailFlag()) {
-												String piName = getPrincipalInvestigator(
-														proposalObject.getProposalPersons());
+												String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
 												String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
 														+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
 														+ proposalObject.getTitle() + "<br/>Principal Investigator: "
@@ -166,8 +164,7 @@ public class Scheduler {
 							if (workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
 								if (workflowDetail.getSecondCronEmailFlag() != null) {
 									if (!workflowDetail.getSecondCronEmailFlag()) {
-										String piName = getPrincipalInvestigator(
-												proposalObject.getProposalPersons());
+										String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
 										String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
 												+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
 												+ proposalObject.getTitle() + "<br/>Principal Investigator: "
@@ -201,8 +198,7 @@ public class Scheduler {
 								if (workflowDetail.getApprovalStopNumber() > 1) {
 									if (workflowDetail.getSecondCronEmailFlag() != null) {
 										if (!workflowDetail.getSecondCronEmailFlag()) {
-											String piName = getPrincipalInvestigator(
-													proposalObject.getProposalPersons());
+											String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
 											String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
 													+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
 													+ proposalObject.getTitle() + "<br/>Principal Investigator: "
@@ -232,16 +228,6 @@ public class Scheduler {
 				}
 			}
 		}
-	}
-
-	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
-		String piName = "";
-		for (ProposalPerson person : proposalPersons) {
-			if (person.getProposalPersonRole().getCode().equals(Constants.PRINCIPAL_INVESTIGATOR)) {
-				piName = person.getFullName();
-			}
-		}
-		return piName;
 	}
 
 }
