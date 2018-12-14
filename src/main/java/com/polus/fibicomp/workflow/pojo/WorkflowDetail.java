@@ -106,6 +106,14 @@ public class WorkflowDetail implements Serializable {
 	@Column(name = "EMAIL_ADDRESS")
 	private String emailAddress;
 
+	@Column(name = "FIRST_CRON_EMAIL_FLAG")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean firstCronEmailFlag = false;
+
+	@Column(name = "SECOND_CRON_EMAIL_FLAG")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean secondCronEmailFlag = false;
+
 	public WorkflowDetail() {
 		workflowAttachments = new ArrayList<WorkflowAttachment>();
 		workflowReviewerDetails = new ArrayList<WorkflowReviewerDetail>();
@@ -281,6 +289,22 @@ public class WorkflowDetail implements Serializable {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public Boolean getFirstCronEmailFlag() {
+		return firstCronEmailFlag;
+	}
+
+	public void setFirstCronEmailFlag(Boolean firstCronEmailFlag) {
+		this.firstCronEmailFlag = firstCronEmailFlag;
+	}
+
+	public Boolean getSecondCronEmailFlag() {
+		return secondCronEmailFlag;
+	}
+
+	public void setSecondCronEmailFlag(Boolean secondCronEmailFlag) {
+		this.secondCronEmailFlag = secondCronEmailFlag;
 	}
 
 }
