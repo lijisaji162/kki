@@ -234,10 +234,11 @@ public interface DashboardDao {
 	 * @param proposals - for inprogress proposals data.
 	 * @param unitNumber - Unit number.
 	 * @param isAdmin - Flag that determines logged user is admin or not.
+	 * @param userName - user name.
 	 * @return A list of inprogress proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
+	public List<Object[]> getInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName) throws Exception;
 
 	/**
 	 * This method is used to get list of submitted proposals.
@@ -245,10 +246,11 @@ public interface DashboardDao {
 	 * @param proposals - for submitted proposals data.
 	 * @param unitNumber - Unit number.
 	 * @param isAdmin - Flag that determines logged user is admin or not.
+	 * @param userName - user name.
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getSubmittedProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin) throws Exception;
+	public List<Object[]> getSubmittedProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName) throws Exception;
 
 	/**
 	 * This method is used to get list of active awards.

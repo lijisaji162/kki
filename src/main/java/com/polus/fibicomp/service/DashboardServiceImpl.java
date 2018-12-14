@@ -1,8 +1,6 @@
 package com.polus.fibicomp.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -17,7 +15,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -27,10 +24,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.Chunk;
@@ -370,17 +365,15 @@ public class DashboardServiceImpl implements DashboardService {
 		return columnCount;
 	}
 
-	private File generatePDFFile(File pdfFile, File excelFile, String documentHeading) {
+	private byte[] generatePDFFileByteArray(String documentHeading, XSSFWorkbook workbook) {
+		byte[] byteArray = null;
 		try {
-			FileInputStream inputStream = new FileInputStream(excelFile);
-			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			if (workbook.getNumberOfSheets() != 0) {
 				XSSFSheet worksheet = workbook.getSheetAt(0);
 				Iterator<Row> rowIterator = worksheet.iterator();
 				Document document = new Document();
-				pdfFile = new File("PDFFile.pdf");
-				FileOutputStream outputStream = new FileOutputStream(pdfFile);
-				PdfWriter.getInstance(document, outputStream);
+				PdfWriter.getInstance(document, byteArrayOutputStream);
 				document.open();
 				Paragraph paragraph = new Paragraph(documentHeading);
 				paragraph.setAlignment(Element.ALIGN_CENTER);
@@ -420,51 +413,35 @@ public class DashboardServiceImpl implements DashboardService {
 				}
 				document.add(table);
 				document.close();
-				inputStream.close();
 			}
+			byteArray = byteArrayOutputStream.toByteArray();
 		} catch (Exception e) {
-			logger.error("Error in method generatePDFFile", e);
+			logger.error("Error in method generatePDFFileByteArray", e);
 		}
-		return pdfFile;
-	}
-
-	private MultipartFile generateMultiPartFile(MultipartFile multipartFile, File file) {
-		try {
-			FileInputStream inputStream = new FileInputStream(file);
-			multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(inputStream));
-			inputStream.close();
-		} catch (Exception e) {
-			logger.error("Error in method generateMultiPartFile", e);
-		}
-		return multipartFile;
+		return byteArray;
 	}
 
 	@Override
 	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception {
-		logger.info("--------- getResponseEntityForExcelDownload ---------");
-		File excelFile = new File("ExcelFile.xlsx");
-		FileOutputStream outputStream = new FileOutputStream(excelFile);
-		workbook.write(outputStream);
-		outputStream.close();
+		logger.info("--------- getResponseEntityForExcelOrPDFDownload ---------");
+		byte[] byteArray = null;
 		String exportType = vo.getExportType();
 		String documentHeading = vo.getDocumentHeading();
 		logger.info("exportType : " + exportType);
 		logger.info("documentHeading : " + documentHeading);
-		File pdfFile = null;
-		MultipartFile multipartFile = null;
 		if (exportType.equals("pdf")) {
-			pdfFile = generatePDFFile(pdfFile, excelFile, documentHeading);
-			multipartFile = generateMultiPartFile(multipartFile, pdfFile);
+			byteArray = generatePDFFileByteArray(documentHeading, workbook);
 		} else {
-			multipartFile = generateMultiPartFile(multipartFile, excelFile);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			workbook.write(bos);
+			byteArray = bos.toByteArray();
 		}
-		return getResponseEntity(multipartFile);
+		return getResponseEntity(byteArray);
 	}
 
-	private ResponseEntity<byte[]> getResponseEntity(MultipartFile multipartFile) {
+	private ResponseEntity<byte[]> getResponseEntity(byte[] bytes) {
 		ResponseEntity<byte[]> attachmentData = null;
 		try {
-			byte[] bytes = multipartFile.getBytes();
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
 			headers.setContentLength(bytes.length);
@@ -619,6 +596,7 @@ public class DashboardServiceImpl implements DashboardService {
 		String sponsorCode = vo.getSponsorCode();
 		boolean isAdmin = vo.getIsAdmin();
 		String unitNumber = vo.getUnitNumber();
+		String userName = vo.getUserName();
 		logger.info("personId : " + personId);
 		logger.info("dashboardIndex : " + dashboardIndex);
 		logger.info("sponsorCode : " + sponsorCode);
@@ -627,12 +605,12 @@ public class DashboardServiceImpl implements DashboardService {
 		List<Object[]> dashboardData = new ArrayList<Object[]>();
 		try {
 			if (dashboardIndex.equals("PROPOSALSINPROGRESS")) {
-				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin);
+				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
-				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData, unitNumber, isAdmin);
+				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
