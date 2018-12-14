@@ -16,6 +16,7 @@ import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.FundingSourceType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
+import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.ScienceKeyword;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.SponsorType;
@@ -174,6 +175,10 @@ public class ProposalVO {
 	private List<Workflow> workflowList;
 
 	private Boolean isProposalPerson = false;
+
+	private Boolean isSuperUser = false;
+
+	private List<Rolodex> nonEmployeeList;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -729,6 +734,22 @@ public class ProposalVO {
 
 	public void setIsProposalPerson(Boolean isProposalPerson) {
 		this.isProposalPerson = isProposalPerson;
+	}
+
+	public Boolean getIsSuperUser() {
+		return isSuperUser;
+	}
+
+	public void setIsSuperUser(Boolean isSuperUser) {
+		this.isSuperUser = isSuperUser;
+	}
+
+	public List<Rolodex> getNonEmployeeList() {
+		return nonEmployeeList;
+	}
+
+	public void setNonEmployeeList(List<Rolodex> nonEmployeeList) {
+		this.nonEmployeeList = nonEmployeeList;
 	}
 
 }

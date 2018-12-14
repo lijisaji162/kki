@@ -14,6 +14,7 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.pojo.UnitAdministrator;
 import com.polus.fibicomp.view.PersonDetailsView;
 import com.polus.fibicomp.workflow.pojo.Workflow;
@@ -59,15 +60,25 @@ public class WorkflowDaoImpl implements WorkflowDao {
 	}
 
 	@Override
-	public WorkflowDetail findUniqueWorkflowDetailByCriteria(Integer workflowId, String personId, Integer approverStopNumber) {
-		WorkflowDetail workflowDetail;
+	public WorkflowDetail findUniqueWorkflowDetailByCriteria(Integer workflowId, String personId, boolean isSuperUser, Integer approverStopNumber) {
+		WorkflowDetail workflowDetail = null;
 		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(WorkflowDetail.class);
 		criteria.add(Restrictions.eq("workflow.workflowId", workflowId));
 		criteria.add(Restrictions.eq("approverPersonId", personId));
 		if (approverStopNumber != null) {
 			criteria.add(Restrictions.eq("approvalStopNumber", approverStopNumber));
 		}
-		workflowDetail = (WorkflowDetail) criteria.uniqueResult();
+		if (isSuperUser) {
+			@SuppressWarnings("unchecked")
+			List<WorkflowDetail> workflowDetails = criteria.list();
+			for (WorkflowDetail wfwDetail : workflowDetails) {
+				if (wfwDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
+					workflowDetail = wfwDetail;
+				}
+			}
+		} else {
+			workflowDetail = (WorkflowDetail) criteria.uniqueResult();
+		}
 		return workflowDetail;
 	}
 
@@ -208,6 +219,23 @@ public class WorkflowDaoImpl implements WorkflowDao {
 		criteria.add(Restrictions.eq("moduleItemId", moduleItemId));		
 		List<Workflow> workflowList =  criteria.list();
 		return workflowList;
+	}
+
+	@Override
+	public PersonDetailsView getPersonDetail(String personId) {
+		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(PersonDetailsView.class);
+		criteria.add(Restrictions.eq("prncplId", personId));
+		PersonDetailsView personDetail = (PersonDetailsView) criteria.list().get(0);
+		return personDetail;
+	}
+
+	@Override
+	public Integer getWaitingForApprovalStopNumber(String statusCode, Integer workflowId) {
+		Criteria criteria = hibernateTemplate.getSessionFactory().getCurrentSession().createCriteria(WorkflowDetail.class);
+		criteria.add(Restrictions.eq("workflow.workflowId", workflowId));
+		criteria.add(Restrictions.eq("approvalStatusCode", statusCode));
+		WorkflowDetail workflowDetail = (WorkflowDetail) criteria.list().get(0);
+		return workflowDetail.getApprovalStopNumber();
 	}
 
 }
