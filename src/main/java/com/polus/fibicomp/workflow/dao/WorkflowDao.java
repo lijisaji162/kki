@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.polus.fibicomp.view.PersonDetailsView;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 import com.polus.fibicomp.workflow.pojo.WorkflowAttachment;
 import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
@@ -48,7 +49,7 @@ public interface WorkflowDao {
 	 * @param approverStopNumber - Stop Number of the approver.
 	 * @return an object of workflow detail.
 	 */
-	public WorkflowDetail findUniqueWorkflowDetailByCriteria(Integer workflowId, String personId, Integer approverStopNumber);
+	public WorkflowDetail findUniqueWorkflowDetailByCriteria(Integer workflowId, String personId, boolean isSuperUser, Integer approverStopNumber);
 
 	/**
 	 * This method is used to save workflow detail.
@@ -141,5 +142,9 @@ public interface WorkflowDao {
 	 * @return an object of workflow.
 	 */
 	public List<Workflow> fetchWorkflowsByModuleItemId(Integer moduleItemId);
+
+	public PersonDetailsView getPersonDetail(String personId);
+
+	public Integer getWaitingForApprovalStopNumber(String statusCode, Integer workflowId);
 
 }

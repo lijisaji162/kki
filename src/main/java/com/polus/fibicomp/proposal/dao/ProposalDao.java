@@ -10,6 +10,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
+import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
@@ -21,7 +22,6 @@ import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.vo.SponsorSearchResult;
-import com.polus.fibicomp.workflow.pojo.Workflow;
 
 @Service
 public interface ProposalDao {
@@ -154,14 +154,8 @@ public interface ProposalDao {
 	 */
 	public List<NarrativeStatus> fetchAllNarrativeStatus();
 
-	/**
-	 * This method is used to prepare workflow.
-	 */
-	public void prepareWorkflowDetails(Workflow workflow);
+	public List<Rolodex> fetchAllNonEmployees();
 
-	/**
-	 * This method is used to prepare workflow list.
-	 */
-	public void prepareWorkflowDetailsList(List<Workflow> workflowList);
+	public List<Rolodex> getNonEmployee(String searchString);
 
 }

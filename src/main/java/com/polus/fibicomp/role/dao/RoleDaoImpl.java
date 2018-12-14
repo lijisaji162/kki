@@ -43,4 +43,22 @@ public class RoleDaoImpl implements RoleDao {
 		return roleMemberBos;
 	}
 
+	public boolean fetchSuperUserPersonRole(String personId, String roleId) {
+		boolean isSuperUser = false;
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(RoleMemberBo.class);
+		criteria.add(Restrictions.eq("memberId", personId));
+		criteria.add(Restrictions.eq("roleId", roleId));
+		@SuppressWarnings("unchecked")
+		List<RoleMemberBo> superUserRoles = criteria.list();
+		if (superUserRoles != null && !superUserRoles.isEmpty()) {
+			for (RoleMemberBo memberBo : superUserRoles) {
+				if (memberBo.isActive()) {
+					isSuperUser = true;
+				}
+			}
+		}
+		return isSuperUser;
+	}
+
 }

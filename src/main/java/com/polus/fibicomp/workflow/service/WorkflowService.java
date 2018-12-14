@@ -1,6 +1,7 @@
 package com.polus.fibicomp.workflow.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public interface WorkflowService {
 	 * @return an object of workflow detail.
 	 * @throws IOException
 	 */
-	public WorkflowDetail approveOrRejectWorkflowDetail(String actionType, Integer moduleItemId, String personId, String approverComment, MultipartFile[] files, Integer approverStopNumber, String subject, String message) throws IOException;
+	public WorkflowDetail approveOrRejectWorkflowDetail(String actionType, Integer moduleItemId, String personId, boolean isSuperUser, String approverComment, MultipartFile[] files, Integer approverStopNumber, String subject, String message) throws IOException;
 
 	/**
 	 * This method is used to download Workflow Attachment.
@@ -62,4 +63,13 @@ public interface WorkflowService {
 	 */
 	public Set<String> getEmailAdressByUserType(String roleTypeCode);
 
+	/**
+	 * This method is used to prepare workflow.
+	 */
+	public void prepareWorkflowDetails(Workflow workflow);
+
+	/**
+	 * This method is used to prepare workflow list.
+	 */
+	public void prepareWorkflowDetailsList(List<Workflow> workflowList);
 }

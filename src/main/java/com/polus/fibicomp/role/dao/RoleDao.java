@@ -11,4 +11,6 @@ public interface RoleDao {
 
 	public List<RoleMemberBo> fetchCreateProposalPersonRole(String personId, String roleId);
 
+	public boolean fetchSuperUserPersonRole(String personId, String roleId);
+
 }

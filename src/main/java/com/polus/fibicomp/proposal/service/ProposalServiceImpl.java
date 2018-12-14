@@ -41,6 +41,7 @@ import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.grantcall.dao.GrantCallDao;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.ip.service.InstitutionalProposalService;
+import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
@@ -287,11 +288,11 @@ public class ProposalServiceImpl implements ProposalService {
 				|| proposal.getStatusCode().equals(Constants.PROPOSAL_STATUS_CODE_RETURNED)) {
 			canTakeRoutingAction(proposalVO);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
-			proposalDao.prepareWorkflowDetails(workflow);
+			workflowService.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
 			if(WorkflowList != null) {
-				proposalDao.prepareWorkflowDetailsList(WorkflowList);
+				workflowService.prepareWorkflowDetailsList(WorkflowList);
 				Collections.sort(WorkflowList, new WorkflowComparator());
 				proposalVO.setWorkflowList(WorkflowList);
 				if (proposalVO.getFinalApprover()) {
@@ -501,6 +502,7 @@ public class ProposalServiceImpl implements ProposalService {
 	@Override
 	public String submitProposal(ProposalVO proposalVO) {
 		Proposal proposal = proposalVO.getProposal();
+		proposal.setSubmissionDate(committeeDao.getCurrentTimestamp());
 		proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS);
 		proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS));
 		proposal = proposalDao.saveOrUpdateProposal(proposal);
@@ -517,12 +519,12 @@ public class ProposalServiceImpl implements ProposalService {
 		String sponsorTypeCode = proposalDao.fetchSponsorTypeCodeBySponsorCode(proposal.getSponsorCode());
 		Workflow workflow = workflowService.createWorkflow(proposal.getProposalId(), proposalVO.getUserName(), proposalVO.getProposalStatusCode(), sponsorTypeCode, subject, message);
 		canTakeRoutingAction(proposalVO);
-		proposalDao.prepareWorkflowDetails(workflow);
+		workflowService.prepareWorkflowDetails(workflow);
 		loadInitialData(proposalVO);
 		proposalVO.setWorkflow(workflow);
 		List<Workflow> workflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
 		if(workflowList != null) {
-			proposalDao.prepareWorkflowDetailsList(workflowList);
+			workflowService.prepareWorkflowDetailsList(workflowList);
 			Collections.sort(workflowList, new WorkflowComparator());
 			proposalVO.setWorkflowList(workflowList);
 		}
@@ -595,12 +597,15 @@ public class ProposalServiceImpl implements ProposalService {
 					+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
 			String subject = "Action Required: Review for "+ proposal.getTitle();
 
-			workflowService.approveOrRejectWorkflowDetail(actionType, proposal.getProposalId(), proposalVO.getPersonId(), approverComment, files, null, subject, message);
+			workflowService.approveOrRejectWorkflowDetail(actionType, proposal.getProposalId(), proposalVO.getPersonId(), proposalVO.getIsSuperUser(), approverComment, files, null, subject, message);
 			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
 			List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
 			//String stopNumber = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.WORKFLOW_STOP_NUMBER);
 			for (WorkflowDetail workflowDetail1 : workflowDetails) {
-				if (!workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
+				/*if (!(workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED) || workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED_BY_OTHER) || workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVAL_BYPASSED))) {
+					isFinalApprover = false;
+				}*/
+				if (workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING) ) {
 					isFinalApprover = false;
 				}
 				/*if(workflowDetail1.getApprovalStopNumber().equals(stopNumber) && workflowDetail1.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
@@ -674,11 +679,11 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setFinalApprover(isFinalApprover);
 			proposalVO.setIsApproved(true);
 			proposalVO.setIsApprover(true);
-			proposalDao.prepareWorkflowDetails(workflow);
+			workflowService.prepareWorkflowDetails(workflow);
 			proposalVO.setWorkflow(workflow);
 			List<Workflow> workflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
 			if(workflowList != null) {
-				proposalDao.prepareWorkflowDetailsList(workflowList);
+				workflowService.prepareWorkflowDetailsList(workflowList);
 				Collections.sort(workflowList, new WorkflowComparator());
 				proposalVO.setWorkflowList(workflowList);
 			}
@@ -701,6 +706,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
 			proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
 			proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
+			proposalVO.setNonEmployeeList(proposalDao.fetchAllNonEmployees());
 			if (isDeclarationSectionRequired) {
 				proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
 				proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
@@ -759,6 +765,7 @@ public class ProposalServiceImpl implements ProposalService {
 		}
 	}
 
+	@Override
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons) {
 		String piName = "";
 		for (ProposalPerson person : proposalPersons) {
@@ -902,6 +909,11 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 		}
 		return isProposalPerson;
+	}
+
+	@Override
+	public List<Rolodex> getNonEmployee(String searchString) {
+		return proposalDao.getNonEmployee(searchString);
 	}
 
 }

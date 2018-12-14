@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.polus.fibicomp.pojo.Rolodex;
+import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.vo.SponsorSearchResult;
 
@@ -156,5 +158,9 @@ public interface ProposalService {
 	 * @return a String of details of proposal.
 	 */
 	public String sendAttachApproverNotification(ProposalVO proposalVO);
+
+	public List<Rolodex> getNonEmployee(String searchString);
+
+	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons);
 
 }

@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.polus.fibicomp.common.dao.CommonDao;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.pojo.PersonDTO;
@@ -46,11 +47,13 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private AuthenticationManager authenticationManager;
 	private LoginDao loginDao;
 	private RoleDao roleDao;
+	private CommonDao commonDao;
 
-	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao) throws Exception {
+	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao, CommonDao commonDao) throws Exception {
 		this.authenticationManager = authenticationManager;
 		this.loginDao = loginDao;
 		this.roleDao = roleDao;
+		this.commonDao = commonDao;
 	}
 
 	@Override
@@ -82,7 +85,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		PersonDTO personDTO = new PersonDTO();
 		personDTO = loginDao.readPersonData(((User) auth.getPrincipal()).getUsername());
-		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), "10013");
+		String proposalCreatorRole = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.PROPOSAL_CREATOR_ROLE);
+		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), proposalCreatorRole);
 		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();
 			for (RoleMemberBo memberBo : memberBos) {
@@ -100,6 +104,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				personDTO.setCreateProposal(true);
 			}
 		}
+		String superUserRole = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.KC_SUPERUSER_ROLE);
+		boolean isSuperUser = roleDao.fetchSuperUserPersonRole(personDTO.getPersonID(), superUserRole);
+		personDTO.setSuperUser(isSuperUser);
 		personDTO.setJwtRoles(auth.getAuthorities());
 		String response = new ObjectMapper().writeValueAsString(personDTO);
 		res.getWriter().write(response);

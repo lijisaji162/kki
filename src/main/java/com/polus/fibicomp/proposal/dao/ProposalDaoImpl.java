@@ -1,9 +1,7 @@
 package com.polus.fibicomp.proposal.dao;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.ListUtils;
@@ -11,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -27,6 +26,7 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
+import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
@@ -39,8 +39,6 @@ import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.view.PersonDetailsView;
 import com.polus.fibicomp.vo.SponsorSearchResult;
-import com.polus.fibicomp.workflow.pojo.Workflow;
-import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
 
 @Transactional
 @Service(value = "proposalDao")
@@ -260,41 +258,48 @@ public class ProposalDaoImpl implements ProposalDao {
 	}
 
 	@Override
-	public void prepareWorkflowDetails(Workflow workflow) {
-		Map<Integer, List<WorkflowDetail>> workflowDetailMap = new HashMap<Integer, List<WorkflowDetail>>();
-		List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
-		if (workflowDetails != null && !workflowDetails.isEmpty()) {
-			for (WorkflowDetail workflowDetail : workflowDetails) {
-				if (workflowDetailMap.get(workflowDetail.getApprovalStopNumber()) != null) {
-					workflowDetailMap.get(workflowDetail.getApprovalStopNumber()).add(workflowDetail);
-				} else {
-					List<WorkflowDetail> details = new ArrayList<>();
-					details.add(workflowDetail);
-					workflowDetailMap.put(workflowDetail.getApprovalStopNumber(), details);
-				}
-			}
-		}
-		workflow.setWorkflowDetailMap(workflowDetailMap);
+	public List<Rolodex> fetchAllNonEmployees() {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(Rolodex.class);
+		ProjectionList projList = Projections.projectionList();
+		projList.add(Projections.property("rolodexId"), "rolodexId");
+		projList.add(Projections.property("firstName"), "firstName");
+		projList.add(Projections.property("lastName"), "lastName");
+		projList.add(Projections.property("middleName"), "middleName");
+		projList.add(Projections.property("organization"), "organization");		
+		criteria.setProjection(projList).setResultTransformer(Transformers.aliasToBean(Rolodex.class));
+		criteria.add(Restrictions.eq("active", true));
+		criteria.addOrder(Order.asc("firstName"));
+		@SuppressWarnings("unchecked")
+		List<Rolodex> nonEmployees = criteria.list();
+		return nonEmployees;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void prepareWorkflowDetailsList(List<Workflow> workflowList) {
-		for (Workflow workflow : workflowList) {
-			Map<Integer, List<WorkflowDetail>> workflowDetailMap = new HashMap<Integer, List<WorkflowDetail>>();
-			List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
-			if (workflowDetails != null && !workflowDetails.isEmpty()) {
-				for (WorkflowDetail workflowDetail : workflowDetails) {
-					if (workflowDetailMap.get(workflowDetail.getApprovalStopNumber()) != null) {
-						workflowDetailMap.get(workflowDetail.getApprovalStopNumber()).add(workflowDetail);
-					} else {
-						List<WorkflowDetail> details = new ArrayList<>();
-						details.add(workflowDetail);
-						workflowDetailMap.put(workflowDetail.getApprovalStopNumber(), details);
-					}
-				}
+	public List<Rolodex> getNonEmployee(String searchString) {
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(Rolodex.class);
+		Disjunction or = Restrictions.disjunction();
+		or.add(Restrictions.like("firstName", "%" + searchString + "%").ignoreCase());
+		or.add(Restrictions.like("lastName", "%" + searchString + "%").ignoreCase());
+		or.add(Restrictions.like("middleName", "%" + searchString + "%").ignoreCase());
+		or.add(Restrictions.like("organization", "%" + searchString + "%").ignoreCase());
+		criteria.add(or);
+		criteria.setMaxResults(25);
+		List<Rolodex> rolodex = criteria.list();
+		List<Rolodex> rolodexList = new ArrayList<>();
+		if(rolodex !=null && !rolodex.isEmpty()) {
+			for(Rolodex rolodexObject : rolodex) {
+				Rolodex rolodexObj = new Rolodex();
+				rolodexObj.setFirstName(rolodexObject.getFirstName());
+				rolodexObj.setLastName(rolodexObject.getLastName());
+				rolodexObj.setMiddleName(rolodexObject.getMiddleName());
+				rolodexObj.setOrganization(rolodexObject.getOrganization());
+				rolodexList.add(rolodexObj);
 			}
-			workflow.setWorkflowDetailMap(workflowDetailMap);
 		}
+		return rolodexList;
 	}
 
 }
