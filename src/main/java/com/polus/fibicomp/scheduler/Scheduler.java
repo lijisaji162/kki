@@ -46,7 +46,7 @@ public class Scheduler {
 	@Value("${application.context.name}")
 	private String context;
 
-	@Scheduled(cron = "0 0 */1 * * *")
+	@Scheduled(cron = "0 0 */8 * * *")
 	public void sendScheduledEmailNotification() {
 		logger.info("--------- sendScheduledEmailNotification ---------");
 		Date date = new Date();
@@ -64,7 +64,7 @@ public class Scheduler {
 					int seconds = (int) milliseconds / 1000;
 					int hours = seconds / 3600;
 					Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposalObject.getProposalId());
-					if (hours == 24) {
+					if (hours > 24) {
 						if (workflow != null) {
 							List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
 							for (WorkflowDetail workflowDetail : workflowDetails) {
@@ -97,48 +97,13 @@ public class Scheduler {
 							workflow.setWorkflowDetails(workflowDetails);
 							workflow = workflowDao.saveWorkflow(workflow);
 						}
-					} else if (hours > 24) {
-						if (workflow != null) {
-							List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
-							for (WorkflowDetail workflowDetail : workflowDetails) {
-								if (workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
-									if (workflowDetail.getApprovalStopNumber() > 1) {
-										if (workflowDetail.getFirstCronEmailFlag() != null) {
-											if (!workflowDetail.getFirstCronEmailFlag()) {
-												String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
-												String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
-														+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
-														+ proposalObject.getTitle() + "<br/>Principal Investigator: "
-														+ piName + "<br/>" + "Lead Unit: "
-														+ proposalObject.getHomeUnitNumber() + " - "
-														+ proposalObject.getHomeUnitName() + "<br/>" + "Deadline Date: "
-														+ proposalObject.getSponsorDeadlineDate()
-														+ "<br/><br/>Please go to "
-														+ "<a title=\"\" target=\"_self\" href=\"" + context
-														+ "/proposal/proposalHome?proposalId="
-														+ proposalObject.getProposalId() + "\">this link</a> "
-														+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
-												String subject = "Remainder:Action Required: Approval for "
-														+ proposalObject.getTitle();
-												Set<String> toAddresses = new HashSet<String>();
-												toAddresses.add(workflowDetail.getEmailAddress());
-												fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
-												workflowDetail.setFirstCronEmailFlag(true);
-											}
-										}
-									}
-								}
-							}
-							workflow.setWorkflowDetails(workflowDetails);
-							workflow = workflowDao.saveWorkflow(workflow);
-						}
 					}
 				}
 			}
 		}
 	}
 
-	@Scheduled(cron = "0 3 */1 * * *")
+	@Scheduled(cron = "0 3 */8 * * *")
 	public void sendRemainderEmailNotification() {
 		logger.info("--------- sendRemainderEmailNotification ---------");
 		Date date = new Date();
@@ -157,7 +122,7 @@ public class Scheduler {
 				int seconds = (int) milliseconds / 1000;
 				int hours = seconds / 3600;
 				Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposalObject.getProposalId());
-				if (hours == 48) {
+				if (hours > 48) {
 					if (workflow != null) {
 						List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
 						for (WorkflowDetail workflowDetail : workflowDetails) {
@@ -183,41 +148,6 @@ public class Scheduler {
 										toAddresses.add(workflowDetail.getEmailAddress());
 										fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
 										workflowDetail.setSecondCronEmailFlag(true);
-									}
-								}
-							}
-						}
-						workflow.setWorkflowDetails(workflowDetails);
-						workflow = workflowDao.saveWorkflow(workflow);
-					}
-				} else if (hours > 48) {
-					if (workflow != null) {
-						List<WorkflowDetail> workflowDetails = workflow.getWorkflowDetails();
-						for (WorkflowDetail workflowDetail : workflowDetails) {
-							if (workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_WAITING)) {
-								if (workflowDetail.getApprovalStopNumber() > 1) {
-									if (workflowDetail.getSecondCronEmailFlag() != null) {
-										if (!workflowDetail.getSecondCronEmailFlag()) {
-											String piName = proposalService.getPrincipalInvestigator(proposalObject.getProposalPersons());
-											String message = "The following proposal is need to be reviewed:<br/><br/>Proposal Number: "
-													+ proposalObject.getProposalId() + "<br/>" + "Proposal Title: "
-													+ proposalObject.getTitle() + "<br/>Principal Investigator: "
-													+ piName + "<br/>" + "Lead Unit: "
-													+ proposalObject.getHomeUnitNumber() + " - "
-													+ proposalObject.getHomeUnitName() + "<br/>" + "Deadline Date: "
-													+ proposalObject.getSponsorDeadlineDate()
-													+ "<br/><br/>Please go to "
-													+ "<a title=\"\" target=\"_self\" href=\"" + context
-													+ "/proposal/proposalHome?proposalId="
-													+ proposalObject.getProposalId() + "\">this link</a> "
-													+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
-											String subject = "Remainder:Action Required: Approval for "
-													+ proposalObject.getTitle();
-											Set<String> toAddresses = new HashSet<String>();
-											toAddresses.add(workflowDetail.getEmailAddress());
-											fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
-											workflowDetail.setSecondCronEmailFlag(true);
-										}
 									}
 								}
 							}
