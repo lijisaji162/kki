@@ -46,7 +46,7 @@ public class Scheduler {
 	@Value("${application.context.name}")
 	private String context;
 
-	@Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "0 0 */1 * * *")
 	public void sendScheduledEmailNotification() {
 		logger.info("--------- sendScheduledEmailNotification ---------");
 		Date date = new Date();
@@ -138,7 +138,7 @@ public class Scheduler {
 		}
 	}
 
-	@Scheduled(cron = "0 3 1 * * *")
+	@Scheduled(cron = "0 3 */1 * * *")
 	public void sendRemainderEmailNotification() {
 		logger.info("--------- sendRemainderEmailNotification ---------");
 		Date date = new Date();
