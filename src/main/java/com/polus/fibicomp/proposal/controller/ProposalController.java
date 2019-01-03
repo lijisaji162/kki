@@ -3,7 +3,6 @@ package com.polus.fibicomp.proposal.controller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,12 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 import com.polus.fibicomp.budget.service.BudgetService;
-import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.proposal.print.service.ProposalPrintService;
 import com.polus.fibicomp.proposal.service.ProposalCopyService;
 import com.polus.fibicomp.proposal.service.ProposalService;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
-import com.polus.fibicomp.vo.SponsorSearchResult;
 
 @RestController
 public class ProposalController {
@@ -200,13 +197,6 @@ public class ProposalController {
 		return proposalService.deleteProposalSpecialReview(vo);
 	}
 
-	@RequestMapping(value = "/findSponsors", method = RequestMethod.GET)
-	public List<SponsorSearchResult> getNext(HttpServletRequest request, HttpServletResponse response, @RequestParam("searchString") String searchString) {
-		logger.info("Requesting for findSponsors");
-		logger.info("searchString : " + searchString);
-		return proposalService.findSponsor(searchString);
-	}
-
 	@RequestMapping(value = "/copyProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String copyProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for copyProposal");
@@ -223,13 +213,6 @@ public class ProposalController {
 	public String sendAttachApproverNotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for sendAttachApproverNotification");
 		return proposalService.sendAttachApproverNotification(vo);
-	}
-
-	@RequestMapping(value = "/findNonEmployee", method = RequestMethod.GET)
-	public List<Rolodex> getNonEmployee(HttpServletRequest request, HttpServletResponse response, @RequestParam("searchString") String searchString) {
-		logger.info("Requesting for getNonEmployee");
-		logger.info("searchString : " + searchString);
-		return proposalService.getNonEmployee(searchString);
 	}
 
 }

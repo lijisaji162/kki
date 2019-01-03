@@ -17,7 +17,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.util.JpaCharBooleanConversion;
@@ -29,8 +28,7 @@ public class Workflow implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GenericGenerator(name = "workflowIdGenerator", strategy = "increment", parameters = {
-			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
+	@GenericGenerator(name = "workflowIdGenerator", strategy = "com.polus.fibicomp.generator.FibiPKGenerator")
 	@GeneratedValue(generator = "workflowIdGenerator")
 	@Column(name = "WORKFLOW_ID")
 	private Integer workflowId;

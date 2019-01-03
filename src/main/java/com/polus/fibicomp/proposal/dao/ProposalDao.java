@@ -10,7 +10,6 @@ import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
-import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.proposal.pojo.NarrativeStatus;
@@ -153,9 +152,5 @@ public interface ProposalDao {
 	 * @return A list of NarrativeStatus.
 	 */
 	public List<NarrativeStatus> fetchAllNarrativeStatus();
-
-	public List<Rolodex> fetchAllNonEmployees();
-
-	public List<Rolodex> getNonEmployee(String searchString);
 
 }
