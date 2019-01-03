@@ -41,7 +41,6 @@ import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.grantcall.dao.GrantCallDao;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.ip.service.InstitutionalProposalService;
-import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.proposal.pojo.ProposalAttachment;
@@ -56,7 +55,6 @@ import com.polus.fibicomp.proposal.vo.ProposalVO;
 import com.polus.fibicomp.role.dao.RoleDao;
 import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
 import com.polus.fibicomp.role.pojo.RoleMemberBo;
-import com.polus.fibicomp.vo.SponsorSearchResult;
 import com.polus.fibicomp.workflow.comparator.WorkflowComparator;
 import com.polus.fibicomp.workflow.comparator.WorkflowDetailComparator;
 import com.polus.fibicomp.workflow.dao.WorkflowDao;
@@ -703,10 +701,10 @@ public class ProposalServiceImpl implements ProposalService {
 			Boolean isDeclarationSectionRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
 					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.IS_REQUIRED_DECLARATION_SECTION);
 			proposalVO.setIsDeclarationSectionRequired(isDeclarationSectionRequired);
-			proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
+			// proposalVO.setGrantCalls(proposalDao.fetchAllGrantCalls());
 			proposalVO.setActivityTypes(proposalDao.fetchAllActivityTypes());
-			proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
-			proposalVO.setNonEmployeeList(proposalDao.fetchAllNonEmployees());
+			// proposalVO.setScienceKeywords(grantCallDao.fetchAllScienceKeywords());
+			// proposalVO.setNonEmployeeList(proposalDao.fetchAllNonEmployees());
 			if (isDeclarationSectionRequired) {
 				proposalVO.setResearchAreas(committeeDao.fetchAllResearchAreas());
 				proposalVO.setProposalResearchTypes(proposalDao.fetchAllProposalResearchTypes());
@@ -719,7 +717,7 @@ public class ProposalServiceImpl implements ProposalService {
 			proposalVO.setProposalTypes(proposalDao.fetchAllProposalTypes());
 			proposalVO.setDefaultGrantCallType(grantCallDao.fetchGrantCallTypeByGrantTypeCode(Constants.GRANT_CALL_TYPE_OTHERS));
 			if (proposal.getBudgetHeader() != null) {
-				proposalVO.setCostElements(budgetDao.getAllCostElements());
+				// proposalVO.setCostElements(budgetDao.getAllCostElements());
 				proposalVO.setSysGeneratedCostElements(budgetService.fetchSysGeneratedCostElements());
 				Set<String> rateClassTypes = new HashSet<>();
 				List<FibiProposalRate> proposalRates = proposal.getBudgetHeader().getProposalRates();
@@ -729,7 +727,7 @@ public class ProposalServiceImpl implements ProposalService {
 						proposalVO.setRateClassTypes(rateClassTypes);
 					}
 				}
-				proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
+				// proposalVO.setBudgetCategories(budgetDao.fetchAllBudgetCategory());
 				proposalVO.setTbnPersons(budgetDao.fetchAllTbnPerson());
 			}
 			// proposalVO.setSponsors(proposalDao.fetchAllSponsors());
@@ -738,7 +736,7 @@ public class ProposalServiceImpl implements ProposalService {
 			approvalTypeCodes.add(Constants.SP_REV_APPROVAL_TYPE_LINK_TO_IRB);
 			approvalTypeCodes.add(Constants.SP_REV_APPROVAL_TYPE_LINK_TO_IACUC);
 			proposalVO.setSpecialReviewApprovalTypes(complianceDao.fetchSpecialReviewApprovalTypeNotInCodes(approvalTypeCodes));
-			proposalVO.setDepartments(proposalDao.fetchAllUnits());
+			// proposalVO.setDepartments(proposalDao.fetchAllUnits());
 			getHomeUnits(proposalVO);
 			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
 			proposalVO.setProposalAttachmentTypes(proposalDao.fetchAllProposalAttachmentTypes());
@@ -845,11 +843,6 @@ public class ProposalServiceImpl implements ProposalService {
 		return committeeDao.convertObjectToJSON(vo);
 	}
 
-	@Override
-	public List<SponsorSearchResult> findSponsor(String searchString) {
-		return proposalDao.findSponsor(searchString);
-	}
-
 	public String getPIEmailAddress(List<ProposalPerson> proposalPersons) {
 		String emailAddress = "";
 		for (ProposalPerson person : proposalPersons) {
@@ -909,11 +902,6 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 		}
 		return isProposalPerson;
-	}
-
-	@Override
-	public List<Rolodex> getNonEmployee(String searchString) {
-		return proposalDao.getNonEmployee(searchString);
 	}
 
 }

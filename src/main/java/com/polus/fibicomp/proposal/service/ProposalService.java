@@ -7,10 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
-import com.polus.fibicomp.vo.SponsorSearchResult;
 
 @Transactional
 @Service(value = "proposalService")
@@ -132,13 +130,6 @@ public interface ProposalService {
 	public String deleteProposalSpecialReview(ProposalVO proposalVO);
 
 	/**
-	 * This method is used to fetch filtered sponsors based on input string.
-	 * @param searchString - input string.
-	 * @return a list of sponsors.
-	 */
-	public List<SponsorSearchResult> findSponsor(String searchString);
-
-	/**
 	 * This method is used to load initial proposal data.
 	 * @param vo - Object of ProposalVO class.
 	 * @return a String of details of proposal.
@@ -159,8 +150,11 @@ public interface ProposalService {
 	 */
 	public String sendAttachApproverNotification(ProposalVO proposalVO);
 
-	public List<Rolodex> getNonEmployee(String searchString);
-
+	/**
+	 * This method is used to get the PI.
+	 * @param proposalPersons - List of ProposalPerson class.
+	 * @return a String of PI details.
+	 */
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons);
 
 }

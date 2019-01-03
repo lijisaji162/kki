@@ -21,7 +21,6 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.budget.pojo.BudgetHeader;
@@ -42,8 +41,7 @@ public class Proposal implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GenericGenerator(name = "proposalIdGenerator", strategy = "increment", parameters = {
-			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
+	@GenericGenerator(name = "proposalIdGenerator", strategy = "com.polus.fibicomp.generator.FibiPKGenerator")
 	@GeneratedValue(generator = "proposalIdGenerator")
 	@Column(name = "PROPOSAL_ID")
 	private Integer proposalId;

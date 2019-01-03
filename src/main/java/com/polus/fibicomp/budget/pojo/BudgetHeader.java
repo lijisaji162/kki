@@ -20,7 +20,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.polus.fibicomp.budget.common.pojo.RateType;
@@ -33,8 +32,7 @@ public class BudgetHeader implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GenericGenerator(name = "budgetHeaderIdGenerator", strategy = "increment", parameters = {
-			@Parameter(name = "initial_value", value = "1"), @Parameter(name = "increment_size", value = "1") })
+	@GenericGenerator(name = "budgetHeaderIdGenerator", strategy = "com.polus.fibicomp.generator.FibiPKGenerator")
 	@GeneratedValue(generator = "budgetHeaderIdGenerator")
 	@Column(name = "BUDGET_HEADER_ID")
 	private Integer budgetId;
