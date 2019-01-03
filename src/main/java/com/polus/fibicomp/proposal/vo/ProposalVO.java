@@ -16,7 +16,6 @@ import com.polus.fibicomp.pojo.ActivityType;
 import com.polus.fibicomp.pojo.FundingSourceType;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.pojo.Protocol;
-import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.ScienceKeyword;
 import com.polus.fibicomp.pojo.Sponsor;
 import com.polus.fibicomp.pojo.SponsorType;
@@ -30,6 +29,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalResearchType;
 import com.polus.fibicomp.proposal.pojo.ProposalType;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewType;
+import com.polus.fibicomp.proposal.prereview.pojo.PreReviewer;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.workflow.pojo.Workflow;
 import com.polus.fibicomp.workflow.pojo.WorkflowDetail;
@@ -178,7 +178,7 @@ public class ProposalVO {
 
 	private Boolean isSuperUser = false;
 
-	private List<Rolodex> nonEmployeeList;
+	private List<PreReviewer> preReviewers;
 
 	public ProposalVO() {
 		proposal = new Proposal();
@@ -744,12 +744,12 @@ public class ProposalVO {
 		this.isSuperUser = isSuperUser;
 	}
 
-	public List<Rolodex> getNonEmployeeList() {
-		return nonEmployeeList;
+	public List<PreReviewer> getPreReviewers() {
+		return preReviewers;
 	}
 
-	public void setNonEmployeeList(List<Rolodex> nonEmployeeList) {
-		this.nonEmployeeList = nonEmployeeList;
+	public void setPreReviewers(List<PreReviewer> preReviewers) {
+		this.preReviewers = preReviewers;
 	}
 
 }
