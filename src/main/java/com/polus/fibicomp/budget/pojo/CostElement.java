@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -37,7 +38,7 @@ public class CostElement implements Serializable, Comparable<CostElement> {
 	private BudgetCategory budgetCategory;
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "costElementBo", cascade = { CascadeType.ALL })
+	@OneToMany(mappedBy = "costElementBo", cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
     private List<ValidCeRateType> validCeRateTypes;
 
 	@Column(name = "DESCRIPTION")

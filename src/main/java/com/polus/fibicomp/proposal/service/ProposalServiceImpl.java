@@ -747,8 +747,9 @@ public class ProposalServiceImpl implements ProposalService {
 				if (reviewerReviews != null && !reviewerReviews.isEmpty()) {
 					proposal.setIsPreReviewer(true);
 					proposal.setReviewerReview(reviewerReviews.get(0));
-				}				
+				}
 			}
+			proposalVO.setPreReviewers(proposalPreReviewDao.fetchAllPreReviewer());
 		}
 		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS) {
 			proposalVO.setNarrativeStatus(proposalDao.fetchAllNarrativeStatus());
@@ -760,6 +761,7 @@ public class ProposalServiceImpl implements ProposalService {
 				proposal.setIsPreReviewer(true);
 				proposal.setReviewerReview(reviewerReviews.get(0));
 			}
+			proposalVO.setPreReviewers(proposalPreReviewDao.fetchAllPreReviewer());
 		}
 	}
 

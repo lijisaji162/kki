@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewType;
+import com.polus.fibicomp.proposal.prereview.pojo.PreReviewer;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReviewAttachment;
 
@@ -60,5 +61,11 @@ public interface ProposalPreReviewDao {
 	 * @return An object of ProposalPreReviewAttachment.
 	 */
 	public ProposalPreReviewAttachment fetchAttachmentById(Integer attachmentId);
+
+	/**
+	 * This method is used to fetch all PreReviewer.
+	 * @return A list of PreReviewer.
+	 */
+	public List<PreReviewer> fetchAllPreReviewer();
 
 }

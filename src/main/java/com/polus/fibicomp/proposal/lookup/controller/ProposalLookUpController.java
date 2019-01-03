@@ -56,7 +56,7 @@ public class ProposalLookUpController {
 	@RequestMapping(value = "/findCostElement", method = RequestMethod.GET)
 	public List<CostElement> findCostElement(HttpServletRequest request, HttpServletResponse response, @RequestHeader("searchString") String searchString,
 			@RequestHeader("budgetCategoryCode") String budgetCategoryCode) {
-		logger.info("Requesting for getCostElement");
+		logger.info("Requesting for findCostElement");
 		logger.info("searchString : " + searchString);
 		logger.info("budgetCategoryCode : " + budgetCategoryCode);
 		return proposalLookUpService.findCostElementList(searchString, budgetCategoryCode);

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewStatus;
 import com.polus.fibicomp.proposal.prereview.pojo.PreReviewType;
+import com.polus.fibicomp.proposal.prereview.pojo.PreReviewer;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReviewAttachment;
 
@@ -73,6 +74,11 @@ public class ProposalPreReviewDaoImpl implements ProposalPreReviewDao {
 	@Override
 	public ProposalPreReviewAttachment fetchAttachmentById(Integer attachmentId) {
 		return hibernateTemplate.get(ProposalPreReviewAttachment.class, attachmentId);
+	}
+
+	@Override
+	public List<PreReviewer> fetchAllPreReviewer() {
+		return hibernateTemplate.loadAll(PreReviewer.class);
 	}
 
 }
