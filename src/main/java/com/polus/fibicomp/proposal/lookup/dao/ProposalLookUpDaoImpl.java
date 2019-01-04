@@ -171,7 +171,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		or.add(Restrictions.like("firstName", "%" + searchString + "%").ignoreCase());
 		or.add(Restrictions.like("lastName", "%" + searchString + "%").ignoreCase());
 		or.add(Restrictions.like("middleName", "%" + searchString + "%").ignoreCase());
-		or.add(Restrictions.like("organization", "%" + searchString + "%").ignoreCase());
+		// or.add(Restrictions.like("organization", "%" + searchString + "%").ignoreCase());
 		criteria.add(or);
 		criteria.setMaxResults(25);
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
