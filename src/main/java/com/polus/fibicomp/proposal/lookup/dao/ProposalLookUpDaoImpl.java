@@ -59,6 +59,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		criteria.addOrder(Order.asc("grantCallName"));
 		criteria.add(and);
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<GrantCall> grantCall = criteria.list();
 		List<GrantCall> grantCallList = new ArrayList<>();
 		if(grantCall !=null && !grantCall.isEmpty()) {
@@ -88,6 +89,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		criteria.add(or);
 		criteria.addOrder(Order.asc("unitNumber"));
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Unit> departments = criteria.list();		
 		return departments;
 	}
@@ -105,6 +107,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		or.add(Restrictions.like("costElement", "%" + searchString + "%").ignoreCase());
 		criteria.add(or);
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<CostElement> costElementList = criteria.list();
 		return costElementList;
 	}
@@ -117,6 +120,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
 		criteria.add(Restrictions.like("description", "%" + searchString + "%").ignoreCase());
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<ScienceKeyword> keyWordsList = criteria.list();
 		return keyWordsList;
 	}
@@ -127,10 +131,11 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(Unit.class);
 		criteria.add(Restrictions.in("unitNumber", unitNumbers));
+		criteria.add(Restrictions.like("unitName", "%" + searchString + "%").ignoreCase());
 		criteria.add(Restrictions.eq("active", true));
 		criteria.addOrder(Order.asc("unitName"));
-		criteria.add(Restrictions.like("unitName", "%" + searchString + "%").ignoreCase());
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Unit> units = criteria.list();
 		List<Unit>  unitList = new ArrayList<>();
 		if(units !=null && !units.isEmpty()) {
@@ -152,18 +157,9 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		criteria.add(Restrictions.like("description", "%" + searchString + "%").ignoreCase());
 		criteria.addOrder(Order.asc(Constants.DESCRIPTION));
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<BudgetCategory> budgetCategories = criteria.list();
-		List<BudgetCategory>  budgetCategoryList = new ArrayList<>();
-		if(budgetCategories !=null && !budgetCategories.isEmpty()) {
-			for(BudgetCategory budgetCategoryObject : budgetCategories) {
-				BudgetCategory budgetCategoryObj = new BudgetCategory();
-				budgetCategoryObj.setCode(budgetCategoryObject.getCode());
-				budgetCategoryObj.setBudgetCategoryTypeCode(budgetCategoryObject.getBudgetCategoryTypeCode());
-				budgetCategoryObj.setDescription(budgetCategoryObject.getDescription());
-				budgetCategoryList.add(budgetCategoryObj);
-			}
-		}
-		return budgetCategoryList;
+		return budgetCategories;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -178,6 +174,7 @@ public class ProposalLookUpDaoImpl implements ProposalLookUpDao {
 		or.add(Restrictions.like("organization", "%" + searchString + "%").ignoreCase());
 		criteria.add(or);
 		criteria.setMaxResults(25);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<Rolodex> rolodex = criteria.list();
 		List<Rolodex> rolodexList = new ArrayList<>();
 		if(rolodex !=null && !rolodex.isEmpty()) {
