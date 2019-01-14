@@ -84,7 +84,7 @@ public class Scheduler {
 													+ "/proposal/proposalHome?proposalId="
 													+ proposalObject.getProposalId() + "\">this link</a> "
 													+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
-											String subject = "Remainder:Action Required: Approval for "
+											String subject = "Reminder:Action Required: Approval for "
 													+ proposalObject.getTitle();
 											Set<String> toAddresses = new HashSet<String>();
 											toAddresses.add(workflowDetail.getEmailAddress());
@@ -142,7 +142,7 @@ public class Scheduler {
 												+ "/proposal/proposalHome?proposalId="
 												+ proposalObject.getProposalId() + "\">this link</a> "
 												+ "to review the proposal and provide your response by clicking on the Approve or Reject buttons.";
-										String subject = "Remainder:Action Required: Approval for "
+										String subject = "Reminder:Action Required: Approval for "
 												+ proposalObject.getTitle();
 										Set<String> toAddresses = new HashSet<String>();
 										toAddresses.add(workflowDetail.getEmailAddress());
