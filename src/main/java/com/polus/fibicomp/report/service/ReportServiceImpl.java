@@ -41,11 +41,11 @@ public class ReportServiceImpl implements ReportService {
 	public String applicationReport(ReportVO reportVO) {
 		String reportName = reportVO.getReportName();
 		logger.info("reportName : " + reportName);
-		if (reportName.equals("Submitted Applications by Grant Call")) {
+		if (reportName.equals("Submitted Proposals by Grant Call")) {
 			reportVO = reportDao.fetchApplicationByGrantCallId(reportVO);
-		} else if (reportName.equals("Projects by Grant Call")) {
+		} else if (reportName.equals("Awards by Grant Call")) {
 			reportVO = reportDao.fetchAwardByGrantCallId(reportVO);
-		} else if (reportName.equals("Expenditure by Project")) {
+		} else if (reportName.equals("Expenditure by Award")) {
 			reportVO = reportDao.fetchExpenditureByAward(reportVO);
 		}
 		String response = committeeDao.convertObjectToJSON(reportVO);
