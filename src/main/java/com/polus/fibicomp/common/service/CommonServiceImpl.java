@@ -1,15 +1,21 @@
 package com.polus.fibicomp.common.service;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.common.dao.CommonDao;
+import com.polus.fibicomp.constants.Constants;
 
 @Transactional
 @Service(value = "commonService")
@@ -107,4 +113,20 @@ public class CommonServiceImpl implements CommonService {
         }        
         return data;
 	}
+
+	@Override
+	public String hash(Object valueToHide) throws GeneralSecurityException {
+		if (valueToHide != null && !StringUtils.isEmpty(valueToHide.toString())) {
+			try {
+				MessageDigest md = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
+				return new String(Base64.encodeBase64(md.digest(valueToHide.toString().getBytes(Constants.CHARSET))),
+						Constants.CHARSET);
+			} catch (UnsupportedEncodingException arg2) {
+				return "";
+			}
+		} else {
+			return "";
+		}
+	}
+
 }

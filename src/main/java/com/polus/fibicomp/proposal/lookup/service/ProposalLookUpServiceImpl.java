@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.budget.pojo.BudgetCategory;
 import com.polus.fibicomp.budget.pojo.CostElement;
+import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.pojo.Rolodex;
 import com.polus.fibicomp.pojo.ScienceKeyword;
@@ -70,7 +71,7 @@ public class ProposalLookUpServiceImpl implements ProposalLookUpService {
 
 	@Override
 	public List<Unit> findLeadUnitsList(String searchString, String personId) {
-		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(personId, "10013");
+		List<RoleMemberBo> memberBos = roleDao.fetchUserRole(personId, Constants.CREATE_PROPOSAL_ROLE);
 		List<Unit> unitList = null;
 		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();

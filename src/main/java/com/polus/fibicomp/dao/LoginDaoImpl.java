@@ -1,5 +1,6 @@
 package com.polus.fibicomp.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -12,9 +13,14 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.pojo.PersonDTO;
 import com.polus.fibicomp.pojo.PrincipalBo;
+import com.polus.fibicomp.pojo.Unit;
 import com.polus.fibicomp.pojo.UnitAdministrator;
+import com.polus.fibicomp.role.dao.RoleDao;
+import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
+import com.polus.fibicomp.role.pojo.RoleMemberBo;
 import com.polus.fibicomp.view.PersonDetailsView;
 
 @Transactional
@@ -28,6 +34,9 @@ public class LoginDaoImpl implements LoginDao {
 
 	@Autowired
 	private HibernateTemplate hibernateTemplate;
+
+	@Autowired
+	private RoleDao roleDao;
 
 	public PrincipalBo authenticate(String userName, String password) {
 		PrincipalBo principalBo = null;
@@ -62,8 +71,14 @@ public class LoginDaoImpl implements LoginDao {
 				personDTO.setUnitNumber(person.getUnitNumber());
 				personDTO.setUserName(userName);
 				// personDTO.setUnitAdministrators(isUnitAdmin(person.getPrncplId()));
-				List<UnitAdministrator> unitAdministrators = isUnitAdmin(person.getPrncplId());
+				/*List<UnitAdministrator> unitAdministrators = isUnitAdmin(person.getPrncplId());
 				if (unitAdministrators != null && !unitAdministrators.isEmpty()) {
+					personDTO.setUnitAdmin(true);
+				} else {
+					personDTO.setUnitAdmin(false);
+				}*/
+				List<RoleMemberBo> unitAdminMemberBos = roleDao.fetchUserRole(person.getPrncplId(), Constants.UNIT_ADMINISTRATOR_ROLE);
+				if (unitAdminMemberBos != null && !unitAdminMemberBos.isEmpty()) {
 					personDTO.setUnitAdmin(true);
 				} else {
 					personDTO.setUnitAdmin(false);
@@ -89,4 +104,27 @@ public class LoginDaoImpl implements LoginDao {
 		unitAdministrators = criteria.list();
 		return unitAdministrators;
 	}
+
+	@Override
+	public List<Unit> isUnitAdminDetail(String personId) {
+		logger.info("isUnitAdminDetail --- personId : " + personId);
+		List<Unit> unitAdministrators = new ArrayList<>();
+		List<RoleMemberBo> unitAdminMemberBos = roleDao.fetchUserRole(personId, Constants.UNIT_ADMINISTRATOR_ROLE);
+		if (unitAdminMemberBos != null && !unitAdminMemberBos.isEmpty()) {
+			for (RoleMemberBo unitAdminMemberBo : unitAdminMemberBos) {
+				List<RoleMemberAttributeDataBo> attributeDataBos = unitAdminMemberBo.getAttributeDetails();
+				if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+					for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+						unitAdministrators.add(getUnitDetail(bo.getAttributeValue()));
+					}
+				}
+			}
+		}
+		return unitAdministrators;
+	}
+
+	public Unit getUnitDetail(String unitNumber) {
+		return hibernateTemplate.get(Unit.class, unitNumber);
+	}
+
 }

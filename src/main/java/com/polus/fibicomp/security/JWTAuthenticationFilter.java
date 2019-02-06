@@ -1,9 +1,7 @@
 package com.polus.fibicomp.security;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,8 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.polus.fibicomp.common.dao.CommonDao;
+import com.polus.fibicomp.common.service.CommonService;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.pojo.PersonDTO;
@@ -48,12 +45,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private LoginDao loginDao;
 	private RoleDao roleDao;
 	private CommonDao commonDao;
+	private CommonService commonService;
 
-	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao, CommonDao commonDao) throws Exception {
+	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, LoginDao loginDao, RoleDao roleDao, ProposalDao proposalDao, CommonDao commonDao, CommonService commonService) throws Exception {
 		this.authenticationManager = authenticationManager;
 		this.loginDao = loginDao;
 		this.roleDao = roleDao;
 		this.commonDao = commonDao;
+		this.commonService = commonService;
 	}
 
 	@Override
@@ -63,7 +62,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			PrincipalBo creds = new ObjectMapper().readValue(req.getInputStream(), PrincipalBo.class);
 			String encryptedPWD = "";
 			try {
-				encryptedPWD = hash(creds.getPassword());
+				encryptedPWD = commonService.hash(creds.getPassword());
 			} catch (GeneralSecurityException e) {
 				e.printStackTrace();
 			}
@@ -86,7 +85,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		PersonDTO personDTO = new PersonDTO();
 		personDTO = loginDao.readPersonData(((User) auth.getPrincipal()).getUsername());
 		String proposalCreatorRole = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.PROPOSAL_CREATOR_ROLE);
-		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(personDTO.getPersonID(), proposalCreatorRole);
+		List<RoleMemberBo> memberBos = roleDao.fetchUserRole(personDTO.getPersonID(), proposalCreatorRole);
 		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();
 			for (RoleMemberBo memberBo : memberBos) {
@@ -113,7 +112,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		res.addHeader(Constants.HEADER_STRING, Constants.TOKEN_PREFIX + token);
 	}
 
-	public String hash(Object valueToHide) throws GeneralSecurityException {
+	/*public String hash(Object valueToHide) throws GeneralSecurityException {
 		if (valueToHide != null && !StringUtils.isEmpty(valueToHide.toString())) {
 			try {
 				MessageDigest md = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
@@ -125,7 +124,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		} else {
 			return "";
 		}
-	}
+	}*/
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse res,

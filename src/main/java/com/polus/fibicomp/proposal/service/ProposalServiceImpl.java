@@ -667,7 +667,8 @@ public class ProposalServiceImpl implements ProposalService {
 							+ proposal.getProposalId() +"\">this link</a> "
 							+ "to review the proposal.";
 					String rejectSubject = "Action Required: Rejected for "+ proposal.getTitle();
-					toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					// toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+					toAddresses.add(proposalDao.getCreateUserEmailAddress(proposal.getCreateUser()));
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
 			proposalVO.setProposal(proposal);
@@ -777,7 +778,7 @@ public class ProposalServiceImpl implements ProposalService {
 	}
 
 	public void getHomeUnits(ProposalVO proposalVO) {
-		List<RoleMemberBo> memberBos = roleDao.fetchCreateProposalPersonRole(proposalVO.getPersonId(), "10013");
+		List<RoleMemberBo> memberBos = roleDao.fetchUserRole(proposalVO.getPersonId(), Constants.CREATE_PROPOSAL_ROLE);
 		if (memberBos != null && !memberBos.isEmpty()) {
 			Set<String> unitNumbers = new HashSet<>();
 			for (RoleMemberBo memberBo : memberBos) {
@@ -868,7 +869,8 @@ public class ProposalServiceImpl implements ProposalService {
 				+ proposal.getProposalId() +"\">this link</a> "
 				+ "to review the proposal.";
 		String attachmentSubject = "Action Required: Complete Attachment for "+ proposal.getTitle();
-		toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+		// toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
+		toAddresses.add(proposalDao.getCreateUserEmailAddress(proposal.getCreateUser()));
 		fibiEmailService.sendEmail(toAddresses, attachmentSubject, null, null, attachmentMessage, true);
 		return "SUCCESS";
 	}

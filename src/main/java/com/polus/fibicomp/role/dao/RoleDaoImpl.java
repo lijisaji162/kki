@@ -24,7 +24,7 @@ public class RoleDaoImpl implements RoleDao {
 	private HibernateTemplate hibernateTemplate;
 
 	@Override
-	public List<RoleMemberBo> fetchCreateProposalPersonRole(String personId, String roleId) {
+	public List<RoleMemberBo> fetchUserRole(String personId, String roleId) {
 		List<RoleMemberBo> roleMemberBos = null;
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Criteria criteria = session.createCriteria(RoleMemberBo.class);

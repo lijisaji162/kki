@@ -145,4 +145,13 @@ public interface Constants {
   	String SP_REV_APPROVAL_TYPE_LINK_TO_IRB = "5";
   	String SP_REV_APPROVAL_TYPE_LINK_TO_IACUC = "6";
 
+  	// Change Password Status Message
+  	String UPDATE_PASSWORD_SUCCESS_MESSAGE = "Password Updated Successfully";
+  	String UPDATE_PASSWORD_ERROR_MESSAGE = "Error in update password";
+  	String OLD_PASSWORD_ERROR_MESSAGE = "Invalid Old Password";
+
+  	// Roles
+  	String CREATE_PROPOSAL_ROLE = "10013";
+  	String UNIT_ADMINISTRATOR_ROLE = "1954"; // For KKI local db
+  	// String UNIT_ADMINISTRATOR_ROLE = "1953"; // For KKI server
 }

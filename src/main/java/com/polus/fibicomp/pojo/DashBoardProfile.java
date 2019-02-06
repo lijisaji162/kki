@@ -66,6 +66,8 @@ public class DashBoardProfile {
 
 	private List<UnitAdministrator> unitAdministrators;
 
+	private List<Unit> unitAdminDetails;
+
 	private List<Workflow> workflowList;
 
 	public ArrayList<HashMap<String, Object>> getDashBoardDetailMap() {
@@ -258,5 +260,13 @@ public class DashBoardProfile {
 
 	public void setWorkflowList(List<Workflow> workflowList) {
 		this.workflowList = workflowList;
+	}
+
+	public List<Unit> getUnitAdminDetails() {
+		return unitAdminDetails;
+	}
+
+	public void setUnitAdminDetails(List<Unit> unitAdminDetails) {
+		this.unitAdminDetails = unitAdminDetails;
 	}
 }
