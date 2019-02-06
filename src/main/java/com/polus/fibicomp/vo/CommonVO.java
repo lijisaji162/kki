@@ -114,6 +114,14 @@ public class CommonVO {
 
 	private boolean isAdmin;
 
+	private String newPassword;
+
+	private Boolean isSuperUser;
+
+	private String updatePasswordMessage;
+
+	private String oldPasswordErrorMessage;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -520,6 +528,38 @@ public class CommonVO {
 
 	public void setIsAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
+	public Boolean getIsSuperUser() {
+		return isSuperUser;
+	}
+
+	public void setIsSuperUser(Boolean isSuperUser) {
+		this.isSuperUser = isSuperUser;
+	}
+
+	public String getUpdatePasswordMessage() {
+		return updatePasswordMessage;
+	}
+
+	public void setUpdatePasswordMessage(String updatePasswordMessage) {
+		this.updatePasswordMessage = updatePasswordMessage;
+	}
+
+	public String getOldPasswordErrorMessage() {
+		return oldPasswordErrorMessage;
+	}
+
+	public void setOldPasswordErrorMessage(String oldPasswordErrorMessage) {
+		this.oldPasswordErrorMessage = oldPasswordErrorMessage;
 	}
 
 }

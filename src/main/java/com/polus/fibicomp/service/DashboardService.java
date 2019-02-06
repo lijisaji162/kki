@@ -123,4 +123,12 @@ public interface DashboardService {
 	 */
 	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception;
 
+	/**
+	 * This method is used to change the existing password.
+	 * @param vo - object of CommonVO
+	 * @return A String of details having updated message.
+	 * @throws Exception
+	 */
+	public String changePassword(CommonVO vo) throws Exception;
+
 }

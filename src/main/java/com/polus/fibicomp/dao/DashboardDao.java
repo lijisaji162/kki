@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.polus.fibicomp.pojo.ActionItem;
 import com.polus.fibicomp.pojo.DashBoardProfile;
+import com.polus.fibicomp.pojo.PrincipalBo;
 import com.polus.fibicomp.view.MobileProposalView;
 import com.polus.fibicomp.view.ResearchSummaryView;
 import com.polus.fibicomp.vo.CommonVO;
@@ -354,4 +355,20 @@ public interface DashboardDao {
 	 * @throws Exception
 	 */
 	public List<Object[]> getProtocolDashboardDataForDownload(String personId, String sponsorCode,List<Object[]> protocols) throws Exception;
+
+	/**
+	 * This method is used to get password of an user.
+	 * @param personId - Logged in person Id.
+	 * @return Principal Object.
+	 * @throws Exception
+	 */
+	public PrincipalBo getCurrentPassword(String personId) throws Exception;
+
+	/**
+	 * This mathod is used to update password.
+	 * @param encryptedPWD - New password to update.
+	 * @param personId - Logged in person Id. 
+	 * @return An integer value to indicate the response.
+	 */
+	public Integer changePassword(String encryptedPWD, String personId);
 }

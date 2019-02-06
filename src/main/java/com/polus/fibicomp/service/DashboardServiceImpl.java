@@ -37,11 +37,14 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.common.service.CommonService;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.DashboardDao;
 import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.pojo.ActionItem;
 import com.polus.fibicomp.pojo.DashBoardProfile;
+import com.polus.fibicomp.pojo.PrincipalBo;
 import com.polus.fibicomp.view.MobileProfile;
 import com.polus.fibicomp.view.MobileProposalView;
 import com.polus.fibicomp.vo.CommonVO;
@@ -57,6 +60,12 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Autowired
 	private LoginDao loginDao;
+
+	@Autowired
+	private CommonService commonService;
+
+	@Autowired
+	private CommitteeDao committeeDao;
 
 	@Override
 	public String getDashBoardResearchSummary(CommonVO vo) throws Exception {
@@ -102,7 +111,8 @@ public class DashboardServiceImpl implements DashboardService {
 					} else {
 						dashBoardProfile.setProposal(new ArrayList<>());
 					}
-				} else if (vo.getIsUnitAdmin() && proposalTabName.equals("PROPOSAL")) {
+				} else if (proposalTabName.equals("PROPOSAL")) {
+					//else if (vo.getIsUnitAdmin() && proposalTabName.equals("PROPOSAL")) {					
 					dashBoardProfile = dashboardDao.getDashBoardDataForProposal(vo);
 				}
 			}
@@ -125,7 +135,8 @@ public class DashboardServiceImpl implements DashboardService {
 				dashBoardProfile = dashboardDao.getDashBoardDataForGrantCall(vo);
 			}
 			// dashBoardProfile.setPersonDTO(personDTO);
-			dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(vo.getPersonId()));
+			// dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(vo.getPersonId()));
+			dashBoardProfile.setUnitAdminDetails(loginDao.isUnitAdminDetail(vo.getPersonId()));
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardData", e);
 		}
@@ -644,6 +655,24 @@ public class DashboardServiceImpl implements DashboardService {
 			logger.error("Error in method getXSSFWorkbookForResearchSummary", e);
 		}
 		return workbook;
+	}
+
+	@Override
+	public String changePassword(CommonVO vo) throws Exception {
+		PrincipalBo principalBo = dashboardDao.getCurrentPassword(vo.getPersonId());
+		String oldPassword = commonService.hash(vo.getPassword());
+		if (oldPassword.equals(principalBo.getPassword())) {
+			String encryptedPWD = commonService.hash(vo.getNewPassword());
+			Integer result = dashboardDao.changePassword(encryptedPWD, vo.getPersonId());
+			if (result == 1) {
+				vo.setUpdatePasswordMessage(Constants.UPDATE_PASSWORD_SUCCESS_MESSAGE);
+			} else {
+				vo.setUpdatePasswordMessage(Constants.UPDATE_PASSWORD_ERROR_MESSAGE);
+			}
+		} else {
+			vo.setOldPasswordErrorMessage(Constants.OLD_PASSWORD_ERROR_MESSAGE);
+		}
+		return committeeDao.convertObjectToJSON(vo);
 	}
 
 }

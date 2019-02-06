@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.polus.fibicomp.common.dao.CommonDao;
+import com.polus.fibicomp.common.service.CommonService;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.LoginDao;
 import com.polus.fibicomp.proposal.dao.ProposalDao;
@@ -37,6 +38,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	@Autowired 
 	private CommonDao commonDao;
 
+	@Autowired
+	private CommonService commonService;
+
 	public WebSecurity(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
 	}
@@ -45,7 +49,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST, Constants.SIGN_UP_URL).permitAll()
 				.anyRequest().authenticated().and()
-				.addFilter(new JWTAuthenticationFilter(authenticationManager(), loginDao, roleDao, proposalDao, commonDao))
+				.addFilter(new JWTAuthenticationFilter(authenticationManager(), loginDao, roleDao, proposalDao, commonDao, commonService))
 				.addFilter(new JWTAuthorizationFilter(authenticationManager())).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}

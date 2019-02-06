@@ -40,6 +40,9 @@ import com.polus.fibicomp.pojo.ParameterBo;
 import com.polus.fibicomp.pojo.PrincipalBo;
 import com.polus.fibicomp.pojo.ProposalPersonRole;
 import com.polus.fibicomp.proposal.pojo.Proposal;
+import com.polus.fibicomp.role.dao.RoleDao;
+import com.polus.fibicomp.role.pojo.RoleMemberAttributeDataBo;
+import com.polus.fibicomp.role.pojo.RoleMemberBo;
 import com.polus.fibicomp.view.AwardView;
 import com.polus.fibicomp.view.DisclosureView;
 import com.polus.fibicomp.view.ExpenditureVolume;
@@ -77,6 +80,9 @@ public class DashboardDaoImpl implements DashboardDao {
 	@Autowired
 	private LoginDao loginDao;
 
+	@Autowired
+	private RoleDao roleDao;
+
 	public String getDashBoardResearchSummary(String person_id, String unitNumber, boolean isAdmin, String userName) throws Exception {
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		// List<ExpenditureVolume> expenditureVolumeChart = new ArrayList<ExpenditureVolume>();
@@ -106,7 +112,8 @@ public class DashboardDaoImpl implements DashboardDao {
 			dashBoardProfile.setSummaryProposalPieChart(summaryProposalPiechart);
 			dashBoardProfile.setSummaryProposalDonutChart(summaryProposalDonutChart);
 			dashBoardProfile.setSummaryAwardDonutChart(summaryAwardDonutChart);
-			dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(person_id));
+			// dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(person_id));
+			dashBoardProfile.setUnitAdminDetails(loginDao.isUnitAdminDetail(person_id));
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardResearchSummary");
 			e.printStackTrace();
@@ -1388,8 +1395,23 @@ public class DashboardDaoImpl implements DashboardDao {
 		Integer currentPage = vo.getCurrentPage();
 		String personId = vo.getPersonId();
 		Boolean isUnitAdmin = vo.getIsUnitAdmin();
+		Boolean isSuperUser = vo.getIsSuperUser();
 		boolean isProvost = vo.isProvost();
-		boolean isReviewer = vo.isReviewer();
+		// boolean isReviewer = vo.isReviewer();
+		List<String> unitNumbers = new ArrayList<>();
+		if (isUnitAdmin) {
+			List<RoleMemberBo> unitAdminMemberBos = roleDao.fetchUserRole(personId, Constants.UNIT_ADMINISTRATOR_ROLE);
+			if (unitAdminMemberBos != null && !unitAdminMemberBos.isEmpty()) {
+				for (RoleMemberBo unitAdminMemberBo : unitAdminMemberBos) {
+					List<RoleMemberAttributeDataBo> attributeDataBos = unitAdminMemberBo.getAttributeDetails();
+					if (attributeDataBos != null && !attributeDataBos.isEmpty()) {
+						for (RoleMemberAttributeDataBo bo : attributeDataBos) {
+							unitNumbers.add(bo.getAttributeValue());
+						}
+					}
+				}
+			}
+		}	
 
 		Conjunction and = Restrictions.conjunction();
 		try {
@@ -1435,11 +1457,15 @@ public class DashboardDaoImpl implements DashboardDao {
 				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
 			}
 			if (personId != null && !personId.isEmpty()) {
-				if(!isUnitAdmin && !isProvost && !isReviewer) {
+				/*if(!isUnitAdmin && !isProvost && !isReviewer) {
 					searchCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
 					searchCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())).add(Restrictions.eq("homeUnitNumber", vo.getUnitNumber())));
 					countCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
 					countCriteria.add(Restrictions.disjunction().add(Restrictions.eq("proposalPersons.personId", personId)).add(Restrictions.eq("createUser", vo.getUserName())).add(Restrictions.eq("homeUnitNumber", vo.getUnitNumber())));
+				}*/
+				if(isUnitAdmin && !isSuperUser) {
+					searchCriteria.add(Restrictions.in("homeUnitNumber", unitNumbers));
+					countCriteria.add(Restrictions.in("homeUnitNumber", unitNumbers));
 				}
 			}
 			searchCriteria.add(and);
@@ -2037,6 +2063,26 @@ public class DashboardDaoImpl implements DashboardDao {
 			e.printStackTrace();
 		}
 		return protocols;
+	}
+
+	@Override
+	public PrincipalBo getCurrentPassword(String personId) throws Exception {
+		PrincipalBo principalBo = null;
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Criteria criteria = session.createCriteria(PrincipalBo.class);
+		criteria.add(Restrictions.eq("principalId", personId));
+		principalBo = (PrincipalBo) criteria.uniqueResult();
+		return principalBo;
+	}
+
+	@Override
+	public Integer changePassword(String encryptedPWD, String personId) {
+		logger.info("----------- changePassword ------------");
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Query updateQuery = session.createSQLQuery(
+				"update krim_prncpl_t set prncpl_pswd = :encryptedPWD where prncpl_id = :personId");
+		updateQuery.setParameter("encryptedPWD", encryptedPWD).setString("personId", personId);		
+		return updateQuery.executeUpdate();
 	}
 
 }

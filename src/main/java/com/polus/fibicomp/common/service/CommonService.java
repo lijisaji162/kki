@@ -1,5 +1,7 @@
 package com.polus.fibicomp.common.service;
 
+import java.security.GeneralSecurityException;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,5 +34,13 @@ public interface CommonService {
 	 * @return fiscal month.
 	 */
 	public Integer getCurrentFiscalMonthForDisplay();
+
+	/**
+	 * This method is used to create encrypted password.
+	 * @param valueToHide - Password to encrypt
+	 * @return Encrypted password
+	 * @throws GeneralSecurityException
+	 */
+	public String hash(Object valueToHide) throws GeneralSecurityException;
 
 }

@@ -75,4 +75,9 @@ public class DashboardController {
 		return dashboardService.getResponseEntityForDownload(vo, workbook);
 	}
 
+	@RequestMapping(value = "/changePassword", method = RequestMethod.POST)
+	public String changePassword(@RequestBody CommonVO vo, HttpServletRequest request) throws Exception {
+		return dashboardService.changePassword(vo);
+	}
+
 }
