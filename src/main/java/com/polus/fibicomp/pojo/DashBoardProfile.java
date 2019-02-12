@@ -70,6 +70,8 @@ public class DashBoardProfile {
 
 	private List<Workflow> workflowList;
 
+	private Boolean copyProposalFlag;
+
 	public ArrayList<HashMap<String, Object>> getDashBoardDetailMap() {
 		return dashBoardDetailMap;
 	}
@@ -268,5 +270,13 @@ public class DashBoardProfile {
 
 	public void setUnitAdminDetails(List<Unit> unitAdminDetails) {
 		this.unitAdminDetails = unitAdminDetails;
+	}
+
+	public Boolean getCopyProposalFlag() {
+		return copyProposalFlag;
+	}
+
+	public void setCopyProposalFlag(Boolean copyProposalFlag) {
+		this.copyProposalFlag = copyProposalFlag;
 	}
 }

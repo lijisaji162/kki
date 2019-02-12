@@ -49,6 +49,7 @@ import com.polus.fibicomp.proposal.pojo.ProposalKeyword;
 import com.polus.fibicomp.proposal.pojo.ProposalPerson;
 import com.polus.fibicomp.proposal.pojo.ProposalResearchArea;
 import com.polus.fibicomp.proposal.pojo.ProposalSponsor;
+import com.polus.fibicomp.proposal.pojo.ProposalStatus;
 import com.polus.fibicomp.proposal.prereview.dao.ProposalPreReviewDao;
 import com.polus.fibicomp.proposal.prereview.pojo.ProposalPreReview;
 import com.polus.fibicomp.proposal.vo.ProposalVO;
@@ -581,6 +582,7 @@ public class ProposalServiceImpl implements ProposalService {
 			String approverComment = proposalVO.getApproveComment();
 			boolean isFinalApprover = true;
 
+			logger.info("proposalId : " + proposal.getProposalId());
 			logger.info("actionType : " + actionType);
 			logger.info("personId : " + proposalVO.getPersonId());
 			logger.info("approverComment : " + approverComment);
@@ -624,7 +626,8 @@ public class ProposalServiceImpl implements ProposalService {
 						fibiEmailService.sendEmail(toAddresses, fyiSubject, null, null, fyiMessage, true);						
 					}
 				}*/
-			}			
+			}		
+			logger.info("isFinalApprover : " + isFinalApprover);
 			if (isFinalApprover && actionType.equals("A")) {
 				String ipNumber = institutionalProposalService.generateInstitutionalProposalNumber();
 				logger.info("Initial IP Number : " + ipNumber);
@@ -657,18 +660,24 @@ public class ProposalServiceImpl implements ProposalService {
 				proposal = proposalDao.saveOrUpdateProposal(proposal);
 			} else if (actionType.equals("R")) {
 					proposal.setStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED);
-					proposal.setProposalStatus(proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED));
+					ProposalStatus proposalStatus = proposalDao.fetchStatusByStatusCode(Constants.PROPOSAL_STATUS_CODE_RETURNED);
+					logger.info("proposalStatus : " + proposalStatus);
+					proposal.setProposalStatus(proposalStatus);
 					proposal = proposalDao.saveOrUpdateProposal(proposal);
-					String rejectMessage = "The following proposal is rejected  :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
+					logger.info("proposal staus code : " + proposal.getStatusCode());
+					logger.info("proposal staus desc : " + proposal.getProposalStatus().getDescription());
+					String rejectMessage = "The following proposal is returned  :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 							+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 							+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 							+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
 							+ "<a title=\"\" target=\"_self\" href=\""+ context +"/proposal/proposalHome?proposalId="
 							+ proposal.getProposalId() +"\">this link</a> "
 							+ "to review the proposal.";
-					String rejectSubject = "Action Required: Rejected for "+ proposal.getTitle();
+					String rejectSubject = "Action Required: Returned for "+ proposal.getTitle();
+					logger.info("rejectSubject : " + rejectMessage);
 					// toAddresses.add(getPIEmailAddress(proposal.getProposalPersons()));
 					toAddresses.add(proposalDao.getCreateUserEmailAddress(proposal.getCreateUser()));
+					logger.info("toAddresses : " + toAddresses);
 					fibiEmailService.sendEmail(toAddresses, rejectSubject, null, null, rejectMessage, true);
 			}
 			proposalVO.setProposal(proposal);
@@ -687,6 +696,8 @@ public class ProposalServiceImpl implements ProposalService {
 				proposalVO.setWorkflowList(workflowList);
 			}
 			proposalVO.setProposal(proposal);
+			logger.info("end of proposal staus code : " + proposal.getStatusCode());
+			logger.info("end of proposal staus desc : " + proposal.getProposalStatus().getDescription());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -764,6 +775,17 @@ public class ProposalServiceImpl implements ProposalService {
 			}
 			proposalVO.setPreReviewers(proposalPreReviewDao.fetchAllPreReviewer());
 		}
+		if (proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS || proposal.getStatusCode() == Constants.PROPOSAL_STATUS_CODE_RETURNED) {
+			Workflow workflow = workflowDao.fetchActiveWorkflowByModuleItemId(proposal.getProposalId());
+			workflowService.prepareWorkflowDetails(workflow);
+			proposalVO.setWorkflow(workflow);
+			List<Workflow> WorkflowList = workflowDao.fetchWorkflowsByModuleItemId(proposal.getProposalId());
+			if(WorkflowList != null) {
+				workflowService.prepareWorkflowDetailsList(WorkflowList);
+				Collections.sort(WorkflowList, new WorkflowComparator());
+				proposalVO.setWorkflowList(WorkflowList);
+			}
+		}
 	}
 
 	@Override
@@ -790,7 +812,7 @@ public class ProposalServiceImpl implements ProposalService {
 				}
 			}
 
-			logger.info("create proposal unitNumbers : " + unitNumbers);
+			// logger.info("create proposal unitNumbers : " + unitNumbers);
 			if (!unitNumbers.isEmpty()) {
 				proposalVO.setHomeUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 			}

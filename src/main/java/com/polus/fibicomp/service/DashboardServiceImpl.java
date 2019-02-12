@@ -38,6 +38,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.common.dao.CommonDao;
 import com.polus.fibicomp.common.service.CommonService;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.dao.DashboardDao;
@@ -66,6 +67,9 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Autowired
 	private CommitteeDao committeeDao;
+
+	@Autowired
+	public CommonDao commonDao;
 
 	@Override
 	public String getDashBoardResearchSummary(CommonVO vo) throws Exception {
@@ -137,6 +141,10 @@ public class DashboardServiceImpl implements DashboardService {
 			// dashBoardProfile.setPersonDTO(personDTO);
 			// dashBoardProfile.setUnitAdministrators(loginDao.isUnitAdmin(vo.getPersonId()));
 			dashBoardProfile.setUnitAdminDetails(loginDao.isUnitAdminDetail(vo.getPersonId()));
+			Boolean isCopyProposalRequired = commonDao.getParameterValueAsBoolean(Constants.KC_GENERIC_PARAMETER_NAMESPACE,
+					Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.COPY_PROPOSAL_REQUIRED);
+			logger.info("isCopyProposalRequired : " + isCopyProposalRequired);
+			dashBoardProfile.setCopyProposalFlag(isCopyProposalRequired);
 		} catch (Exception e) {
 			logger.error("Error in method getDashBoardData", e);
 		}

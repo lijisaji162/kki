@@ -44,6 +44,7 @@ public interface Constants {
 	String SUB_CONTRACT_CATEGORY_CODE = "22";
 	String KC_SUPERUSER_ROLE = "KC_SUPERUSER_ROLE";
 	String PROPOSAL_CREATOR_ROLE = "PROPOSAL_CREATOR_ROLE";
+	String COPY_PROPOSAL_REQUIRED = "COPY_PROPOSAL_REQUIRED";
 
 	// Security constants
 	String SECRET = "SecretKeyToGenJWTs";

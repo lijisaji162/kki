@@ -2,11 +2,14 @@ package com.polus.fibicomp.proposal.prereview.dao;
 
 import java.util.List;
 
+import javax.persistence.LockModeType;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +44,7 @@ public class ProposalPreReviewDaoImpl implements ProposalPreReviewDao {
 		return hibernateTemplate.get(PreReviewStatus.class, statusCode);
 	}
 
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Override
 	public ProposalPreReview saveOrUpdatePreReview(ProposalPreReview preReview) {
 		hibernateTemplate.saveOrUpdate(preReview);

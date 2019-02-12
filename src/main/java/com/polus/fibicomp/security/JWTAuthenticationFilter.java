@@ -97,7 +97,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				}
 			}
 
-			logger.info("create proposal unitNumbers : " + unitNumbers);
+			// logger.info("create proposal unitNumbers : " + unitNumbers);
 			if (!unitNumbers.isEmpty()) {
 				// personDTO.setLeadUnits(proposalDao.fetchLeadUnitsByUnitNumbers(unitNumbers));
 				personDTO.setCreateProposal(true);

@@ -5,11 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.LockModeType;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ public class WorkflowDaoImpl implements WorkflowDao {
 	@Autowired
 	private HibernateTemplate hibernateTemplate;
 
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Override
 	public Workflow saveWorkflow(Workflow workflow) {
 		hibernateTemplate.saveOrUpdate(workflow);

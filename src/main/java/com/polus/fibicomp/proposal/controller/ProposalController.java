@@ -65,6 +65,7 @@ public class ProposalController {
 	@RequestMapping(value = "/saveOrUpdateProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String saveOrUpdateProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for saveOrUpdateProposal");
+		logger.info("proposalId : " + vo.getProposal().getProposalId());
 		return proposalService.saveOrUpdateProposal(vo);
 	}
 
@@ -131,7 +132,7 @@ public class ProposalController {
 
 	@RequestMapping(value = "/deleteProposalAttachment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String deleteProposalAttachment(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
-		logger.info("Requesting for deleteProposalBudget");
+		logger.info("Requesting for deleteProposalAttachment");
 		logger.info("propodalId : " + vo.getProposalId());
 		logger.info("attachmentId : " + vo.getAttachmentId());
 		return proposalService.deleteProposalAttachment(vo);
@@ -148,6 +149,7 @@ public class ProposalController {
 	@RequestMapping(value = "/submitProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String submitProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for submitProposal");
+		logger.info("proposalId : " + vo.getProposal().getProposalId());
 		return proposalService.submitProposal(vo);
 	}
 
@@ -160,6 +162,7 @@ public class ProposalController {
 	@RequestMapping(value = "/createProposalBudget", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String createProposalBudget(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for createProposalBudget");
+		logger.info("proposalId : " + vo.getProposal().getProposalId());
 		return budgetService.createProposalBudget(vo);
 	}
 
@@ -200,18 +203,21 @@ public class ProposalController {
 	@RequestMapping(value = "/copyProposal", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String copyProposal(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for copyProposal");
+		logger.info("source proposalId : " + vo.getProposal().getProposalId());
 		return proposalCopyService.copyProposal(vo);
 	}
 
 	@RequestMapping(value = "/sendAttachPINotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String sendAttachPINotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for sendAttachPINotification");
+		logger.info("proposalId : " + vo.getProposal().getProposalId());
 		return proposalService.sendAttachPINotification(vo);
 	}
 
 	@RequestMapping(value = "/sendAttachApproverNotification", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String sendAttachApproverNotification(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("Requesting for sendAttachApproverNotification");
+		logger.info("proposalId : " + vo.getProposal().getProposalId());
 		return proposalService.sendAttachApproverNotification(vo);
 	}
 

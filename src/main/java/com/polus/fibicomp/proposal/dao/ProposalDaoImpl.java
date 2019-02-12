@@ -3,6 +3,8 @@ package com.polus.fibicomp.proposal.dao;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.LockModeType;
+
 import org.apache.commons.collections4.ListUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -14,6 +16,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,6 +138,7 @@ public class ProposalDaoImpl implements ProposalDao {
 		return proposalResearchTypes;
 	}
 
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Override
 	public Proposal saveOrUpdateProposal(Proposal proposal) {
 		hibernateTemplate.saveOrUpdate(proposal);
