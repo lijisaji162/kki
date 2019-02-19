@@ -258,4 +258,14 @@ public class ProposalDaoImpl implements ProposalDao {
 		return hibernateTemplate.loadAll(NarrativeStatus.class);
 	}
 
+	@Override
+	public Integer markAsInactive(Integer proposalId, boolean isInactive) {
+		logger.info("----------- markAsInactive ------------");
+		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+		Query updateQuery = session.createSQLQuery(
+				"update fibi_proposal set is_inactive = :isInactive where proposal_id = :proposalId");
+		updateQuery.setParameter("isInactive", isInactive).setInteger("proposalId", proposalId);		
+		return updateQuery.executeUpdate();
+	}
+
 }

@@ -153,4 +153,11 @@ public interface ProposalDao {
 	 */
 	public List<NarrativeStatus> fetchAllNarrativeStatus();
 
+	/**
+	 * @param proposalId
+	 * @param isInactive
+	 * @return
+	 */
+	public Integer markAsInactive(Integer proposalId, boolean isInactive);
+
 }

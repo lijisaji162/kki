@@ -571,7 +571,7 @@ public class DashboardServiceImpl implements DashboardService {
 		logger.info("requestType : " + requestType);
 		try {
 			if (requestType.equals("PROPOSAL")) {
-				if (vo.getIsUnitAdmin()) {
+				/*if (vo.getIsUnitAdmin()) {
 					String proposalTabName = vo.getProposalTabName();
 					logger.info("proposalTabName : " + proposalTabName);
 					if (proposalTabName.equals("MY_PROPOSAL")) {
@@ -588,14 +588,35 @@ public class DashboardServiceImpl implements DashboardService {
 							prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 						}
 					} else {
-						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
+						dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData, vo.getIsSuperUser());
 						XSSFSheet sheet = workbook.createSheet("All Proposals");
 						Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
 						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 					}
 				} else {
-					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData);
+					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData, vo.getIsSuperUser());
 					XSSFSheet sheet = workbook.createSheet("Proposals");
+					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+				}*/
+				String proposalTabName = vo.getProposalTabName();
+				logger.info("proposalTabName : " + proposalTabName);
+				if (proposalTabName.equals("MY_PROPOSAL")) {
+					dashboardData = dashboardDao.getDashBoardDataOfMyProposalForDownload(vo, dashboardData);
+					XSSFSheet sheet = workbook.createSheet("My Proposals");
+					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+				} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
+					List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
+					if (proposalIds != null && !proposalIds.isEmpty()) {
+						dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo, dashboardData);
+						XSSFSheet sheet = workbook.createSheet("Pending Review");
+						Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+					}
+				} else if (proposalTabName.equals("PROPOSAL")) {
+					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData, vo);
+					XSSFSheet sheet = workbook.createSheet("All Proposals");
 					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
 					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				}
