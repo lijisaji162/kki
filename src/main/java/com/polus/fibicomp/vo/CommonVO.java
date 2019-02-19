@@ -34,6 +34,8 @@ public class CommonVO {
 
 	private String property4;
 
+	private String property5;
+
 	private Integer currentPage;
 
 	private String personId;
@@ -208,6 +210,14 @@ public class CommonVO {
 
 	public void setProperty4(String property4) {
 		this.property4 = property4;
+	}
+
+	public String getProperty5() {
+		return property5;
+	}
+
+	public void setProperty5(String property5) {
+		this.property5 = property5;
 	}
 
 	public Integer getCurrentPage() {

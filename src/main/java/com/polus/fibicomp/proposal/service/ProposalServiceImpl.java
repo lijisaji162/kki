@@ -930,4 +930,16 @@ public class ProposalServiceImpl implements ProposalService {
 		return isProposalPerson;
 	}
 
+	@Override
+	public String markAsInactive(ProposalVO proposalVO) {
+		Proposal proposal = proposalVO.getProposal();
+		Integer result = proposalDao.markAsInactive(proposal.getProposalId(), proposal.getIsInactive());
+		if (result == 1) {
+			proposalVO.setInactiveMessage(Constants.MARK_INACTIVE_SUCCESS_MESSAGE);
+		} else {
+			proposalVO.setInactiveMessage(Constants.MARK_INACTIVE_ERROR_MESSAGE);
+		}
+		return committeeDao.convertObjectToJSON(proposalVO);
+	}
+
 }

@@ -180,6 +180,10 @@ public class ProposalVO {
 
 	private List<PreReviewer> preReviewers;
 
+	private Boolean isInactive = false;
+
+	private String inactiveMessage;
+
 	public ProposalVO() {
 		proposal = new Proposal();
 	}
@@ -750,6 +754,22 @@ public class ProposalVO {
 
 	public void setPreReviewers(List<PreReviewer> preReviewers) {
 		this.preReviewers = preReviewers;
+	}
+
+	public Boolean getIsInactive() {
+		return isInactive;
+	}
+
+	public void setIsInactive(Boolean isInactive) {
+		this.isInactive = isInactive;
+	}
+
+	public String getInactiveMessage() {
+		return inactiveMessage;
+	}
+
+	public void setInactiveMessage(String inactiveMessage) {
+		this.inactiveMessage = inactiveMessage;
 	}
 
 }

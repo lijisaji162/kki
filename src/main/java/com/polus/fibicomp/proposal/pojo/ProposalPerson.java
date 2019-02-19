@@ -52,7 +52,7 @@ public class ProposalPerson implements Serializable {
 	private String fullName;
 
 	@Column(name = "PROP_PERSON_ROLE_ID")
-	private BigDecimal personRoleId;
+	private Integer personRoleId;
 
 	@ManyToOne(optional = false)
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK2_FIBI_PROPOSAL_PERSONS"), name = "PROP_PERSON_ROLE_ID", referencedColumnName = "PROP_PERSON_ROLE_ID", insertable = false, updatable = false)
@@ -149,11 +149,11 @@ public class ProposalPerson implements Serializable {
 		return serialVersionUID;
 	}
 
-	public BigDecimal getPersonRoleId() {
+	public Integer getPersonRoleId() {
 		return personRoleId;
 	}
 
-	public void setPersonRoleId(BigDecimal personRoleId) {
+	public void setPersonRoleId(Integer personRoleId) {
 		this.personRoleId = personRoleId;
 	}
 

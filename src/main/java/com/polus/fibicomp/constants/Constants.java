@@ -155,4 +155,9 @@ public interface Constants {
   	String CREATE_PROPOSAL_ROLE = "10013";
   	String UNIT_ADMINISTRATOR_ROLE = "1954"; // For KKI local db
   	// String UNIT_ADMINISTRATOR_ROLE = "1953"; // For KKI server
+
+  	String MARK_INACTIVE_SUCCESS_MESSAGE = "Proposal has been marked as inactive";
+  	String MARK_INACTIVE_ERROR_MESSAGE = "Error occured during inactive";
+  	Integer PI_ROLE_CODE = 3;
+
 }

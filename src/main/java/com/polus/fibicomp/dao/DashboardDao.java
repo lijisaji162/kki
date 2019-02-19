@@ -318,7 +318,7 @@ public interface DashboardDao {
 	 * @return A list of proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals) throws Exception;
+	public List<Object[]> getDashBoardDataOfProposalForDownload(List<Object[]> proposals, CommonVO vo) throws Exception;
 
 	/**
 	 * This method is used to get list of my proposals.

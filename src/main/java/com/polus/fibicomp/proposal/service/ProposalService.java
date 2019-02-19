@@ -157,4 +157,11 @@ public interface ProposalService {
 	 */
 	public String getPrincipalInvestigator(List<ProposalPerson> proposalPersons);
 
+	/**
+	 * This method is used to mark a proposal as inactive
+	 * @param proposalVO - Object of ProposalVO class.
+	 * @return a String of details of proposal.
+	 */
+	public String markAsInactive(ProposalVO proposalVO);
+
 }

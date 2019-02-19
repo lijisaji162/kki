@@ -221,4 +221,9 @@ public class ProposalController {
 		return proposalService.sendAttachApproverNotification(vo);
 	}
 
+	@RequestMapping(value = "/markAsInactive", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public String markAsInactive(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return proposalService.markAsInactive(vo);
+	}
+
 }

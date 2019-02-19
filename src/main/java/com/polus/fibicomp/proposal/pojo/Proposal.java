@@ -212,6 +212,13 @@ public class Proposal implements Serializable {
 	@Transient
 	private List<Workflow> workflowList;
 
+	@Column(name = "IS_INACTIVE")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isInactive = false;
+
+	@Column(name = "SUBCONTRACT_TEXT")
+    private String subcontractText;
+
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
 		proposalKeywords = new ArrayList<ProposalKeyword>();
@@ -643,6 +650,22 @@ public class Proposal implements Serializable {
 
 	public void setSponsorDeadlineDate(Timestamp sponsorDeadlineDate) {
 		this.sponsorDeadlineDate = sponsorDeadlineDate;
+	}
+
+	public Boolean getIsInactive() {
+		return isInactive;
+	}
+
+	public void setIsInactive(Boolean isInactive) {
+		this.isInactive = isInactive;
+	}
+
+	public String getSubcontractText() {
+		return subcontractText;
+	}
+
+	public void setSubcontractText(String subcontractText) {
+		this.subcontractText = subcontractText;
 	}
 
 }
