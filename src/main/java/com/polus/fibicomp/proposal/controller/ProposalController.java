@@ -223,6 +223,9 @@ public class ProposalController {
 
 	@RequestMapping(value = "/markAsInactive", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public String markAsInactive(@RequestBody ProposalVO vo, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logger.info("Requesting for markAsInactive");
+		logger.info("proposalId : " + vo.getProposalId());
+		logger.info("isInactive : " + vo.getIsInactive());
 		return proposalService.markAsInactive(vo);
 	}
 

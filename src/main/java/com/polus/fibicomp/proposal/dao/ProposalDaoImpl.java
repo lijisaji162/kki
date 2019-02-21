@@ -264,7 +264,7 @@ public class ProposalDaoImpl implements ProposalDao {
 		Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 		Query updateQuery = session.createSQLQuery(
 				"update fibi_proposal set is_inactive = :isInactive where proposal_id = :proposalId");
-		updateQuery.setParameter("isInactive", isInactive).setInteger("proposalId", proposalId);		
+		updateQuery.setParameter("isInactive", isInactive).setInteger("proposalId", proposalId);
 		return updateQuery.executeUpdate();
 	}
 

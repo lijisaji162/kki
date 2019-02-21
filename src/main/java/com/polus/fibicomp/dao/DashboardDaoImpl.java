@@ -1674,11 +1674,13 @@ public class DashboardDaoImpl implements DashboardDao {
 			searchCriteria.createAlias("proposalStatus", "proposalStatus");
 			searchCriteria.createAlias("activityType", "activityType");
 			searchCriteria.createAlias("proposalType", "proposalType");
+			searchCriteria.createAlias("proposalPersons", "proposalPersons");
 
 			Criteria countCriteria = session.createCriteria(Proposal.class);
 			countCriteria.createAlias("proposalStatus", "proposalStatus");
 			countCriteria.createAlias("activityType", "activityType");
 			countCriteria.createAlias("proposalType", "proposalType");
+			countCriteria.createAlias("proposalPersons", "proposalPersons");
 			if (sortBy.isEmpty() || reverse.isEmpty()) {
 				searchCriteria.addOrder(Order.desc("updateTimeStamp"))
 				.addOrder(Order.desc("proposalId"));
@@ -1705,7 +1707,7 @@ public class DashboardDaoImpl implements DashboardDao {
 				and.add(Restrictions.like("activityType.description", "%" + property4 + "%").ignoreCase());
 			}
 			if (property5 != null && !property5.isEmpty()) {
-				and.add(Restrictions.like("principalInvestigator", "%" + property5 + "%").ignoreCase());
+				and.add(Restrictions.conjunction().add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE)).add(Restrictions.like("proposalPersons.fullName", "%" + property5 + "%").ignoreCase()));
 			}
 			List<Integer> proposalStatusCodes = new ArrayList<>();
 			proposalStatusCodes.add(Constants.PROPOSAL_STATUS_CODE_IN_PROGRESS);
@@ -2004,22 +2006,22 @@ public class DashboardDaoImpl implements DashboardDao {
 			logger.info("IsSuperUser : " + vo.getIsSuperUser());
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			if (vo.getIsSuperUser()) {
-				if(vo.getProperty5() != null) {
+				if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
 					proposalList = session.createSQLQuery(
-							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE and lower(t2.FULL_NAME) like lower(:fullName)");
+							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where lower(t2.FULL_NAME) like lower(:fullName) AND T1.IS_INACTIVE = 'N'");
 					proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
 				} else {
 					proposalList = session.createSQLQuery(
-							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE");							
+							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N'");							
 				}
 			} else {
-				if(vo.getProperty5() != null) {
+				if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
 					proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.HOME_UNIT_NUMBER IN (SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId) AND lower(t2.FULL_NAME) like lower('%:fullName%')");
-					proposalList.setString("fullName", vo.getProperty5());
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.IS_INACTIVE = 'N' AND T1.HOME_UNIT_NUMBER IN (SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId) AND lower(t2.FULL_NAME) like lower(:fullName)");
+					proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
 				} else {
 					proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.HOME_UNIT_NUMBER IN ( SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId)");							
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.IS_INACTIVE = 'N' AND T1.HOME_UNIT_NUMBER IN ( SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId)");							
 				}
 				proposalList.setString("personId", vo.getPersonId());
 			}
@@ -2052,11 +2054,11 @@ public class DashboardDaoImpl implements DashboardDao {
 			*/
 			if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
 				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where (T2.Person_Id = :personId or T1.Create_User = :createUser) and lower(t2.FULL_NAME) like lower(:fullName)");
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N' AND (T2.Person_Id = :personId or T1.Create_User = :createUser) and lower(t2.FULL_NAME) like lower(:fullName)");
 				proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
 			} else {
 				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where (T2.Person_Id = :personId or T1.Create_User = :createUser)");			
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N' AND (T2.Person_Id = :personId or T1.Create_User = :createUser)");			
 			}
 			proposalList.setString("personId", personId).setString("createUser", createUser);
 			myProposals = proposalList.list();
@@ -2081,13 +2083,13 @@ public class DashboardDaoImpl implements DashboardDao {
 			/*Query proposalList = session.createSQLQuery(
 					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId");
 			 */
-			if(vo.getProperty4() != null) {
+			if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
 				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId and lower(t2.FULL_NAME) like lower(:fullName)");
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId and T1.IS_INACTIVE = 'N' AND lower(t2.FULL_NAME) like lower(:fullName)");
 				proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
 			} else {
 				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId");
+						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId AND T1.IS_INACTIVE = 'N'");
 			}
 			proposalList.setString("personId", personId);
 			pendingReviewProposals = proposalList.list();

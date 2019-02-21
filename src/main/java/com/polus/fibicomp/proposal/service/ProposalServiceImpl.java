@@ -932,8 +932,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 	@Override
 	public String markAsInactive(ProposalVO proposalVO) {
-		Proposal proposal = proposalVO.getProposal();
-		Integer result = proposalDao.markAsInactive(proposal.getProposalId(), proposal.getIsInactive());
+		Integer result = proposalDao.markAsInactive(proposalVO.getProposalId(), proposalVO.getIsInactive());
 		if (result == 1) {
 			proposalVO.setInactiveMessage(Constants.MARK_INACTIVE_SUCCESS_MESSAGE);
 		} else {
