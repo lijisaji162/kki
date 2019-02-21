@@ -216,9 +216,6 @@ public class Proposal implements Serializable {
 	@Convert(converter = JpaCharBooleanConversion.class)
 	private Boolean isInactive = false;
 
-	@Column(name = "SUBCONTRACT_TEXT")
-    private String subcontractText;
-
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
 		proposalKeywords = new ArrayList<ProposalKeyword>();
@@ -658,14 +655,6 @@ public class Proposal implements Serializable {
 
 	public void setIsInactive(Boolean isInactive) {
 		this.isInactive = isInactive;
-	}
-
-	public String getSubcontractText() {
-		return subcontractText;
-	}
-
-	public void setSubcontractText(String subcontractText) {
-		this.subcontractText = subcontractText;
 	}
 
 }
