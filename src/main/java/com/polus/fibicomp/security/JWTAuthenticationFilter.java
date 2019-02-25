@@ -112,20 +112,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		res.addHeader(Constants.HEADER_STRING, Constants.TOKEN_PREFIX + token);
 	}
 
-	/*public String hash(Object valueToHide) throws GeneralSecurityException {
-		if (valueToHide != null && !StringUtils.isEmpty(valueToHide.toString())) {
-			try {
-				MessageDigest md = MessageDigest.getInstance(Constants.HASH_ALGORITHM);
-				return new String(Base64.encodeBase64(md.digest(valueToHide.toString().getBytes(Constants.CHARSET))),
-						Constants.CHARSET);
-			} catch (UnsupportedEncodingException arg2) {
-				return "";
-			}
-		} else {
-			return "";
-		}
-	}*/
-
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse res,
 			AuthenticationException failed) throws IOException, ServletException {

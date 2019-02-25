@@ -607,13 +607,10 @@ public class DashboardServiceImpl implements DashboardService {
 					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
 					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				} else if (proposalTabName.equals("REVIEW_PENDING_PROPOSAL")) {
-					List<Integer> proposalIds = dashboardDao.getApprovalInprogressProposalIds(vo.getPersonId(), Constants.WORKFLOW_STATUS_CODE_WAITING, Constants.MODULE_CODE_PROPOSAL);
-					if (proposalIds != null && !proposalIds.isEmpty()) {
-						dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo, dashboardData);
-						XSSFSheet sheet = workbook.createSheet("Pending Review");
-						Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
-						prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
-					}
+					dashboardData = dashboardDao.getDashBoardDataOfReviewPendingProposalForDownload(vo, dashboardData);
+					XSSFSheet sheet = workbook.createSheet("Pending Review");
+					Object[] tableHeadingRow = {"Id#", "Title", "PI", "Category", "Type", "Status", "Sponsor", "Sponsor Deadline"};
+					prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 				} else if (proposalTabName.equals("PROPOSAL")) {
 					dashboardData = dashboardDao.getDashBoardDataOfProposalForDownload(dashboardData, vo);
 					XSSFSheet sheet = workbook.createSheet("All Proposals");
