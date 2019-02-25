@@ -1437,7 +1437,13 @@ public class DashboardDaoImpl implements DashboardDao {
 					.addOrder(Order.desc("proposalId"));
 				}
 			} else {
-				if (reverse.equals("DESC")) {
+				if (sortBy.equals("proposalPersons.fullName") && reverse.equals("DESC")) {
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (sortBy.equals("proposalPersons.fullName") && reverse.equals("ASC")) {
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (reverse.equals("DESC")) {
 					searchCriteria.addOrder(Order.desc(sortBy))
 					.addOrder(Order.desc("proposalId"));
 				} else {
@@ -1540,6 +1546,7 @@ public class DashboardDaoImpl implements DashboardDao {
 
 	@Override
 	public DashBoardProfile getDashBoardDataForMyProposal(CommonVO vo) {
+		logger.info("----------- getDashBoardDataForMyProposal ------------");
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		Integer pageNumber = vo.getPageNumber();
 		String sortBy = vo.getSortBy();
@@ -1551,27 +1558,45 @@ public class DashboardDaoImpl implements DashboardDao {
 		String property5 = vo.getProperty5();
 		Integer currentPage = vo.getCurrentPage();
 		String personId = vo.getPersonId();
+		logger.info("pageNumber : " + pageNumber);
+		logger.info("sortBy : " + sortBy);
+		logger.info("reverse : " + reverse);
+		logger.info("property1 : " + property1);
+		logger.info("property2 : " + property2);
+		logger.info("property3 : " + property3);
+		logger.info("property4 : " + property4);
+		logger.info("property5 : " + property5);
+		logger.info("currentPage : " + currentPage);
+		logger.info("personId : " + personId);
 
 		Conjunction and = Restrictions.conjunction();
 		try {
-			logger.info("----------- getDashBoardDataForMyProposal ------------");
+			// logger.info("----------- getDashBoardDataForMyProposal ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Criteria searchCriteria = session.createCriteria(Proposal.class);
 			searchCriteria.createAlias("proposalStatus", "proposalStatus");
 			searchCriteria.createAlias("activityType", "activityType");
 			searchCriteria.createAlias("proposalType", "proposalType");
-			searchCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+			// searchCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+			searchCriteria.createAlias("proposalPersons", "proposalPersons");
 
 			Criteria countCriteria = session.createCriteria(Proposal.class);
 			countCriteria.createAlias("proposalStatus", "proposalStatus");
 			countCriteria.createAlias("activityType", "activityType");
 			countCriteria.createAlias("proposalType", "proposalType");
-			countCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+			// countCriteria.createAlias("proposalPersons", "proposalPersons", JoinType.LEFT_OUTER_JOIN);
+			countCriteria.createAlias("proposalPersons", "proposalPersons");
 			if (sortBy.isEmpty() || reverse.isEmpty()) {
 				searchCriteria.addOrder(Order.desc("updateTimeStamp"))
 				.addOrder(Order.desc("proposalId"));
 			} else {
-				if (reverse.equals("DESC")) {
+				if (sortBy.equals("proposalPersons.fullName") && reverse.equals("DESC")) {
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (sortBy.equals("proposalPersons.fullName") && reverse.equals("ASC")) {
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (reverse.equals("DESC")) {
 					searchCriteria.addOrder(Order.desc(sortBy))
 					.addOrder(Order.desc("proposalId"));
 				} else {
@@ -1685,7 +1710,13 @@ public class DashboardDaoImpl implements DashboardDao {
 				searchCriteria.addOrder(Order.desc("updateTimeStamp"))
 				.addOrder(Order.desc("proposalId"));
 			} else {
-				if (reverse.equals("DESC")) {
+				if (sortBy.equals("proposalPersons.fullName") && reverse.equals("DESC")) {
+					searchCriteria.addOrder(Order.desc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (sortBy.equals("proposalPersons.fullName") && reverse.equals("ASC")) {
+					searchCriteria.addOrder(Order.asc(sortBy))
+					.addOrder(Order.desc("proposalId")).add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+				} else if (reverse.equals("DESC")) {
 					searchCriteria.addOrder(Order.desc(sortBy))
 					.addOrder(Order.desc("proposalId"));
 				} else {
@@ -2004,26 +2035,55 @@ public class DashboardDaoImpl implements DashboardDao {
 			Query proposalList = null;
 			logger.info("PI_Name-property5 : " + vo.getProperty5());
 			logger.info("IsSuperUser : " + vo.getIsSuperUser());
+			String superUserQuery = "SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,"
+					+ "t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE "
+					+ "FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 "
+					+ "INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE "
+					+ "INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N'";
+			String unitHeadQuery = "SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, "
+					+ "t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE "
+					+ "FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 "
+					+ "ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE "
+					+ "INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.IS_INACTIVE = 'N' AND T1.HOME_UNIT_NUMBER "
+					+ "IN ( SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 "
+					+ "INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId)";		
+			String likeQuery = "";
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.PROPOSAL_ID) like lower(:proposalId) ";
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.TITLE) like lower(:title) ";
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t4.DESCRIPTION) like lower(:status) ";
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t5.DESCRIPTION) like lower(:category) ";
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t2.FULL_NAME) like lower(:fullName) ";
+			}
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			if (vo.getIsSuperUser()) {
-				if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
-					proposalList = session.createSQLQuery(
-							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where lower(t2.FULL_NAME) like lower(:fullName) AND T1.IS_INACTIVE = 'N'");
-					proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
-				} else {
-					proposalList = session.createSQLQuery(
-							"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N'");							
-				}
+					proposalList = session.createSQLQuery(superUserQuery + likeQuery);
 			} else {
-				if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
-					proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.IS_INACTIVE = 'N' AND T1.HOME_UNIT_NUMBER IN (SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId) AND lower(t2.FULL_NAME) like lower(:fullName)");
-					proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
-				} else {
-					proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID, t1.TITLE AS TITLE, t2.FULL_NAME AS FULL_NAME, t5.DESCRIPTION AS CATEGORY, t3.DESCRIPTION AS type, t4.DESCRIPTION AS status, t1.SPONSOR_NAME AS sponsor, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE WHERE T1.IS_INACTIVE = 'N' AND T1.HOME_UNIT_NUMBER IN ( SELECT DISTINCT T7.ATTR_VAL FROM KRIM_ROLE_MBR_T T6 INNER JOIN KRIM_ROLE_MBR_ATTR_DATA_T T7 ON T6.ROLE_MBR_ID = T7.ROLE_MBR_ID WHERE T6.ROLE_ID = '1954' AND T6.MBR_ID = :personId)");							
-				}
+				proposalList = session.createSQLQuery(unitHeadQuery + likeQuery);	
 				proposalList.setString("personId", vo.getPersonId());
+			}
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				proposalList.setString("proposalId", "%" + vo.getProperty1() + "%");
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				proposalList.setString("title", "%" + vo.getProperty2() + "%");
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				proposalList.setString("status", "%" + vo.getProperty3() + "%");
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				proposalList.setString("category", "%" + vo.getProperty4() + "%");
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				proposalList.setString("fullName", "%" + vo.getProperty5() + "%");
 			}
 			proposals = proposalList.list();
 			logger.info("allProposals : " + proposals);
@@ -2040,6 +2100,14 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			logger.info("----------- getDashBoardDataOfMyProposalForDownload ------------");
 			Query proposalList = null;
+			String mainQuery = "SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,"
+					+ "t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,"
+					+ "t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 "
+					+ "ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 "
+					+ "ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE "
+					+ "INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE "
+					+ "where T1.IS_INACTIVE = 'N' AND (T2.Person_Id = :personId or T1.Create_User = :createUser)";
+			String likeQuery = "";
 			String homeUnitNumber = vo.getUnitNumber();
 			String createUser = vo.getUserName();
 			String personId = vo.getPersonId();
@@ -2048,17 +2116,40 @@ public class DashboardDaoImpl implements DashboardDao {
 			logger.info("personId : " + personId);
 			logger.info("PI_Name-property5 : " + vo.getProperty5());
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.PROPOSAL_ID) like lower(:proposalId) ";
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.TITLE) like lower(:title) ";
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t4.DESCRIPTION) like lower(:status) ";
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t5.DESCRIPTION) like lower(:category) ";
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t2.FULL_NAME) like lower(:fullName) ";
+			}
 			/*Query proposalList = session.createSQLQuery(
 					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where (T2.Person_Id = :personId or T1.Create_User = :createUser or t1.home_unit_number = :homeUnitNumber)");
 			proposalList.setString("personId", personId).setString("createUser", createUser).setString("homeUnitNumber", homeUnitNumber);
 			*/
-			if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
-				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N' AND (T2.Person_Id = :personId or T1.Create_User = :createUser) and lower(t2.FULL_NAME) like lower(:fullName)");
-				proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
-			} else {
-				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE where T1.IS_INACTIVE = 'N' AND (T2.Person_Id = :personId or T1.Create_User = :createUser)");			
+			proposalList = session.createSQLQuery(mainQuery + likeQuery);
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				proposalList.setString("proposalId", "%" + vo.getProperty1() + "%");
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				proposalList.setString("title", "%" + vo.getProperty2() + "%");
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				proposalList.setString("status", "%" + vo.getProperty3() + "%");
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				proposalList.setString("category", "%" + vo.getProperty4() + "%");
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				proposalList.setString("fullName", "%" + vo.getProperty5() + "%");
 			}
 			proposalList.setString("personId", personId).setString("createUser", createUser);
 			myProposals = proposalList.list();
@@ -2076,20 +2167,56 @@ public class DashboardDaoImpl implements DashboardDao {
 		try {
 			logger.info("----------- getDashBoardDataOfReviewPendingProposalForDownload ------------");
 			Query proposalList = null;
+			String mainQuery = "SELECT T1.PROPOSAL_ID AS PROPOSAL_ID,T1.TITLE AS TITLE,T2.FULL_NAME AS FULL_NAME,T5.DESCRIPTION AS CATEGORY,T3.DESCRIPTION AS TYPE,"
+					+ "T4.DESCRIPTION AS STATUS,T1.SPONSOR_NAME AS SPONSOR,T1.SPONSOR_DEADLINE_DATE "
+					+ "FROM FIBI_PROPOSAL T1 LEFT OUTER JOIN FIBI_PROPOSAL_PERSONS T2 "
+					+ "ON T1.PROPOSAL_ID = T2.PROPOSAL_ID AND T2.PROP_PERSON_ROLE_ID = 3 INNER JOIN FIBI_PROPOSAL_TYPE T3 "
+					+ "ON T1.TYPE_CODE = T3.TYPE_CODE INNER JOIN FIBI_PROPOSAL_STATUS T4 "
+					+ "ON T1.STATUS_CODE = T4.STATUS_CODE INNER JOIN ACTIVITY_TYPE T5 "
+					+ "ON T1.ACTIVITY_TYPE_CODE = T5.ACTIVITY_TYPE_CODE "
+					+ "WHERE T1.STATUS_CODE IN ('1','2','3') AND T1.IS_INACTIVE = 'N' AND T1.PROPOSAL_ID "
+					+ "IN (	SELECT PROPOSAL_ID FROM EPS_PROP_PRE_REVIEW WHERE PRE_REVIEW_STATUS_CODE=1 AND REVIEWER_PERSON_ID = :personId "
+					+ "UNION SELECT T6.MODULE_ITEM_ID AS PROPOSAL_ID FROM FIBI_WORKFLOW T6 "
+					+ "INNER JOIN FIBI_WORKFLOW_DETAIL T7 ON T6.WORKFLOW_ID = T7.WORKFLOW_ID "
+					+ "WHERE T6.MODULE_CODE = 1 AND T6.IS_WORKFLOW_ACTIVE='Y' AND T7.APPROVER_PERSON_ID = :personId AND T7.APPROVAL_STATUS_CODE = 'W')";
 			String personId = vo.getPersonId();
 			logger.info("personId : " + personId);
 			logger.info("PI_Name-property5 : " + vo.getProperty5());
+			String likeQuery = "";
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			/*Query proposalList = session.createSQLQuery(
 					"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId");
 			 */
-			if(vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
-				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId and T1.IS_INACTIVE = 'N' AND lower(t2.FULL_NAME) like lower(:fullName)");
-				proposalList.setString("fullName", "%"+vo.getProperty5()+"%");
-			} else {
-				proposalList = session.createSQLQuery(
-						"SELECT t1.PROPOSAL_ID AS PROPOSAL_ID,t1.TITLE AS TITLE,t2.FULL_NAME AS FULL_NAME,t5.DESCRIPTION AS CATEGORY,t3.DESCRIPTION AS type,t4.DESCRIPTION AS status,t1.SPONSOR_NAME AS sponsor,t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 LEFT OUTER JOIN fibi_proposal_persons t2 ON t1.PROPOSAL_ID = t2.PROPOSAL_ID  AND t2.PROP_PERSON_ROLE_ID = 3 INNER JOIN fibi_proposal_type t3 ON t1.TYPE_CODE = t3.TYPE_CODE INNER JOIN fibi_proposal_status t4 ON t1.STATUS_CODE = t4.STATUS_CODE INNER JOIN activity_type t5 ON t1.ACTIVITY_TYPE_CODE = t5.ACTIVITY_TYPE_CODE INNER JOIN fibi_workflow T6 ON t1.proposal_id = t6.module_item_id and t6.module_code = 1 and t6.is_workflow_active = 'Y' INNER JOIN fibi_workflow_detail t7 ON t6.workflow_id = t7.workflow_id and t7.approval_status_code = 'W' where t7.approver_person_id = :personId AND T1.IS_INACTIVE = 'N'");
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.PROPOSAL_ID) like lower(:proposalId) ";
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t1.TITLE) like lower(:title) ";
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t4.DESCRIPTION) like lower(:status) ";
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t5.DESCRIPTION) like lower(:category) ";
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				likeQuery = likeQuery + " and lower(t2.FULL_NAME) like lower(:fullName) ";
+			}
+			proposalList = session.createSQLQuery(mainQuery + likeQuery);
+			if (vo.getProperty1() != null && !vo.getProperty1().isEmpty()) {
+				proposalList.setString("proposalId", "%" + vo.getProperty1() + "%");
+			}
+			if (vo.getProperty2() != null && !vo.getProperty2().isEmpty()) {
+				proposalList.setString("title", "%" + vo.getProperty2() + "%");
+			}
+			if (vo.getProperty3() != null && !vo.getProperty3().isEmpty()) {
+				proposalList.setString("status", "%" + vo.getProperty3() + "%");
+			}
+			if (vo.getProperty4() != null && !vo.getProperty4().isEmpty()) {
+				proposalList.setString("category", "%" + vo.getProperty4() + "%");
+			}
+			if (vo.getProperty5() != null && !vo.getProperty5().isEmpty()) {
+				proposalList.setString("fullName", "%" + vo.getProperty5() + "%");
 			}
 			proposalList.setString("personId", personId);
 			pendingReviewProposals = proposalList.list();
