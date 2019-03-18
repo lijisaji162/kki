@@ -55,6 +55,7 @@ public class Scheduler {
 		Criteria criteria = session.createCriteria(Proposal.class);
 		criteria.createAlias("proposalStatus", "proposalStatus");
 		criteria.add(Restrictions.eq("proposalStatus.statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS));
+		criteria.add(Restrictions.eq("isInactive", false));
 		@SuppressWarnings("unchecked")
 		List<Proposal> proposals = criteria.list();
 		if (proposals != null && !proposals.isEmpty()) {
@@ -113,6 +114,7 @@ public class Scheduler {
 		Criteria criteria = session.createCriteria(Proposal.class);
 		criteria.createAlias("proposalStatus", "proposalStatus");
 		criteria.add(Restrictions.eq("proposalStatus.statusCode", Constants.PROPOSAL_STATUS_CODE_APPROVAL_INPROGRESS));
+		criteria.add(Restrictions.eq("isInactive", false));
 		@SuppressWarnings("unchecked")
 		List<Proposal> proposals = criteria.list();
 
