@@ -147,7 +147,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
 			preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_COMPLETE);
 			preReview.setPreReviewStatus(reviewStatus);
-			preReviewMessage = "The following application has completed a pre review: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
+			preReviewMessage = "The following application has completed a pre review: <br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
@@ -159,7 +159,7 @@ public class ProposalPreReviewServiceImpl implements ProposalPreReviewService {
 			reviewStatus = proposalPreReviewDao.getPreReviewStatusByCode(Constants.PRE_REVIEW_STATUS_REVISION);
 			preReview.setReviewStatusCode(Constants.PRE_REVIEW_STATUS_REVISION);
 			preReview.setPreReviewStatus(reviewStatus);
-			preReviewMessage = "The following application has completed a pre review: :<br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
+			preReviewMessage = "The following application's pre review has been returned: <br/><br/>Proposal Number: "+ proposal.getProposalId() +"<br/>"
 					+ "Proposal Title: "+ proposal.getTitle() +"<br/>Principal Investigator: "+ piName +"<br/>"
 					+ "Lead Unit: "+ proposal.getHomeUnitNumber() +" - "+ proposal.getHomeUnitName() +"<br/>"
 					+ "Deadline Date: "+ proposal.getSponsorDeadlineDate() +"<br/><br/>Please go to "
