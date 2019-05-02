@@ -549,7 +549,7 @@ public class DashboardServiceImpl implements DashboardService {
 				} else if (objectData instanceof Date) {
 					if (objectData != null) {
 						Date date = (Date) objectData;
-						DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+						DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 						String dateValue = dateFormat.format(date);
 						cell.setCellValue((String) dateValue);
 					}
