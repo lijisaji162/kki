@@ -8,6 +8,7 @@ import com.polus.fibicomp.pojo.ActionItem;
 import com.polus.fibicomp.pojo.DashBoardProfile;
 import com.polus.fibicomp.pojo.PrincipalBo;
 import com.polus.fibicomp.view.MobileProposalView;
+import com.polus.fibicomp.view.ResearchSummaryPieChart;
 import com.polus.fibicomp.view.ResearchSummaryView;
 import com.polus.fibicomp.vo.CommonVO;
 
@@ -371,4 +372,7 @@ public interface DashboardDao {
 	 * @return An integer value to indicate the response.
 	 */
 	public Integer changePassword(String encryptedPWD, String personId);
+
+	public List<ResearchSummaryPieChart> getSummaryProposalPieChart(String person_id, String unitNumber, boolean isAdmin,
+			List<ResearchSummaryPieChart> summaryProposalPiechart);
 }
