@@ -1,16 +1,20 @@
 package com.polus.fibicomp.report.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.dao.DashboardDao;
 import com.polus.fibicomp.grantcall.dao.GrantCallDao;
 import com.polus.fibicomp.grantcall.pojo.GrantCall;
 import com.polus.fibicomp.grantcall.pojo.GrantCallType;
@@ -18,8 +22,11 @@ import com.polus.fibicomp.pojo.ProtocolType;
 import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.report.dao.ReportDao;
 import com.polus.fibicomp.report.vo.ReportVO;
+import com.polus.fibicomp.service.DashboardService;
 import com.polus.fibicomp.view.AwardView;
 import com.polus.fibicomp.view.ProtocolView;
+import com.polus.fibicomp.view.ResearchSummaryPieChart;
+import com.polus.fibicomp.vo.CommonVO;
 
 @Transactional
 @Service(value = "reportService")
@@ -37,16 +44,26 @@ public class ReportServiceImpl implements ReportService {
 	@Autowired
 	private GrantCallDao grantCallDao;
 
+	@Autowired
+	private DashboardService dashboardService;
+
+	@Autowired
+	private DashboardDao dashboardDao;
+
+
 	@Override
 	public String applicationReport(ReportVO reportVO) {
 		String reportName = reportVO.getReportName();
 		logger.info("reportName : " + reportName);
-		if (reportName.equals("Submitted Proposals by Grant Call")) {
+		/*if (reportName.equals("Submitted Proposals by Grant Call")) {
 			reportVO = reportDao.fetchApplicationByGrantCallId(reportVO);
 		} else if (reportName.equals("Awards by Grant Call")) {
 			reportVO = reportDao.fetchAwardByGrantCallId(reportVO);
 		} else if (reportName.equals("Expenditure by Award")) {
 			reportVO = reportDao.fetchExpenditureByAward(reportVO);
+		}*/
+		if (reportName.equals("Proposals by PI")) {
+			reportVO = reportDao.fetchProposalsByPI(reportVO);
 		}
 		String response = committeeDao.convertObjectToJSON(reportVO);
 		return response;
@@ -87,11 +104,12 @@ public class ReportServiceImpl implements ReportService {
 
 	@Override
 	public String fetchReportData(ReportVO reportVO) {
-		fetchOpenGrantIds(reportVO);
+		/*fetchOpenGrantIds(reportVO);
 		fetchApplicationsCountByGrantCallType(reportVO);
 		fetchProtocolsCountByProtocolType(reportVO);
 		fetchAwardByGrantCallType(reportVO);
-		fetchAwardNumbers(reportVO);
+		fetchAwardNumbers(reportVO);*/
+		getPieChartDataBySponsorType(reportVO);
 		String response = committeeDao.convertObjectToJSON(reportVO);
 		return response;
 	}
@@ -120,6 +138,53 @@ public class ReportServiceImpl implements ReportService {
 	public void fetchAwardNumbers(ReportVO reportVO) {
 		List<AwardView> awardNumbers = reportDao.fetchAwardNumbers();
 		reportVO.setAwardNumbers(awardNumbers);
+	}
+
+	@Override
+	public XSSFWorkbook getXSSFWorkbookForReport(CommonVO vo) throws Exception {
+		logger.info("--------- getXSSFWorkbookForReport ---------");
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		List<Object[]> reportData = new ArrayList<Object[]>();
+		String reportType = vo.getTabIndex();
+		String personId = vo.getPersonId();
+		List<String> sponsorCodes = vo.getSponsorCodes();
+		logger.info("personId : " + personId);
+		logger.info("reportType : " + reportType);
+		try {
+			if (reportType.equals("Proposals by PI")) {
+				reportData = reportDao.getReportDataOfProposalsByPIForDownload(personId, reportData);
+				XSSFSheet sheet = workbook.createSheet("Proposals by PI");
+				Object[] tableHeadingRow = {"Proposal#", "Title", "PI", "Category", "Proposal Type", "Status", "Sponsor", "Sponsor Deadline", "Direct Cost", "Indirect Cost", "Total Cost"};
+				dashboardService.prepareExcelSheet(reportData, sheet, tableHeadingRow, workbook, vo);
+			} else if (reportType.equals("Proposals by Sponsor Type")) {
+				reportData = reportDao.getReportDataOfProposalsBySponsorTypeForDownload(personId, sponsorCodes, reportData);
+				XSSFSheet sheet = workbook.createSheet("Proposals by Sponsor Type");
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Sponsor Type", "Proposal Type", "PI", "Sponsor Deadline"};
+				dashboardService.prepareExcelSheet(reportData, sheet, tableHeadingRow, workbook, vo);
+			}
+		} catch (Exception e) {
+			logger.error("Error in method getXSSFWorkbookForDashboard", e);
+		}
+		return workbook;
+	}
+
+	@Override
+	public String getProposalDataBySponsorTypes(ReportVO reportVO) {
+		List<Proposal> proposals = new ArrayList<Proposal>();
+		String personId = reportVO.getPersonId();
+		List<String> sponsorCodes = reportVO.getSponsorCodes();	
+		logger.info("personId :"+ personId);
+		logger.info("sponsorCodes :"+ sponsorCodes);
+		proposals = reportDao.getProposalBySponsorTypes(personId, sponsorCodes);
+		reportVO.setProposals(proposals);
+		String response = committeeDao.convertObjectToJSON(reportVO);
+		return response;
+	}
+
+	public void getPieChartDataBySponsorType(ReportVO reportVO) {
+		List<ResearchSummaryPieChart> proposalBySponsorType = new ArrayList<ResearchSummaryPieChart>();
+		proposalBySponsorType = dashboardDao.getSummaryProposalPieChart(reportVO.getPersonId(), null, reportVO.getIsAdmin(), proposalBySponsorType);
+		reportVO.setProposalBySponsorType(proposalBySponsorType);	
 	}
 
 }

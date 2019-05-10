@@ -39,4 +39,12 @@ public interface ReportDao {
 
 	public List<AwardView> fetchAwardByAwardNumbers(List<Integer> awardIds);
 
+	public ReportVO fetchProposalsByPI(ReportVO reportVO);
+
+	public List<Object[]> getReportDataOfProposalsByPIForDownload(String personId, List<Object[]> proposals) throws Exception;
+
+	public List<Proposal> getProposalBySponsorTypes(String personId, List<String> sponsorCodes);
+
+	public List<Object[]> getReportDataOfProposalsBySponsorTypeForDownload(String personId, List<String> sponsorCodes, List<Object[]> proposals) throws Exception;
+
 }

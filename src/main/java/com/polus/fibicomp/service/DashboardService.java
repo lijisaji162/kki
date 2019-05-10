@@ -2,6 +2,7 @@ package com.polus.fibicomp.service;
 
 import java.util.List;
 
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -122,6 +123,8 @@ public interface DashboardService {
 	 * @throws Exception
 	 */
 	public ResponseEntity<byte[]> getResponseEntityForDownload(CommonVO vo, XSSFWorkbook workbook) throws Exception;
+
+	public void prepareExcelSheet(List<Object[]> dashboardData, XSSFSheet sheet, Object[] tableHeadingRow, XSSFWorkbook workbook, CommonVO vo);
 
 	/**
 	 * This method is used to change the existing password.

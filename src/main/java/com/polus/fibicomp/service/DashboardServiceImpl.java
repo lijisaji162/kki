@@ -489,7 +489,8 @@ public class DashboardServiceImpl implements DashboardService {
 		}
 	}
 
-	private void prepareExcelSheet(List<Object[]> dashboardData, XSSFSheet sheet, Object[] tableHeadingRow, XSSFWorkbook workbook, CommonVO vo) {
+	@Override
+	public void prepareExcelSheet(List<Object[]> dashboardData, XSSFSheet sheet, Object[] tableHeadingRow, XSSFWorkbook workbook, CommonVO vo) {
 		int headingCellNumber = 0;
 		String documentHeading = vo.getDocumentHeading();
 		logger.info("documentHeading : " + documentHeading);

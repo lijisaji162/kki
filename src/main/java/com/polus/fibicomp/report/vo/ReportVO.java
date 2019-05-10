@@ -8,6 +8,7 @@ import com.polus.fibicomp.proposal.pojo.Proposal;
 import com.polus.fibicomp.view.AwardView;
 import com.polus.fibicomp.view.ExpenditureByAwardView;
 import com.polus.fibicomp.view.ProtocolView;
+import com.polus.fibicomp.view.ResearchSummaryPieChart;
 
 public class ReportVO {
 
@@ -38,6 +39,14 @@ public class ReportVO {
 	private String awardNumber;
 
 	private List<ExpenditureByAwardView> expenditureList;
+
+	private String rolodexId;
+
+	private List<String> sponsorCodes;
+
+	private List<ResearchSummaryPieChart> proposalBySponsorType;
+
+	private boolean isAdmin;
 
 	public String getReportName() {
 		return reportName;
@@ -149,6 +158,38 @@ public class ReportVO {
 
 	public void setAwardByGrantType(Map<String, List<AwardView>> awardByGrantType) {
 		this.awardByGrantType = awardByGrantType;
+	}
+
+	public String getRolodexId() {
+		return rolodexId;
+	}
+
+	public void setRolodexId(String rolodexId) {
+		this.rolodexId = rolodexId;
+	}
+
+	public List<String> getSponsorCodes() {
+		return sponsorCodes;
+	}
+
+	public void setSponsorCodes(List<String> sponsorCodes) {
+		this.sponsorCodes = sponsorCodes;
+	}
+
+	public List<ResearchSummaryPieChart> getProposalBySponsorType() {
+		return proposalBySponsorType;
+	}
+
+	public void setProposalBySponsorType(List<ResearchSummaryPieChart> proposalBySponsorType) {
+		this.proposalBySponsorType = proposalBySponsorType;
+	}
+
+	public boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 }

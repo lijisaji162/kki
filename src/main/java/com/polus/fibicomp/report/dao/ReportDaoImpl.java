@@ -260,4 +260,115 @@ public class ReportDaoImpl implements ReportDao {
 		return awardList;
 	}
 
+	@Override
+	public ReportVO fetchProposalsByPI(ReportVO reportVO) {
+		logger.info("----------- fetchProposalsByPI ------------");
+		String personId = reportVO.getPersonId();
+		String rolodexId = reportVO.getRolodexId();
+		logger.info("personId : " + personId);
+		logger.info("rolodexId : " + rolodexId);
+		// Conjunction and = Restrictions.conjunction();
+		try {
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Criteria criteria = session.createCriteria(Proposal.class);
+			criteria.createAlias("proposalPersons", "proposalPersons");
+			// criteria.add(Restrictions.conjunction().add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE)).add(Restrictions.eq("proposalPersons.personId", personId)));
+			criteria.add(Restrictions.eq("proposalPersons.personRoleId", Constants.PI_ROLE_CODE));
+			if (personId != null) {
+				criteria.add(Restrictions.eq("proposalPersons.personId", personId));
+			} else {
+				criteria.add(Restrictions.eq("proposalPersons.rolodexId", rolodexId));
+			}			
+			criteria.add(Restrictions.eq("isInactive", false));
+			@SuppressWarnings("unchecked")
+			List<Proposal> proposals = criteria.list();
+			List<Proposal> proposalList = new ArrayList<>();
+			if(proposals!=null && !proposals.isEmpty()) {
+				for(Proposal proposalObject : proposals) {
+					Proposal propObj = new Proposal();
+					propObj.setProposalId(proposalObject.getProposalId());
+					propObj.setTitle(proposalObject.getTitle());
+					propObj.setApplicationActivityType(proposalObject.getActivityType().getDescription());
+					propObj.setApplicationType(proposalObject.getProposalType().getDescription());
+					propObj.setApplicationStatus(proposalObject.getProposalStatus().getDescription());
+					propObj.setSponsorDeadlineDate(proposalObject.getSponsorDeadlineDate());
+					propObj.setProposalPersons(proposalObject.getProposalPersons());
+					propObj.setSponsorName(proposalObject.getSponsorName());
+					propObj.setHomeUnitName(proposalObject.getHomeUnitName());
+					propObj.setSubmitUser(proposalObject.getSubmitUser());
+					if (proposalObject.getBudgetHeader() != null) {
+						propObj.setTotalCost(proposalObject.getBudgetHeader().getTotalCost());
+						propObj.setTotalDirectCost(proposalObject.getBudgetHeader().getTotalDirectCost());
+						propObj.setTotalIndirectCost(proposalObject.getBudgetHeader().getTotalIndirectCost());
+					} else {
+						propObj.setTotalCost(BigDecimal.ZERO);
+						propObj.setTotalDirectCost(BigDecimal.ZERO);
+						propObj.setTotalIndirectCost(BigDecimal.ZERO);
+					}					
+					proposalList.add(propObj);
+				}
+			}
+			reportVO.setProposals(proposalList);
+		} catch (Exception e) {
+			logger.error("Error in method fetchProposalsByPI");
+			e.printStackTrace();
+		}
+		return reportVO;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getReportDataOfProposalsByPIForDownload(String personId, List<Object[]> proposals) throws Exception {
+		try {
+			logger.info("----------- getReportDataOfProposalsByPIForDownload ------------");
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+						"select DISTINCT t1.PROPOSAL_ID, t1.title, t2.FULL_NAME as PI, t3.DESCRIPTION as activity_type, t4.DESCRIPTION AS PROPOSAL_TYPE, T5.DESCRIPTION AS STATUS, T6.SPONSOR_NAME AS SPONSOR, t1.SPONSOR_DEADLINE_DATE, T7.TOTAL_DIRECT_COST, T7.TOTAL_INDIRECT_COST, T7.TOTAL_COST from fibi_proposal t1 inner join fibi_proposal_persons t2 on t1.PROPOSAL_ID = t2.PROPOSAL_ID and t2.PROP_PERSON_ROLE_ID = 3 left outer join activity_type t3 on t1.ACTIVITY_TYPE_CODE = t3.ACTIVITY_TYPE_CODE left outer join fibi_proposal_type t4 on t1.TYPE_CODE = t4.TYPE_CODE LEFT OUTER JOIN FIBI_PROPOSAL_STATUS T5 ON T1.STATUS_CODE = T5.STATUS_CODE LEFT OUTER JOIN SPONSOR T6 ON T1.SPONSOR_CODE =T6.SPONSOR_CODE LEFT OUTER JOIN FIBI_BUDGET_HEADER T7 ON T1.BUDGET_HEADER_ID = T7.BUDGET_HEADER_ID where t2.PERSON_ID = :personId or t2.ROLODEX_ID = :personId AND T1.is_inactive = 'N'");			
+			proposalList.setString("personId", personId);
+			proposals = proposalList.list();
+			logger.info("Proposals By PI : " + proposals);
+		} catch (Exception e) {
+			logger.error("Error in method getReportDataOfProposalsByPIForDownload");
+			e.printStackTrace();
+		}
+		return proposals;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Proposal> getProposalBySponsorTypes(String personId, List<String> sponsorCodes) {
+		List<Proposal> proposalBySponsorTypes = new ArrayList<Proposal>();
+		try {
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t2.sponsor_name, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SPONSOR_DEADLINE_DATE, t5.DESCRIPTION as sponsor_type FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE left outer join sponsor_type t5 on t2.SPONSOR_TYPE_CODE = t5.SPONSOR_TYPE_CODE WHERE t2.sponsor_type_code in (:sponsorCodes) AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId) AND T1.is_inactive = 'N' ORDER BY t5.DESCRIPTION");		
+			proposalList.setString("personId", personId);
+			proposalList.setParameterList("sponsorCodes", sponsorCodes);
+			proposalBySponsorTypes = proposalList.list();
+			logger.info("proposalsBySponsorTypes : " + proposalBySponsorTypes);
+		} catch (Exception e) {
+			logger.error("Error in method getProposalBySponsorTypes");
+			e.printStackTrace();
+		}
+		return proposalBySponsorTypes;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> getReportDataOfProposalsBySponsorTypeForDownload(String personId, List<String> sponsorCodes, List<Object[]> proposals) throws Exception {
+		try {
+			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
+			Query proposalList = session.createSQLQuery(
+						"select t1.proposal_id, t1.title, t2.sponsor_name, t5.DESCRIPTION as sponsor_type, t4.DESCRIPTION as Proposal_Type, t3.full_name AS PI, t1.SPONSOR_DEADLINE_DATE FROM fibi_proposal t1 INNER JOIN sponsor t2 ON t1.sponsor_code = t2.sponsor_code LEFT OUTER JOIN fibi_proposal_persons t3 ON t1.proposal_id = t3.proposal_id AND t3.prop_person_role_id = 3 INNER JOIN fibi_proposal_type t4 ON t1.TYPE_CODE=t4.TYPE_CODE left outer join sponsor_type t5 on t2.SPONSOR_TYPE_CODE = t5.SPONSOR_TYPE_CODE WHERE t2.sponsor_type_code in (:sponsorCodes) AND t1.HOME_UNIT_NUMBER IN(SELECT DISTINCT unit_number FROM mitkc_user_right_mv WHERE perm_nm = 'View Proposal' AND person_id = :personId) AND T1.is_inactive = 'N' ORDER BY t5.DESCRIPTION");		
+			proposalList.setString("personId", personId);
+			proposalList.setParameterList("sponsorCodes", sponsorCodes);
+			proposals = proposalList.list();
+			logger.info("proposalsBySponsorTypes : " + proposals);
+		} catch (Exception e) {
+			logger.error("Error in method getProposalBySponsorTypes");
+			e.printStackTrace();
+		}
+		return proposals;
+	}
+
 }

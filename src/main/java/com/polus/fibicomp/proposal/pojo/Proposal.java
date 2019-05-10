@@ -1,6 +1,7 @@
 package com.polus.fibicomp.proposal.pojo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -216,6 +217,19 @@ public class Proposal implements Serializable {
 	@Convert(converter = JpaCharBooleanConversion.class)
 	private Boolean isInactive = false;
 
+	@Column(name = "IS_FOREIGN_ACTIVITIES")
+	@Convert(converter = JpaCharBooleanConversion.class)
+	private Boolean isForeignActivities = false;
+
+	@Transient
+	private BigDecimal totalCost;
+
+	@Transient
+	private BigDecimal totalDirectCost;
+
+	@Transient
+	private BigDecimal totalIndirectCost;
+	
 	public Proposal() {
 		proposalAttachments = new ArrayList<ProposalAttachment>();
 		proposalKeywords = new ArrayList<ProposalKeyword>();
@@ -655,6 +669,38 @@ public class Proposal implements Serializable {
 
 	public void setIsInactive(Boolean isInactive) {
 		this.isInactive = isInactive;
+	}
+
+	public Boolean getIsForeignActivities() {
+		return isForeignActivities;
+	}
+
+	public void setIsForeignActivities(Boolean isForeignActivities) {
+		this.isForeignActivities = isForeignActivities;
+	}
+
+	public BigDecimal getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(BigDecimal totalCost) {
+		this.totalCost = totalCost;
+	}
+
+	public BigDecimal getTotalDirectCost() {
+		return totalDirectCost;
+	}
+
+	public void setTotalDirectCost(BigDecimal totalDirectCost) {
+		this.totalDirectCost = totalDirectCost;
+	}
+
+	public BigDecimal getTotalIndirectCost() {
+		return totalIndirectCost;
+	}
+
+	public void setTotalIndirectCost(BigDecimal totalIndirectCost) {
+		this.totalIndirectCost = totalIndirectCost;
 	}
 
 }

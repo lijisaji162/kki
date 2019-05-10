@@ -124,6 +124,8 @@ public class CommonVO {
 
 	private String oldPasswordErrorMessage;
 
+	private List<String> sponsorCodes;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -570,6 +572,14 @@ public class CommonVO {
 
 	public void setOldPasswordErrorMessage(String oldPasswordErrorMessage) {
 		this.oldPasswordErrorMessage = oldPasswordErrorMessage;
+	}
+
+	public List<String> getSponsorCodes() {
+		return sponsorCodes;
+	}
+
+	public void setSponsorCodes(List<String> sponsorCodes) {
+		this.sponsorCodes = sponsorCodes;
 	}
 
 }
