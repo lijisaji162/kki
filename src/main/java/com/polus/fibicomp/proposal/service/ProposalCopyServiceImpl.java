@@ -170,6 +170,7 @@ public class ProposalCopyServiceImpl implements ProposalCopyService {
 		copyProposal.setUpdateTimeStamp(committeeDao.getCurrentTimestamp());
 		copyProposal.setIsSubcontract(originalProposal.getIsSubcontract());
 		copyProposal.setIsDomesticSite(originalProposal.getIsDomesticSite());
+		copyProposal.setIsForeignActivities(originalProposal.getIsForeignActivities());
 		copyProposal.setIsMultisiteStudy(originalProposal.getIsMultisiteStudy());
 		if (originalProposal.getProposalAttachments() != null && !originalProposal.getProposalAttachments().isEmpty()) {
 			copyProposal.setProposalAttachments(copyProposalAttachments(copyProposal, originalProposal, updateUser));
