@@ -40,7 +40,7 @@ public class ReportVO {
 
 	private List<ExpenditureByAwardView> expenditureList;
 
-	private String rolodexId;
+	private Integer rolodexId;
 
 	private List<String> sponsorCodes;
 
@@ -160,14 +160,6 @@ public class ReportVO {
 		this.awardByGrantType = awardByGrantType;
 	}
 
-	public String getRolodexId() {
-		return rolodexId;
-	}
-
-	public void setRolodexId(String rolodexId) {
-		this.rolodexId = rolodexId;
-	}
-
 	public List<String> getSponsorCodes() {
 		return sponsorCodes;
 	}
@@ -190,6 +182,14 @@ public class ReportVO {
 
 	public void setIsAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public Integer getRolodexId() {
+		return rolodexId;
+	}
+
+	public void setRolodexId(Integer rolodexId) {
+		this.rolodexId = rolodexId;
 	}
 
 }

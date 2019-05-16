@@ -264,7 +264,7 @@ public class ReportDaoImpl implements ReportDao {
 	public ReportVO fetchProposalsByPI(ReportVO reportVO) {
 		logger.info("----------- fetchProposalsByPI ------------");
 		String personId = reportVO.getPersonId();
-		String rolodexId = reportVO.getRolodexId();
+		Integer rolodexId = reportVO.getRolodexId();
 		logger.info("personId : " + personId);
 		logger.info("rolodexId : " + rolodexId);
 		// Conjunction and = Restrictions.conjunction();
@@ -323,7 +323,7 @@ public class ReportDaoImpl implements ReportDao {
 			logger.info("----------- getReportDataOfProposalsByPIForDownload ------------");
 			Session session = hibernateTemplate.getSessionFactory().getCurrentSession();
 			Query proposalList = session.createSQLQuery(
-						"select DISTINCT t1.PROPOSAL_ID, t1.title, t2.FULL_NAME as PI, t3.DESCRIPTION as activity_type, t4.DESCRIPTION AS PROPOSAL_TYPE, T5.DESCRIPTION AS STATUS, T6.SPONSOR_NAME AS SPONSOR, t1.SPONSOR_DEADLINE_DATE, T7.TOTAL_DIRECT_COST, T7.TOTAL_INDIRECT_COST, T7.TOTAL_COST from fibi_proposal t1 inner join fibi_proposal_persons t2 on t1.PROPOSAL_ID = t2.PROPOSAL_ID and t2.PROP_PERSON_ROLE_ID = 3 left outer join activity_type t3 on t1.ACTIVITY_TYPE_CODE = t3.ACTIVITY_TYPE_CODE left outer join fibi_proposal_type t4 on t1.TYPE_CODE = t4.TYPE_CODE LEFT OUTER JOIN FIBI_PROPOSAL_STATUS T5 ON T1.STATUS_CODE = T5.STATUS_CODE LEFT OUTER JOIN SPONSOR T6 ON T1.SPONSOR_CODE =T6.SPONSOR_CODE LEFT OUTER JOIN FIBI_BUDGET_HEADER T7 ON T1.BUDGET_HEADER_ID = T7.BUDGET_HEADER_ID where t2.PERSON_ID = :personId or t2.ROLODEX_ID = :personId AND T1.is_inactive = 'N'");			
+						"select DISTINCT t1.PROPOSAL_ID, t1.title, t3.DESCRIPTION as activity_type, t4.DESCRIPTION AS PROPOSAL_TYPE, T5.DESCRIPTION AS STATUS, T6.SPONSOR_NAME AS SPONSOR, t1.SPONSOR_DEADLINE_DATE, T7.TOTAL_DIRECT_COST, T7.TOTAL_INDIRECT_COST, T7.TOTAL_COST from fibi_proposal t1 inner join fibi_proposal_persons t2 on t1.PROPOSAL_ID = t2.PROPOSAL_ID and t2.PROP_PERSON_ROLE_ID = 3 left outer join activity_type t3 on t1.ACTIVITY_TYPE_CODE = t3.ACTIVITY_TYPE_CODE left outer join fibi_proposal_type t4 on t1.TYPE_CODE = t4.TYPE_CODE LEFT OUTER JOIN FIBI_PROPOSAL_STATUS T5 ON T1.STATUS_CODE = T5.STATUS_CODE LEFT OUTER JOIN SPONSOR T6 ON T1.SPONSOR_CODE =T6.SPONSOR_CODE LEFT OUTER JOIN FIBI_BUDGET_HEADER T7 ON T1.BUDGET_HEADER_ID = T7.BUDGET_HEADER_ID where t2.PERSON_ID = :personId or t2.ROLODEX_ID = :personId AND T1.is_inactive = 'N'");			
 			proposalList.setString("personId", personId);
 			proposals = proposalList.list();
 			logger.info("Proposals By PI : " + proposals);
