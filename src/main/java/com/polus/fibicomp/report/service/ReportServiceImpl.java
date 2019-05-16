@@ -154,7 +154,7 @@ public class ReportServiceImpl implements ReportService {
 			if (reportType.equals("Proposals by PI")) {
 				reportData = reportDao.getReportDataOfProposalsByPIForDownload(personId, reportData);
 				XSSFSheet sheet = workbook.createSheet("Proposals by PI");
-				Object[] tableHeadingRow = {"Proposal#", "Title", "PI", "Category", "Proposal Type", "Status", "Sponsor", "Sponsor Deadline", "Direct Cost", "Indirect Cost", "Total Cost"};
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Category", "Proposal Type", "Status", "Sponsor", "Sponsor Deadline", "Direct Cost", "Indirect Cost", "Total Cost"};
 				dashboardService.prepareExcelSheet(reportData, sheet, tableHeadingRow, workbook, vo);
 			} else if (reportType.equals("Proposals by Sponsor Type")) {
 				reportData = reportDao.getReportDataOfProposalsBySponsorTypeForDownload(personId, sponsorCodes, reportData);
