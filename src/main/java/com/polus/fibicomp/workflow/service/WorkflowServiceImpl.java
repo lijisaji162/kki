@@ -3,6 +3,7 @@ package com.polus.fibicomp.workflow.service;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.polus.fibicomp.committee.dao.CommitteeDao;
+import com.polus.fibicomp.common.dao.CommonDao;
 import com.polus.fibicomp.constants.Constants;
 import com.polus.fibicomp.email.service.FibiEmailService;
 import com.polus.fibicomp.view.PersonDetailsView;
@@ -45,6 +47,9 @@ public class WorkflowServiceImpl implements WorkflowService {
 
 	@Autowired
 	private FibiEmailService fibiEmailService;
+
+	@Autowired
+	private CommonDao commonDao;
 
 	@Override
 	public Workflow createWorkflow(Integer moduleItemId, String userName, Integer statusCode, String sponsorTypeCode, String subject, String message) {
@@ -188,7 +193,21 @@ public class WorkflowServiceImpl implements WorkflowService {
 		}
 		workflow.getWorkflowDetails().add(superUserWorkflowDetail);
 		superUserWorkflowDetail = workflowDao.saveWorkflowDetail(superUserWorkflowDetail);
-		fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
+		if (superUserWorkflowDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)
+				&& superUserWorkflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
+			Set<String> ccAddresses = new HashSet<String>();
+			String firstStopRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FIRST_STOP_APPROVAL_NOTIFICATION_RECIPIENT);
+			if (firstStopRecipients != null && !firstStopRecipients.isEmpty()) {
+				List<String> recipients = Arrays.asList(firstStopRecipients.split(","));
+					for (String recipient : recipients) {
+					ccAddresses.add(recipient);
+				}
+			}
+			logger.info("ccAddresses : " + ccAddresses);
+			fibiEmailService.sendEmail(toAddresses, subject, ccAddresses, null, message, true);
+		} else {
+			fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
+		}
 		return superUserWorkflowDetail;
 	}
 	
@@ -238,7 +257,22 @@ public class WorkflowServiceImpl implements WorkflowService {
 			}
 		}
 		workflowDetail = workflowDao.saveWorkflowDetail(workflowDetail);
-		fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
+		if (workflowDetail.getApprovalStopNumber().equals(Constants.WORKFLOW_FIRST_STOP_NUMBER)
+				&& workflowDetail.getApprovalStatusCode().equals(Constants.WORKFLOW_STATUS_CODE_APPROVED)) {
+			Set<String> ccAddresses = new HashSet<String>();
+			String firstStopRecipients = commonDao.getParameterValueAsString(Constants.KC_GENERIC_PARAMETER_NAMESPACE, Constants.KC_ALL_PARAMETER_DETAIL_TYPE_CODE, Constants.FIRST_STOP_APPROVAL_NOTIFICATION_RECIPIENT);
+			if (firstStopRecipients != null && !firstStopRecipients.isEmpty()) {
+				List<String> recipients = Arrays.asList(firstStopRecipients.split(","));
+					for (String recipient : recipients) {
+					ccAddresses.add(recipient);
+				}
+			}
+			logger.info("ccAddresses : " + ccAddresses);
+			fibiEmailService.sendEmail(toAddresses, subject, ccAddresses, null, message, true);
+		} else {
+			fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
+		}
+		//fibiEmailService.sendEmail(toAddresses, subject, null, null, message, true);
 		return workflowDetail;
 	}
 

@@ -73,7 +73,7 @@ public class DashboardServiceImpl implements DashboardService {
 
 	@Override
 	public String getDashBoardResearchSummary(CommonVO vo) throws Exception {
-		return dashboardDao.getDashBoardResearchSummary(vo.getPersonId(), vo.getUnitNumber(), vo.getIsAdmin(), vo.getUserName());
+		return dashboardDao.getDashBoardResearchSummary(vo.getPersonId(), vo.getUnitNumber(), vo.getIsAdmin(), vo.getUserName(), vo.getIsSuperUser());
 	}
 
 	@Override
@@ -192,17 +192,22 @@ public class DashboardServiceImpl implements DashboardService {
 		boolean isAdmin = vo.getIsAdmin();
 		String unitNumber = vo.getUnitNumber();
 		String userName = vo.getUserName();
+		Boolean isSuperUser = vo.getIsSuperUser();
 		logger.info("personId :"+ personId);
 		logger.info("researchSummaryIndex :"+ researchSummaryIndex);
 		logger.info("isAdmin :"+ isAdmin);
 		logger.info("unitNumber :"+ unitNumber);
+		logger.info("isSuperUser :"+ isSuperUser);
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName, isSuperUser);
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName, isSuperUser);
+			}
+			if (researchSummaryIndex.equals("APPROVALINPROGRESS")) {
+				dashBoardProfile = dashboardDao.getApprovalInProposals(personId, isAdmin, unitNumber, userName, isSuperUser);
 			}
 			if (researchSummaryIndex.equals("AWARDSACTIVE")) {
 				dashBoardProfile = dashboardDao.getActiveAwards(personId, isAdmin, unitNumber);
@@ -317,18 +322,19 @@ public class DashboardServiceImpl implements DashboardService {
 		boolean isAdmin = false;
 		String unitNumber = "";
 		String userName = "";
+		Boolean isSuperUser = true;
 		DashBoardProfile dashBoardProfile = new DashBoardProfile();
 		MobileProfile mobileProfile = new MobileProfile();
 		mobileProfile.setStatus(false);
 		mobileProfile.setMessage("Error fetching research summary");
 		try {
 			if (researchSummaryIndex.equals("PROPOSALSINPROGRESS")) {
-				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName);
+				dashBoardProfile = dashboardDao.getProposalsInProgress(personId, isAdmin, unitNumber, userName, isSuperUser);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}
 			if (researchSummaryIndex.equals("PROPOSALSSUBMITTED")) {
-				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName);
+				dashBoardProfile = dashboardDao.getSubmittedProposals(personId, isAdmin, unitNumber, userName, isSuperUser);
 				mobileProfile.setStatus(true);
 				mobileProfile.setMessage("Research summary details fetched successfully");
 			}
@@ -635,24 +641,32 @@ public class DashboardServiceImpl implements DashboardService {
 		boolean isAdmin = vo.getIsAdmin();
 		String unitNumber = vo.getUnitNumber();
 		String userName = vo.getUserName();
+		Boolean isSuperUser = vo.getIsSuperUser();
 		logger.info("personId : " + personId);
 		logger.info("dashboardIndex : " + dashboardIndex);
 		logger.info("sponsorCode : " + sponsorCode);
 		logger.info("isAdmin : " + isAdmin);
 		logger.info("unitNumber : " + unitNumber);
+		logger.info("isSuperUser : " + isSuperUser);
 		List<Object[]> dashboardData = new ArrayList<Object[]>();
 		try {
 			if (dashboardIndex.equals("PROPOSALSINPROGRESS")) {
-				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName);
+				dashboardData = dashboardDao.getInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName, isSuperUser);
 				XSSFSheet sheet = workbook.createSheet("In Progress Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
 			} else if (dashboardIndex.equals("PROPOSALSSUBMITTED")) {
-				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName);
+				dashboardData = dashboardDao.getSubmittedProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName, isSuperUser);
 				XSSFSheet sheet = workbook.createSheet("Submitted Proposals");
 				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
 				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
-			} else if (dashboardIndex.equals("AWARDSACTIVE")) {
+			} else if (dashboardIndex.equals("APPROVALINPROGRESS")) {
+				dashboardData = dashboardDao.getApprovalInprogressProposalsForDownload(personId, dashboardData, unitNumber, isAdmin, userName, isSuperUser);
+				XSSFSheet sheet = workbook.createSheet("Approval Inprogress Proposals");
+				Object[] tableHeadingRow = {"Proposal#", "Title", "Sponsor", "Budget", "PI", "Sponsor Deadline"};
+				prepareExcelSheet(dashboardData, sheet, tableHeadingRow, workbook, vo);
+			}
+			else if (dashboardIndex.equals("AWARDSACTIVE")) {
 				dashboardData = dashboardDao.getActiveAwardsForDownload(personId, dashboardData, unitNumber, isAdmin);
 				XSSFSheet sheet = workbook.createSheet("Active Awards");
 				Object[] tableHeadingRow = {"Award#", "Account", "Title", "Sponsor", "PI", "Budget"};

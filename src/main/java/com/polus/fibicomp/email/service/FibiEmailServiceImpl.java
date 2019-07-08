@@ -146,11 +146,11 @@ public class FibiEmailServiceImpl implements FibiEmailService {
 		}
 		if (CollectionUtils.isNotEmpty(ccAddresses)) {
 			testEmailBody.append("CC: ");
-			testEmailBody.append(toAddresses);
+			testEmailBody.append(ccAddresses);
 		}
 		if (CollectionUtils.isNotEmpty(bccAddresses)) {
 			testEmailBody.append("BCC: ");
-			testEmailBody.append(toAddresses);
+			testEmailBody.append(bccAddresses);
 		}
 		testEmailBody.append("<br/>-----------------------------------------------------------");
 		return testEmailBody.toString() + "<br/>" + body;

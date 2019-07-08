@@ -31,7 +31,7 @@ public interface DashboardDao {
 	 *         table.
 	 * @throws Exception
 	 */
-	public String getDashBoardResearchSummary(String personId, String unitNumber, boolean isAdmin, String userName) throws Exception;
+	public String getDashBoardResearchSummary(String personId, String unitNumber, boolean isAdmin, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to get list of awards.
@@ -121,7 +121,7 @@ public interface DashboardDao {
 	 * @return A list of Proposals in progress.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getProposalsInProgress(String personId, boolean isAdmin, String unitNumber, String userName) throws Exception;
+	public DashBoardProfile getProposalsInProgress(String personId, boolean isAdmin, String unitNumber, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of submitted proposals.
@@ -131,7 +131,7 @@ public interface DashboardDao {
 	 * @return A list of Submitted proposals.
 	 * @throws Exception 
 	 */
-	public DashBoardProfile getSubmittedProposals(String personId, boolean isAdmin, String unitNumber, String userName) throws Exception;
+	public DashBoardProfile getSubmittedProposals(String personId, boolean isAdmin, String unitNumber, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to retrieve list of active awards.
@@ -142,6 +142,8 @@ public interface DashboardDao {
 	 * @throws Exception 
 	 */
 	public DashBoardProfile getActiveAwards(String personId, boolean isAdmin, String unitNumber) throws Exception;
+
+	public DashBoardProfile getApprovalInProposals(String personId, boolean isAdmin, String unitNumber, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to retrieve inProgress proposal data by sponsor in donutChart.
@@ -170,7 +172,7 @@ public interface DashboardDao {
 	 * @param summaryTable
 	 * @return List of Research Summary View
 	 */
-	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, String userName, List<ResearchSummaryView> summaryTable);
+	public List<ResearchSummaryView> getSummaryTable(String person_id, String unitNumber, boolean isAdmin, String userName, Boolean isSuperUser, List<ResearchSummaryView> summaryTable);
 
 	/**
 	 * @param personId
@@ -240,7 +242,7 @@ public interface DashboardDao {
 	 * @return A list of inprogress proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName) throws Exception;
+	public List<Object[]> getInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to get list of submitted proposals.
@@ -252,7 +254,9 @@ public interface DashboardDao {
 	 * @return A list of submitted proposals.
 	 * @throws Exception
 	 */
-	public List<Object[]> getSubmittedProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName) throws Exception;
+	public List<Object[]> getSubmittedProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName, Boolean isSuperUser) throws Exception;
+
+	public List<Object[]> getApprovalInprogressProposalsForDownload(String personId, List<Object[]> proposals, String unitNumber, boolean isAdmin, String userName, Boolean isSuperUser) throws Exception;
 
 	/**
 	 * This method is used to get list of active awards.
